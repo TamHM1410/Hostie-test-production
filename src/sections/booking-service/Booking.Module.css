@@ -1,0 +1,185 @@
+.booking-dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px dashed #ccc;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #f8f8f8;
+  z-index: 1;
+}
+
+.month-select {
+  width: 100%;
+}
+
+.villa-name {
+  padding: 10px;
+  font-weight: bold;
+}
+
+.villa-name-cell {
+  cursor: pointer;
+  min-width: 200px;
+  padding: 20px;
+  position: sticky;
+  left: 0;
+  z-index: 99;
+}
+
+.day-header {
+  font-weight: bold;
+  min-width: 100px;
+  font-size: 14px;
+  padding: 0;
+}
+.corner-number {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 5px;
+  font-size: 12px;
+  z-index: 12;
+}
+.weekend-text {
+  color: 'black';
+}
+.weekend-header {
+  background-color: #f2f2f2;
+  color: red;
+}
+
+.booked {
+  background-color: lightgray;
+}
+
+.waiting-down-payment {
+  background-color: yellow;
+}
+
+.avatar {
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Maintain aspect ratio */
+  border-radius: 50%; /* Make it circular */
+  position: absolute; /* Positioning */
+  top: -10px; /* Adjust based on your design */
+  left: -3px; /* Adjust based on your design */
+}
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+.rectangle {
+  position: absolute; /* Use absolute positioning for rectangles */
+  height: 25px; /* Adjust height as needed */
+  background-color: #6799f0; /* Default background color */
+  top: 50%; /* Start at the middle of the cell */
+  transform: translateY(-50%); /* Shift it back by half its width to center it */
+}
+.seller-name {
+  position: absolute;
+  top: 50%; /* Start at the middle of the cell */
+  transform: translateY(-50%); /* Shift it back by half its width to center it */
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px; /* Adjust font size as needed */
+  color: white;
+}
+.start-point {
+  width: 48%; /* Half the width of the cell */
+  bottom: 0; /* Position at the bottom of the cell */
+  right: 0;
+  border-bottom-left-radius: 10px; /* Adjust the radius as needed */
+  border-top-left-radius: 10px; /* Adjust the radius as needed */
+}
+
+.middle-point {
+  width: 100%; /* Full width of the cell */
+  bottom: 0; /* Position at the bottom of the cell */
+  right: 0;
+}
+
+.end-point {
+  width: 48%; /* Half the width of the cell */
+  left: 0;
+  bottom: 0; /* Position at the bottom of the cell */
+  border-bottom-right-radius: 10px; /* Adjust the radius as needed */
+  border-top-right-radius: 10px; /* Adjust the radius as needed */
+}
+
+.day-cell {
+  position: relative; /* Set relative positioning to contain the rectangles */
+  padding: 10px; /* Add padding if necessary */
+  min-width: 150px;
+}
+.selected {
+  background-color: rgba(173, 216, 230, 0.5); /* Màu xanh dương nhạt với độ trong suốt 50% */
+  position: absolute; /* Đặt vị trí tuyệt đối */
+  top: 0; /* Đảm bảo nó phủ kín phần tử cha */
+  left: 0; /* Đảm bảo nó phủ kín phần tử cha */
+  right: 0; /* Đảm bảo nó phủ kín phần tử cha */
+  bottom: 0; /* Đảm bảo nó phủ kín phần tử cha */
+  z-index: 10; /* Giá trị z-index cao hơn để nằm trên các phần tử khác */
+}
+
+.host-accepted {
+  position: relative; /* Đặt vị trí tương đối */
+  z-index: 4; /* Giá trị z-index thấp hơn */
+}
+
+.booked {
+  position: relative; /* Đặt vị trí tương đối */
+  z-index: 3; /* Giá trị z-index thấp hơn */
+}
+
+.highlighted {
+  /* You can also add other styles for better visibility */
+}
+.normal {
+  background-color: initial; /* or whatever your default background should be */
+}
+::-webkit-scrollbar {
+  width: 8px; /* Chiều rộng của thanh cuộn */
+  height: 8px; /* Chiều cao của thanh cuộn ngang */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Màu nền của thanh cuộn */
+  border-radius: 10px; /* Góc bo của thanh cuộn */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Màu của thanh cuộn khi không hover */
+  border-radius: 10px; /* Góc bo của phần kéo */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Màu của thanh cuộn khi hover */
+}
+
+/* Áp dụng thêm để thanh cuộn nằm tròn */
+html,
+body {
+  scroll-behavior: smooth; /* Hiệu ứng cuộn mượt */
+}

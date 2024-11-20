@@ -1,0 +1,95 @@
+'use client';
+
+//  @hook
+
+import {useQueries } from '@tanstack/react-query';
+
+//  @mui
+import { Box ,Grid} from '@mui/material';
+
+//  @component
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { SplashScreen ,LoadingScreen} from 'src/components/loading-screen';
+// import { getAllRolesApi } from 'src/api/users';
+import { getCurrenPackage,getSuggestPackage } from 'src/api/pagekages';
+import PurchaseHistory from './package-purchase-history-view';
+
+import CurrentPackage from './current-package';
+import SuggestPackage from './suggest-package';
+//  @api
+
+export default function YourPackageView() {
+
+    const results = useQueries({
+        queries: [
+          { queryKey: ['currentPackage'], queryFn:async ()=>{
+            const rs= await getCurrenPackage()
+            return rs
+          } },
+          { queryKey: ['suggestPackage'], queryFn:async ()=>{
+            const rs= await getSuggestPackage()
+            console.log(rs,'rs')
+
+          
+            return rs
+          } },
+        ],
+        combine: (results) => {
+            return {
+              data: results.map((result) => result.data),
+              pending: results.some((result) => result.isPending),
+            }
+          },
+        
+      })
+
+
+  if(results.pending) return <LoadingScreen/>
+
+
+
+
+
+
+  return (
+    <Box>
+      <CustomBreadcrumbs
+        heading="Gói"
+        links={[{ name: '' }]}
+        sx={{
+          mb: { xs: 3, md: 5 },
+          px:5
+        }}
+      />
+      <Box sx={{ px: 5 }}>
+      <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
+      <Box sx={{px:5,pt:15}}>
+      <Box sx={{ bgcolor: '#2468cd', color: 'white', p: 2, textAlign: 'center' ,borderRadius:2 }}>
+         {results && Array.isArray(results.data) && results.data.length >0 && results.data[0]?.packageInfo &&
+          <CurrentPackage  card={ results.data[0]?.packageInfo}/> }
+        </Box>
+      </Box>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Box >
+        {results && Array.isArray(results.data) && results.data.length >0 && results.data[1] &&  <SuggestPackage data={results.data[1]}/>} 
+        </Box>
+      </Grid>
+    </Grid>
+      </Box>
+
+      <CustomBreadcrumbs
+        heading="Lịch sử mua gói của bạn"
+        links={[{ name: '' }]}
+        sx={{
+          pt:5,
+          px:5
+        }}
+      />
+      <Box sx={{ py: 5, px: 5 }}>
+        <PurchaseHistory/>
+      </Box>
+    </Box>
+  );
+}

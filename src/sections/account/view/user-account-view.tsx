@@ -1,0 +1,121 @@
+'use client';
+
+// @hook
+import { useState, useCallback ,useEffect} from 'react';
+import { useQuery ,useQueries} from '@tanstack/react-query';
+
+import { getUserInfor } from 'src/api/users';
+
+// @mui
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Container from '@mui/material/Container';
+// routes
+import { paths } from 'src/routes/paths';
+// _mock
+import { _userAbout } from 'src/_mock';
+// components
+import Iconify from 'src/components/iconify';
+import { useSettingsContext } from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { LoadingScreen } from 'src/components/loading-screen';
+//
+import { useCurrentUser } from 'src/zustand/store';
+
+import { getBankList } from 'src/api/bank';
+
+import AccountGeneral from '../account-general';
+import AccountSocialLinks from '../account-social-links';
+// ----------------------------------------------------------------------
+
+const TABS = [
+  {
+    value: 'general',
+    label: 'Chung',
+    icon: <Iconify icon="solar:user-id-bold" width={24} />,
+  },
+
+  {
+    value: 'social',
+    label: 'Mạng xã hội',
+    icon: <Iconify icon="solar:share-bold" width={24} />,
+  },
+];
+
+// ----------------------------------------------------------------------
+
+export default function AccountView() {
+  const settings = useSettingsContext();
+
+  const { updateUserSelected } = useCurrentUser();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['userInfo'],
+    queryFn: async () => {
+      const res = await getUserInfor();
+      await updateUserSelected(res);
+      return res;
+    },
+  });
+
+  const result=useQueries({
+    queries:[{
+      queryKey:['userTest'],
+      queryFn: ()=>getUserInfor()
+    },{
+      queryKey:['bankList'],
+      queryFn:()=>getBankList()
+    }],
+    combine: (results) => {
+      return {
+        data: results.map((result) => result.data),
+        pending: results.some((result) => result.isPending),
+      }
+    },
+  })
+
+  const [currentTab, setCurrentTab] = useState('general');
+
+  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
+    setCurrentTab(newValue);
+  }, []);
+
+  if (result?.pending) {
+    return <LoadingScreen />;
+  }
+
+
+  return (
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <CustomBreadcrumbs
+        heading="Tài khoản"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Người dùng', href: paths.dashboard.user.root },
+          // { name: 'Account' },
+        ]}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
+
+      <Tabs
+        value={currentTab}
+        onChange={handleChangeTab}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        {TABS.map((tab) => (
+          <Tab key={tab.value} label={tab.label} icon={tab.icon} value={tab.value} />
+        ))}
+      </Tabs>
+
+      {currentTab === 'general' && <AccountGeneral userData={result?.data[0]} bankName={result?.data[1]} />}
+
+      {currentTab === 'social' && <AccountSocialLinks socialLinks={_userAbout.socialLinks}  socials={result?.data[0]?.socials} />}
+
+      {/* {currentTab === 'security' && <AccountChangePassword />} */}
+    </Container>
+  );
+}
