@@ -121,7 +121,7 @@ export default function CheckoutPayment({ price, id, discount, step }: any) {
         router.push(result?.paymentUrl);
       }
       if (type === 'normal') {
-        const result: any = await registerPackageApi(payload);
+        const result: any = await registerPackageApi(payload.packageId);
         router.push(result?.paymentUrl);
       }
     } catch (error) {
