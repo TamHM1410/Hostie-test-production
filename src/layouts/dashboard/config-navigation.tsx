@@ -158,6 +158,26 @@ export function useNavData() {
     ],
     [t]
   );
+  const userNav = useMemo(
+    () => [
+      // OVERVIEW
+      // ----------------------------------------------------------------------
+      {
+        subheader: "Tổng quan",
+        items: [
+
+          
+
+          {
+            title: 'Tài khoản',
+            path: '/dashboard/user/account',
+            icon: ICONS.user,
+          },
+        ],
+      },
+    ],
+    [t]
+  );
   const hostNav = useMemo(
     () => [
       // OVERVIEW
@@ -339,8 +359,7 @@ export function useNavData() {
       return seller;
     case 'HOST':
       return hostNav;
-    case 'USER':
-      router.push('/pricing');
+    case 'USER': return userNav
       break;
 
     default:
