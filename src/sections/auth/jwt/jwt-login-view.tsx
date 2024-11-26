@@ -151,8 +151,9 @@ export default function JwtLoginView() {
   );
   useEffect(()=>{
     if (session) {
-      router.push('/dashboard');
+      router.push('/');
     }
+   
 
   },[session])
  

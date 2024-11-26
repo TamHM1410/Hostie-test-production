@@ -117,6 +117,7 @@ export default function OverviewAppView() {
   const handleScroll = () => {
     myRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
+  
   if(userCurrentRole==='USER'){
     router.push('/pricing')
   }
