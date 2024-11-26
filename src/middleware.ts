@@ -7,5 +7,5 @@ export default withAuth({
   });
 
   export const config = {
-    matcher: ["/dashboard","/logout","/dashboard/user/account","/pricing"], // Protect the /protected route
+    matcher: ["/dashboard","/logout","/dashboard/user/account","/pricing","pricing/checkout"], // Protect the /protected route
   };
