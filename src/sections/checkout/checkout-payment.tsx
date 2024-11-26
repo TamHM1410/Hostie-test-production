@@ -108,7 +108,7 @@ export default function CheckoutPayment({ price, id, discount, step }: any) {
     try {
       const payload = {
         userId: session?.user?.id,
-        packageId: id,
+        packageId: currentId,
       };
 
       if (type === 'extend') {
@@ -121,7 +121,7 @@ export default function CheckoutPayment({ price, id, discount, step }: any) {
         router.push(result?.paymentUrl);
       }
       if (type === 'normal') {
-        const result: any = await registerPackageApi(payload.packageId);
+        const result: any = await registerPackageApi(payload);
         router.push(result?.paymentUrl);
       }
     } catch (error) {
