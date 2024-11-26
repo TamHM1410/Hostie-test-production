@@ -24,6 +24,7 @@ import {
     Tabs,
     Tab,
     Box,
+    Chip,
 } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
@@ -38,8 +39,10 @@ import UpdateStep0 from './update-service/UpdateStep0';
 import UpdateStep1 from './update-service/UpdateStep1';
 import UpdateStep2 from './update-service/UpdateStep2';
 import UpdateStep5 from './update-service/UpdateStep5';
+import { useResidenceBlockContext } from 'src/auth/context/manage-block-residence-context/ManageBlockResidenceContext';
+import { BookIcon, MenuIcon } from 'lucide-react';
 
-const baseURL = 'http://34.81.244.146:5005';
+const baseURL = 'https://core-api.thehostie.com';
 
 interface Service {
     residence_id: number;
@@ -266,6 +269,9 @@ export default function ServiceCardList({
             toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
         }
     };
+
+
+
     return (
         <>
             <Grid container spacing={3}>
@@ -310,6 +316,13 @@ export default function ServiceCardList({
                                     <Typography variant="body2" color="text.secondary">
                                         Loại lưu trú: {data.residence_type}
                                     </Typography>
+                                    {data.status === 1 && (
+                                        <Chip
+                                            label="Chưa hoàn thành"
+                                            color="warning"
+                                            sx={{ marginTop: 1 }}
+                                        />
+                                    )}
                                 </CardContent>
                                 <CardActions>
                                     <IconButton
@@ -331,6 +344,7 @@ export default function ServiceCardList({
                                             },
                                         }}
                                     >
+                                        {/* Xem chi tiết lưu trú: luôn hiển thị */}
                                         <Link
                                             href={`/dashboard/service/detail/${selectedId}`}
                                             style={{ textDecoration: 'none', color: 'inherit' }}
@@ -342,6 +356,8 @@ export default function ServiceCardList({
                                                 <ListItemText primary="Xem chi tiết lưu trú" />
                                             </MenuItem>
                                         </Link>
+
+
                                         <MenuItem onClick={handleEditClick}>
                                             <ListItemIcon>
                                                 <EditIcon fontSize="small" />
@@ -354,8 +370,23 @@ export default function ServiceCardList({
                                             </ListItemIcon>
                                             <ListItemText primary="Xóa lưu trú" />
                                         </MenuItem>
+                                        <Link
+                                            href={`/dashboard/service/manage-block-residences/${selectedId}`}
+                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                        >
+                                            <MenuItem>
+                                                <ListItemIcon>
+                                                    <MenuIcon fontSize="small" />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Quản lí khóa nơi lưu trú" />
+                                            </MenuItem>
+                                        </Link>
+
+
+
                                     </Menu>
                                 </CardActions>
+
                             </div>
                         </Card>
                     </Grid>

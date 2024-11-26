@@ -45,7 +45,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
     isEditing,
 }: BookingDetailSidebarProps) => {
     const [editableDetails, setEditableDetails] = useState<Partial<BookingData>>({});
-    const { customerList, fetchListCustomer } :any= useBooking();
+    const { customerList, fetchListCustomer }: any = useBooking();
 
     useEffect(() => {
         fetchListCustomer();
@@ -115,13 +115,13 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                             onChange={handleCustomerChange}
                             renderInput={(params) => {
                                 const selectedCustomer = customerList?.data?.find(
-                                    (customer :any) => customer?.id === editableDetails?.guest_id
+                                    (customer: any) => customer?.id === editableDetails?.guest_id
                                 );
                                 return <TextField {...params} label="Tên khách hàng" disabled={!isEditing} />;
                             }}
                             disabled={!isEditing}
                             value={
-                                customerList.data?.find((customer:any) => customer?.id == editableDetails?.guest_id) ||
+                                customerList.data?.find((customer: any) => customer?.id == editableDetails?.guest_id) ||
                                 null
                             }
                         />
@@ -150,7 +150,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Số tiền đã thanh toán"
+                            label="Số tiền cần thanh toán"
                             value={editableDetails?.paid_amount || ''}
                             onChange={(e) =>
                                 setEditableDetails({ ...editableDetails, paid_amount: Number(e.target.value) })

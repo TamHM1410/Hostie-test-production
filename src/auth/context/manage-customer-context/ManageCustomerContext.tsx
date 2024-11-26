@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useMemo } fr
 import toast from 'react-hot-toast';
 import axiosClient from 'src/utils/axiosClient';
 
-const baseUrl = 'http://34.81.244.146:5005';
+const baseUrl = 'https://core-api.thehostie.com';
 
 type CustomerData = {
     id: number;
@@ -65,7 +65,7 @@ export const ManageCustomerProvider = ({ children }: { children: ReactNode }) =>
             await axiosClient.put(`${baseUrl}/customers/${id}`, {
                 name: params.name,
                 phone: params.phone,
-                status: params.status,
+                status: 2,
             });
             toast.success('Cập nhật thông tin khách hàng thành công');
             fetchCustomers(); // Refresh customer list after update
@@ -91,7 +91,7 @@ export const ManageCustomerProvider = ({ children }: { children: ReactNode }) =>
             await axiosClient.post(`${baseUrl}/customers`, {
                 name: params.name,
                 phone: params.phone,
-                status: params.status,
+                status: 2,
             });
             toast.success('Thêm khách hàng thành công');
             fetchCustomers(); // Refresh customer list after creation

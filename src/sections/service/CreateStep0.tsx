@@ -65,7 +65,7 @@ interface Step0Props {
     initialValues?: InitialValues;
 }
 
-export default function Step0({ onSubmit, previousStep, currentStep, initialValues }: Step0Props |any) {
+export default function Step0({ onSubmit, previousStep, currentStep, initialValues }: Step0Props | any) {
     const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<InitialValues>({
         resolver: yupResolver(validationSchema),
         defaultValues: initialValues || { // Set default values from initialValues or empty object
@@ -82,7 +82,7 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
 
     useEffect(() => {
         const savedValues = localStorage.getItem('formValues');
-        let parsedValues: InitialValues | null |any = null;
+        let parsedValues: InitialValues | null | any = null;
 
         try {
             parsedValues = savedValues ? JSON.parse(savedValues) : null;
@@ -92,11 +92,11 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
 
         if (parsedValues) {
             Object.keys(parsedValues).forEach((key) => {
-                setValue(key as keyof InitialValues , parsedValues[key] );
+                setValue(key as keyof InitialValues, parsedValues[key]);
             });
         } else if (initialValues) {
             Object.keys(initialValues).forEach((key) => {
-                setValue(key as keyof InitialValues, initialValues[key] );
+                setValue(key as keyof InitialValues, initialValues[key]);
             });
         }
     }, [initialValues, setValue]);
@@ -155,7 +155,7 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
                     margin="normal"
                 />
                 <TextField
-                    label="Website"
+                    label="Google Drive URL"
                     variant="outlined"
                     fullWidth
                     {...register('website')}

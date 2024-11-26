@@ -226,7 +226,7 @@ export default function UserGeneral(props: any) {
               flexDirection="row-reverse"
               sx={{ mt: 3 }}
             >
-              {isEdit && (
+              {/* {isEdit && (
                 <LoadingButton variant="contained" loading={isSubmitting} type="submit">
                   Save Changes
                 </LoadingButton>
@@ -239,7 +239,7 @@ export default function UserGeneral(props: any) {
                 onClick={() => setIsEdit(!isEdit)}
               >
                 {isEdit ? ' Hủy bỏ' : 'Sửa'}
-              </LoadingButton>
+              </LoadingButton> */}
               {!isEdit && (
                 <LoadingButton variant="contained" onClick={()=>setOpen(!open)}>
                  Trở về

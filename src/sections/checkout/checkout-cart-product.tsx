@@ -28,9 +28,8 @@ type Props = {
 };
 
 export default function CheckoutCartProduct({ row, onDelete, onDecrease, onIncrease }: Props) {
-  const { name,  price, coverUrl, description,duration } = row;
+  const { name,  originalPrice,upgradeCost, coverUrl, description,duration } = row;
 
-  console.log(row,'row')
 
   return (
     <TableRow>
@@ -39,17 +38,16 @@ export default function CheckoutCartProduct({ row, onDelete, onDecrease, onIncre
 
         <Stack spacing={0.5}>
           <Typography noWrap variant="subtitle2" sx={{ maxWidth: 240 }}>
-            {name}
+            {name ?name :'Unknow'}
           </Typography>
-          <Typography sx={{fontStyle:'italic',fontSize:12}}>({description})</Typography>
+          <Typography sx={{fontStyle:'italic',fontSize:12}}>({description ?description :'Unknow'})</Typography>
 
         </Stack>
       </TableCell>
 
-      <TableCell>{fCurrency(price)}</TableCell>
+      <TableCell>{fCurrency((upgradeCost===0 ||!upgradeCost) ?originalPrice : upgradeCost)}</TableCell>
 
-      {/* <TableCell>{fCurrency(description)}</TableCell> */}
-      <TableCell>{duration} month</TableCell>
+      <TableCell>{duration ?duration :'0'} ngày</TableCell>
 
 
    

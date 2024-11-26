@@ -30,6 +30,7 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   typescript: {
+    // Bỏ qua lỗi TypeScript khi build
     ignoreBuildErrors: true,
   },
 };

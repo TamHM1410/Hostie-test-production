@@ -49,14 +49,7 @@ export default function AccountView() {
 
   const { updateUserSelected } = useCurrentUser();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['userInfo'],
-    queryFn: async () => {
-      const res = await getUserInfor();
-      await updateUserSelected(res);
-      return res;
-    },
-  });
+ 
 
   const result=useQueries({
     queries:[{
@@ -115,7 +108,6 @@ export default function AccountView() {
 
       {currentTab === 'social' && <AccountSocialLinks socialLinks={_userAbout.socialLinks}  socials={result?.data[0]?.socials} />}
 
-      {/* {currentTab === 'security' && <AccountChangePassword />} */}
     </Container>
   );
 }

@@ -19,6 +19,7 @@ interface HoldData {
     checkout: string;
     is_host_accept: boolean;
     status: number;
+    residence_id: number;
 }
 
 interface HoldListTableProps {
@@ -26,10 +27,14 @@ interface HoldListTableProps {
 }
 
 const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
-    const { fetchDataDetail, detail, cancelHold } = useHoldListContext();
-    const { customerList, fetchListCustomer, handleBookingSubmit } = useBooking() as any;
+    const { fetchDataDetail, detail, cancelHold, fetchData } = useHoldListContext();
+    const { customerList, fetchListCustomer, handleBookingSubmit, priceQuotation, fetchPriceQuotation } = useBooking() as any;
     const [isBookingForm, setIsBookingForm] = useState(false);
     const [isCancelHold, setIsCancelHold] = useState(false);
+    const [startDate, setStartDate] = useState()
+    const [endDate, setEndDate] = useState()
+
+
 
     useEffect(() => {
         fetchListCustomer();
@@ -54,6 +59,12 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
             header: 'Mã Giữ Chỗ',
             size: 100,
             Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+        },
+        {
+            accessorKey: 'expire',
+            header: 'Thời gian giữ',
+            size: 200,
+            Cell: ({ cell }: any) => <Typography >{cell.getValue()} Phút</Typography>,
         },
         {
             accessorKey: 'residence_name',
@@ -88,9 +99,13 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                     {row.original.status === 2 && (
                         <>
                             <Tooltip title="Đặt nơi lưu trú">
-                                <IconButton color="success" aria-label="book" onClick={() => {
+                                <IconButton color="success" aria-label="book" onClick={async () => {
+                                    setStartDate(row.original.checkin)
+                                    setEndDate(row.original.checkout)
+                                    await fetchDataDetail(row.original.id);
+                                    await fetchPriceQuotation(row.original.checkin, row.original.checkout, row.original.residence_id)
+
                                     setIsBookingForm(true);
-                                    fetchDataDetail(row.original.id);
                                 }}>
                                     <CheckCircleIcon />
                                 </IconButton>
@@ -99,6 +114,7 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                                 <IconButton color="error" aria-label="cancel" onClick={() => {
                                     setIsCancelHold(true);
                                     fetchDataDetail(row.original.id);
+
                                 }}>
                                     <CancelIcon />
                                 </IconButton>
@@ -136,19 +152,55 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                 enableSorting
                 enableTopToolbar
                 localization={MRT_Localization_VI}
+                muiSearchTextFieldProps={{
+                    placeholder: 'Tìm kiếm tên khách hàng',
+
+                }}
             />
             {isBookingForm && (
                 <Dialog open={isBookingForm} onClose={() => setIsBookingForm(false)}>
                     <DialogTitle>Đặt Chỗ Cho {detail?.residence_name}</DialogTitle>
                     <DialogContent>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2, // khoảng cách giữa các thành phần
+                                paddingBottom: 2,
+                                borderBottom: '1px solid #e0e0e0', // viền ngăn cách
+                                marginBottom: 3
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography variant="body1">Tổng Giá:</Typography>
+                                <Typography variant="body1" color="primary">{priceQuotation?.total_price || 0} VND</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography variant="body1">Hoa Hồng Nhận Được:</Typography>
+                                <Typography variant="body1" color="secondary">{priceQuotation?.commission_rate || 0}%</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography variant="body1">Số ngày:</Typography>
+                                <Box>
+                                    <Typography variant="body1" color="green">
+                                        {priceQuotation ? priceQuotation.total_days + 1 : 0} ngày
+                                    </Typography>
+                                    <Typography variant="body1" color="green">
+                                        {priceQuotation?.total_days || 0} đêm
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+
                         <Formik
+
+
                             initialValues={{
                                 guest_id: '',
                                 guest_count: 1,
-                                start_date: detail?.checkin,
-                                end_date: detail?.checkout,
+                                start_date: startDate,
+                                end_date: endDate,
                                 residence_id: detail?.residence_id || '',
-                                paid_amount: 500,
                                 hold_id: detail?.id,
                                 note: '',
                             }}
@@ -157,15 +209,13 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                                 guest_count: Yup.number()
                                     .min(1, 'Số lượng khách phải lớn hơn 0.')
                                     .required('Số lượng khách là bắt buộc.'),
-                                paid_amount: Yup.number()
-                                    .min(500, 'Số tiền đã thanh toán không hợp lệ.')
-                                    .required('Số tiền đã thanh toán là bắt buộc.'),
                                 note: Yup.string().optional(),
                             })}
-                            onSubmit={(values, { setSubmitting, setFieldError }) => {
+                            onSubmit={async (values, { setSubmitting, setFieldError }) => {
                                 try {
-                                    handleBookingSubmit(values);
-                                    setIsBookingForm(false); // Close the dialog after successful submission
+                                    await handleBookingSubmit(values);
+                                    fetchData();
+                                    setSubmitting(false);
                                 } catch (error) {
                                     setFieldError('guest_id', 'Có lỗi xảy ra khi đặt chỗ. Vui lòng thử lại.');
                                 } finally {
@@ -204,38 +254,21 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                                         onBlur={handleBlur}
                                         fullWidth
                                         margin="dense"
+                                        value={values.guest_count}
                                         error={touched.guest_count && Boolean(errors.guest_count)}
                                         helperText={touched.guest_count && errors.guest_count}
-                                    />
-
-                                    <TextField
-                                        label="Số Tiền Cần Thanh Toán"
-                                        type="number"
-                                        name="paid_amount"
-                                        inputProps={{ min: 500, max: 5000 }}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.paid_amount}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.paid_amount && Boolean(errors.paid_amount)}
-                                        helperText={touched.paid_amount && errors.paid_amount ? errors.paid_amount : `Số tiền đã nhập: ${values.paid_amount} / 5000`}
                                     />
                                     <TextField
                                         label="Ngày Bắt Đầu"
                                         value={detail?.checkin}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
+                                        disabled
                                         fullWidth
                                         margin="dense"
                                     />
                                     <TextField
                                         label="Ngày Kết Thúc"
                                         value={detail?.checkout}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
+                                        disabled
                                         fullWidth
                                         margin="dense"
                                     />
@@ -246,18 +279,18 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                                         onBlur={handleBlur}
                                         fullWidth
                                         margin="dense"
+                                        value={values.note}
                                     />
                                     <DialogActions>
-                                        <Button onClick={() => setIsBookingForm(false)}>Hủy</Button>
-                                        <Button type="submit" color="primary">Đặt</Button>
+                                        <Button onClick={() => setIsBookingForm(false)} color='primary'>Hủy</Button>
+                                        <Button type="submit" color="success">Đặt</Button>
                                     </DialogActions>
                                 </Form>
                             )}
-
                         </Formik>
                     </DialogContent>
-
                 </Dialog>
+
             )}
             {isCancelHold && (
                 <Dialog open={isCancelHold} onClose={() => setIsCancelHold(false)}>
@@ -266,7 +299,7 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                         <Typography>Bạn có chắc chắn muốn hủy giữ chỗ này không?</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setIsCancelHold(false)}>Hủy</Button>
+                        <Button onClick={() => setIsCancelHold(false)} color='primary'>Hủy</Button>
                         <Button onClick={handleCancelHold} color="error">Xác Nhận</Button>
                     </DialogActions>
                 </Dialog>

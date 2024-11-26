@@ -19,7 +19,7 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { TableHeadCustom } from 'src/components/table';
-
+import { useRouter } from 'next/navigation';
 // ----------------------------------------------------------------------
 
 type RowProps = {
@@ -44,6 +44,8 @@ export default function AppNewInvoice({
   tableLabels,
   ...other
 }: Props) {
+
+  const router=useRouter()
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
@@ -54,9 +56,9 @@ export default function AppNewInvoice({
             <TableHeadCustom headLabel={tableLabels} />
 
             <TableBody>
-              {tableData.map((row) => (
-                <AppNewInvoiceRow key={row.id} row={row} />
-              ))}
+              {Array.isArray(tableData) &&
+                tableData.length > 0 &&
+                tableData.map((row, index) => <AppNewInvoiceRow key={index} row={row} />)}
             </TableBody>
           </Table>
         </Scrollbar>
@@ -69,8 +71,9 @@ export default function AppNewInvoice({
           size="small"
           color="inherit"
           endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
+          onClick ={()=>router.push('/dashboard/transactions')}
         >
-          View All
+          Xem tất cả{' '}
         </Button>
       </Box>
     </Card>
@@ -83,8 +86,10 @@ type AppNewInvoiceRowProps = {
   row: RowProps;
 };
 
-function AppNewInvoiceRow({ row }: AppNewInvoiceRowProps) {
+function AppNewInvoiceRow({ row }: AppNewInvoiceRowProps | any) {
   const popover = usePopover();
+
+  console.log('row', row);
 
   const handleDownload = () => {
     popover.onClose();
@@ -109,22 +114,22 @@ function AppNewInvoiceRow({ row }: AppNewInvoiceRowProps) {
   return (
     <>
       <TableRow>
-        <TableCell>{row.invoiceNumber}</TableCell>
+        <TableCell>{row.registerId}</TableCell>
 
-        <TableCell>{row.category}</TableCell>
+        <TableCell>{row.packageName}</TableCell>
 
-        <TableCell>{fCurrency(row.price)}</TableCell>
+        <TableCell>{fCurrency(row.packagePrice)}</TableCell>
+
+        <TableCell>{row.username}</TableCell>
 
         <TableCell>
           <Label
             variant="soft"
-            color={
-              (row.status === 'progress' && 'warning') ||
-              (row.status === 'out of date' && 'error') ||
-              'success'
-            }
+            color={(row.status === 1 && 'warning') || (row.status === 0 && 'error') || 'success'}
           >
-            {row.status}
+            {row.status === 0 && ' Thất bại'}
+            {row.status === 1 && ' Đang duyệt'}
+            {row.status > 1 && ' Thành công'}
           </Label>
         </TableCell>
 

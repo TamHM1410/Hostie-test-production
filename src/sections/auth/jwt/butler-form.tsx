@@ -67,16 +67,16 @@ export default function ButlerForm() {
     delete data?.retype_password
 
     const rs =   await registerButler(data)
-    // const rs =await findAllHousekeeperResidence()
     console.log(rs,'datawithout retype')
 
    
 
-      //   toast.success('Register success');
-        // router.push('/auth/jwt/login');
+        toast.success('Đăng ký thành công');
+        router.push('/auth/jwt/login');
+        reset();
+
     } catch (error) {
-      //   toast.error('Something wrong');
-    //   reset();
+        toast.error('Có lỗi xảy ra');
     }
   });
 

@@ -77,16 +77,16 @@ const UserTable = (props: any) => {
         </span>
       ),
     }),
-    columnHelper.accessor('status', {
-      header: 'Trạng thái tài khoản',
-      Cell: ({ cell }: any) => (
-        <span>
-          {cell?.getValue() === 0 && <Chip label={statusOption[0]} color="error" variant='soft' />}
-          {cell?.getValue() === 1 && <Chip label={statusOption[1]} color="warning" variant='soft'/>}
-          {cell?.getValue() === 2 && <Chip label={statusOption[2]} color="success" variant='soft'/>}
-        </span>
-      ),
-    }),
+    // columnHelper.accessor('status', {
+    //   header: 'Trạng thái tài khoản',
+    //   Cell: ({ cell }: any) => (
+    //     <span>
+    //       {cell?.getValue() === 0 && <Chip label={statusOption[0]} color="error" variant='soft' />}
+    //       {cell?.getValue() === 1 && <Chip label={statusOption[1]} color="warning" variant='soft'/>}
+    //       {cell?.getValue() === 2 && <Chip label={statusOption[2]} color="success" variant='soft'/>}
+    //     </span>
+    //   ),
+    // }),
     columnHelper.accessor('isActive', {
       header: 'Trạng thái hoạt động',
       size: 180,

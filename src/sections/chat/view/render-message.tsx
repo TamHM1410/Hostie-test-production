@@ -31,6 +31,7 @@ import Scrollbar from 'src/components/scrollbar';
 import ListConversation from './List-conversation';
 import ChatSection from './Chat-section';
 import Tiptap from 'src/components/tiptap/tiptap';
+import CallModal from './CallModal';
 
 const notificationSound = typeof window !== 'undefined' ? new Audio('/assets/messnoti.mp3') : null;
 
@@ -108,13 +109,13 @@ const Chat = () => {
             const localMessages = Object.entries(listMsg).find(
               ([key, value]) => key === id && Array.isArray(value) && value.length > 10
             );
-                    //  console.log(localMessages,'local nmess')  
-            // if (localMessages) {
-            //   const [, value] = localMessages;
+                     console.log(localMessages,'local nmess')  
+            if (localMessages) {
+              const [, value] = localMessages;
               
-            //   setDetailMessage(value); // Sử dụng dữ liệu cục bộ nếu có đủ tin nhắn
-            //   return value; // Trả về dữ liệu giả lập để đồng bộ
-            // }
+              setDetailMessage(value); // Sử dụng dữ liệu cục bộ nếu có đủ tin nhắn
+              return value; // Trả về dữ liệu giả lập để đồng bộ
+            }
             
             const res = await getListGroupMessage(id, page.current);
             const sortedMessages = Array.isArray(res.data?.result)
@@ -355,6 +356,7 @@ const Chat = () => {
           )}
         </Grid>
       </Grid>
+      <CallModal/>
     </div>
   );
 };

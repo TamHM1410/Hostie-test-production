@@ -23,6 +23,7 @@ import { useManageCustomerContext } from 'src/auth/context/manage-customer-conte
 import { MRT_Localization_VI } from 'material-react-table/locales/vi';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 interface CustomerData {
     id: number;
@@ -53,14 +54,14 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
         phone: Yup.string()
             .required('Vui lòng nhập số điện thoại')
             .matches(/^\d+$/, 'Số điện thoại chỉ được chứa chữ số'),
-        status: Yup.number().required('Vui lòng chọn trạng thái'),
+        // status: Yup.number().required('Vui lòng chọn trạng thái'),
     });
 
     const formik = useFormik({
         initialValues: {
             name: '',
             phone: '',
-            status: 1,
+            status: 2,
         },
         validationSchema,
         onSubmit: async (values: any) => {
@@ -115,7 +116,7 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
 
     const columns: MRT_ColumnDef<CustomerData>[] = React.useMemo(
         () => [
-            { accessorKey: 'id', header: 'ID Khách Hàng', size: 100 },
+            { accessorKey: 'id', header: 'Mã Số Khách Hàng', size: 100 },
             { accessorKey: 'name', header: 'Tên Khách Hàng', size: 200 },
             { accessorKey: 'phone', header: 'Số Điện Thoại', size: 150 },
             { accessorKey: 'status', header: 'Trạng Thái', size: 150, Cell: ({ cell }: any) => renderStatusChip(cell.getValue()) },
@@ -144,6 +145,7 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
 
     return (
         <>
+
             <Button
                 variant="contained"
                 color="primary"
@@ -154,7 +156,10 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
                 Thêm Khách Hàng
             </Button>
 
-            <MaterialReactTable columns={columns} data={rows || []} enablePagination enableSorting enableTopToolbar localization={MRT_Localization_VI} />
+            <MaterialReactTable columns={columns} data={rows || []} enablePagination enableSorting enableTopToolbar localization={MRT_Localization_VI} muiSearchTextFieldProps={{
+                placeholder: 'Tìm kiếm tên khách hàng',
+
+            }} />
 
             <Dialog open={openDialog} onClose={handleDialogClose}>
                 {dialogType === 'edit' || dialogType === 'create' ? (
@@ -178,7 +183,7 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
                                     helperText={formik.touched.phone && typeof formik.errors.phone === 'string' ? formik.errors.phone : undefined}
                                     margin="dense"
                                 />
-                                <TextField
+                                {/* <TextField
                                     fullWidth
                                     select
                                     label="Trạng Thái"
@@ -189,7 +194,7 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
                                 >
                                     <MenuItem value={1}>Không hoạt động</MenuItem>
                                     <MenuItem value={2}>Hoạt động</MenuItem>
-                                </TextField>
+                                </TextField> */}
 
                                 <DialogActions>
                                     <Button onClick={handleDialogClose}>Hủy</Button>

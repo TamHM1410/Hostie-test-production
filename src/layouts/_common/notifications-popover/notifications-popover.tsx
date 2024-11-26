@@ -56,12 +56,12 @@ export default function NotificationsPopover() {
     {
       value: 'all',
       label: 'Tất cả',
-      count: totalMessage,
+      count: totalMessage || 0,
     },
     {
       value: 'unread',
       label: 'Chưa đọc',
-      count: totalUnRead,
+      count: totalUnRead || 0,
     },
 
   ];

@@ -61,17 +61,7 @@ export default function CheckoutOrderComplete({ open}: Props|any) {
         justifyContent="space-between"
         direction={{ xs: 'column-reverse', sm: 'row' }}
       >
-        <Button
-          fullWidth
-          size="large"
-          color="inherit"
-          variant="outlined"
-          onClick={()=>router.push('/pricing')}
-          startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-        >
-         Tiêp tục mua gói 
-        </Button>
-
+       
         <Button
           fullWidth
           size="large"

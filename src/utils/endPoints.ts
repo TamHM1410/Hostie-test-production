@@ -13,7 +13,8 @@ const endPoint = {
     refresh:`/v1/api/auth/refresh-token`,
     forgot:`/v1/api/password/forgot`,
     reset:`/v1/api/password/reset`,
-    avatar:`/v1/api/files/upload-avatar`
+    avatar:`/v1/api/files/upload-avatar`,
+    role:'/v1/api/users/my-roles'
   },
   butler:{
     residence:'/v1/api/housekeepers/my-residences',
@@ -27,6 +28,7 @@ const endPoint = {
      rejectButler:'/v1/api/housekeepers/reject-housekeeper'
   },
   bank:'/v1/api/banks',
+  
 
   admin: {
     /// user mangament
@@ -39,7 +41,8 @@ const endPoint = {
     /// packages
     package: {
       root: `/v1/api/package`,
-      byId: (id: any) => `/v1/api/package/${id}`,
+      adminById:(id: any)=>`/v1/api/package/${id}`,
+      byId: (id: any,type:any) => type==="normal" ? `/v1/api/package/${id}` :`/v1/api/package/${id}/upgrade-cost`,
     },
     residence_types:{ 
      root:`/v1/api/residences-types`,
@@ -54,6 +57,15 @@ const endPoint = {
       byId: (id: any) => `/v1/api/amenities/${id}`,
 
     },
+    ///analys
+    analytic:'/v1/api/statistics/dashboard',
+
+    ///report
+    report:{
+      get:'/v1/api/reports',
+      put:(id:any)=>`/v1/api/reports/${id}`
+    },
+     
   
   },
 
@@ -63,7 +75,13 @@ const endPoint = {
     get:(id:any)=>`/v1/api/registers/${id}/payment`,
     getDiscount:'/v1/api/registers/discount-percentage',
     currentPackage:'/v1/api/registers/my-register',
-    suggestPackage:'/v1/api/registers/upgradable-packages'
+    extendPackage:'/v1/api/registers/extend',
+
+    suggestPackage:'/v1/api/registers/upgradable-packages',
+    upgrade_package :(id:any)=>`/v1/api/registers/upgrade?packageId=${id}`,
+    userGetPackageHistory:'/v1/api/registers/history',
+    allTransactionPackage:'/v1/api/registers/history/all'
+
   }
 };
 
@@ -81,6 +99,14 @@ const goEndPoint={
     listMessage:(id:any)=>`/chats/groups/${id}/messages`,
     sendMessage:'/chats/messages'
 
+  },
+
+  analytic:{
+    host:'/booking/statistics/host',
+    host_top_residence:'/residences/top_residence',
+    host_sold_residence:'/booking/sold_residences',
+    top_seller:'/residences/top_seller',
+    seller:'/booking/statistics'
   }
 
 

@@ -11,23 +11,26 @@ import {
     Pagination,
     Backdrop,
     CircularProgress,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Button,
+
     Menu,
     Snackbar,
     Alert,
-    Autocomplete,
+
+
 } from '@mui/material';
-import * as Yup from 'yup';
-import { Form, Formik } from 'formik';
-import './Booking.Module.css';
+
+
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
 import { useSession } from 'next-auth/react';
+import HoldingFormDialog from './HoldingForm';
 
+import BookingFormDialog from './BookingDialogForm';
+import './Booking.Module.css';
+
+
+export function formatCurrency(amount: number): string {
+    return amount.toLocaleString('vi-VN') + ' VND';
+}
 const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
     const {
         bookingData,
@@ -41,7 +44,12 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         fetchListCustomer,
         customerList,
         fetchResidenceInfor,
+        fetchPolicy,
+        fetchPriceQuotation,
+        priceQuotation
+
     } = useBooking() as any;
+
 
     const [selectedMonth, setSelectedMonth] = useState(month);
     const [daysInMonth, setDaysInMonth] = useState<{ day: number; dayOfWeek: string }[]>([]);
@@ -80,10 +88,42 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [selectedVillaName, setSelectedVillaName] = useState('');
 
+
+
+
     useEffect(() => {
-        fetchBookingData(selectedMonth, year, currentPage);
+        // Load saved search parameters from localStorage
+        const savedParams = localStorage.getItem('searchParams');
+        if (savedParams) {
+            const parsedParams = JSON.parse(savedParams);
+            console.log(parsedParams);
+
+            // Destructure saved data
+            const {
+                selectedProvince,
+                selectedAccommodationType,
+                dateRange,
+                maxPrice
+            } = parsedParams;
+
+            // Use the loaded values in your API calls
+            fetchBookingData(
+                currentPage,
+                year,
+                selectedMonth,
+                selectedProvince,
+                selectedAccommodationType,
+                dateRange,
+                maxPrice
+            );
+        } else {
+            // If no saved data, fetch with default values
+            fetchBookingData(currentPage, year, selectedMonth);
+        }
+
+        // Fetch customer list as well (assuming this doesn't depend on the search parameters)
         fetchListCustomer();
-    }, [selectedMonth, currentPage]);
+    }, [selectedMonth, currentPage]); // Dependencies to re-fetch on change
 
     useEffect(() => {
         const daysInCurrentMonth = new Date(year, selectedMonth, 0).getDate();
@@ -103,39 +143,47 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         residence_id: string,
         event: React.MouseEvent<HTMLTableCellElement>
     ) => {
+        event.preventDefault(); // Prevent default right-click menu on right-click
+
         if (event.button === 0) {
-            // Left-click
+            // Left-click (Select/Extend Selection)
             if (!selectionRange) {
+                // Start a new selection range
                 setSelectionRange({ villaName, start: day, end: day, residence_id });
                 setSelectedVillaName(villaName);
-            } else {
-                if (selectionRange.villaName === villaName) {
-                    const newStart = Math.min(selectionRange.start, day);
-                    const newEnd = Math.max(selectionRange.end, day);
-                    setSelectionRange({ villaName, start: newStart, end: newEnd, residence_id });
-                    setSelectedVillaName(villaName);
+            } else if (selectionRange.villaName === villaName) {
+                // Extend or shrink the range
+                const newStart = Math.min(selectionRange.start, day);
+                const newEnd = Math.max(selectionRange.end, day);
+                if (selectionRange.start === day && selectionRange.end === day) {
+                    // Reset if clicking the same cell
+                    setSelectionRange(null);
+                    setSelectedVillaName('');
                 } else {
-                    setSelectionRange({ villaName, start: day, end: day, residence_id });
-                    setSelectedVillaName(villaName);
+                    setSelectionRange({ villaName, start: newStart, end: newEnd, residence_id });
                 }
+            } else {
+                // Start a new range for a different villa
+                setSelectionRange({ villaName, start: day, end: day, residence_id });
+                setSelectedVillaName(villaName);
             }
         } else if (event.button === 2) {
-            // Right-click
+            // Right-click (Open Context Menu)
             if (!selectionRange || Math.abs(selectionRange.end - selectionRange.start) < 1) {
+                // Invalid range selection
                 setSnackbarMessage('Vui lòng chọn ít nhất 2 ngày.');
                 setSnackbarOpen(true);
-                return;
+            } else {
+                setAnchorEl(event.currentTarget);
+                setContextMenuOpen(true);
             }
-            setActionType(null);
-            setAnchorEl(event.currentTarget);
-            setContextMenuOpen(true);
         }
     };
+
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
-
     const isCellSelected = (villaName: string, day: number) => {
         if (selectionRange) {
             return (
@@ -146,13 +194,14 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         }
         return false;
     };
-
     const handleContextMenuClose = () => {
         setContextMenuOpen(false);
         setAnchorEl(null);
     };
-
-    const handleActionSelect = (action: 'book' | 'hold') => {
+    const handleActionSelect = async (action: 'book' | 'hold') => {
+        await fetchPriceQuotation(`${String(selectionRange?.start).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+            }-${year}`, `${String(selectionRange?.end).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+            }-${year}`, parseInt(selectionRange?.residence_id))
         setActionType(action);
         setStartDate(
             `${String(selectionRange?.start).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
@@ -166,12 +215,12 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         handleContextMenuClose();
 
         if (action === 'book') {
+
             setIsBookingForm(true);
         } else {
             setIsHoldingForm(true);
         }
     };
-
     const onSubmitHolding = (values: { expire: number }) => {
         if (!selectionRange) return;
 
@@ -205,7 +254,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                 <FormControl fullWidth>
                                     <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
                                         {Array.from({ length: 12 }, (_, i) => (
-                                            <MenuItem key={i + 1} value={i + 1}>
+                                            <MenuItem key={i + 1} value={`${i + 1}`}>
                                                 Tháng {i + 1}
                                             </MenuItem>
                                         ))}
@@ -225,14 +274,20 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {bookingData?.map((villa: any) => (
+                        {bookingData?.length === 0 || null ? (
+                            <tr>
+                                <td colSpan={daysInMonth.length + 1} style={{ textAlign: 'center' }}>
+                                    Không có dữ liệu
+                                </td>
+                            </tr>
+                        ) : (bookingData?.map((villa: any) => (
                             <tr key={villa.name}>
                                 <td className="villa-name">
                                     <div
                                         className="villa-name-cell"
                                         role="button"
                                         tabIndex={0}
-                                        onClick={() => fetchResidenceInfor(villa.id)}
+                                        onClick={() => { fetchResidenceInfor(villa.id); fetchPolicy(villa.id) }}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' || e.key === ' ') {
                                                 fetchResidenceInfor(villa.id);
@@ -268,7 +323,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                             {isCellSelected(villa.name, day.day) && (
                                                 <div className="selected"></div> // This will be styled to create the border effect
                                             )}
-                                            <div className="corner-number">{bookingInfo ? bookingInfo.price : 'N/A'}</div>
+                                            <div className="corner-number">{bookingInfo ? `${bookingInfo.price}VND` : 'N/A'}</div>
 
                                             {/* Rectangle based on start_point, middle_point, end_point */}
                                             {bookingInfo && bookingInfo.start_point && (
@@ -310,7 +365,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                     );
                                 })}
                             </tr>
-                        ))}
+                        )))}
                     </tbody>
                 </table>
             </div>
@@ -328,212 +383,28 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
             {/* Biểu Mẫu Đặt Chỗ Dialog */}
             {/* Booking Form Dialog */}
             {isBookingForm && (
-                <Dialog open={isBookingForm} onClose={() => setIsBookingForm(false)}>
-                    <DialogTitle>Đặt Chỗ Cho {selectedVillaName} </DialogTitle>
-                    <DialogContent>
-                        <Formik
-                            initialValues={{
-                                guest_id: '',
-                                guest_count: 1,
-                                start_date: startDate,
-                                end_date: endDate,
-                                residence_id: selectionRange?.residence_id || '',
-                                paid_amount: 500,
-                                note: '',
-                            }}
-                            validationSchema={Yup.object({
-                                guest_id: Yup.string().required('Tên khách hàng là bắt buộc.'),
-                                guest_count: Yup.number()
-                                    .min(1, 'Số lượng khách phải lớn hơn 0.')
-                                    .required('Số lượng khách là bắt buộc.'),
-                                paid_amount: Yup.number()
-                                    .min(500, 'Số tiền đã thanh toán không hợp lệ.')
-                                    .required('Số tiền đã thanh toán là bắt buộc.'),
-                                note: Yup.string().optional(),
-                            })}
-                            onSubmit={(values) => {
-                                if (!selectionRange) return;
-                                handleBookingSubmit(values); // Ensure this returns a promise
-                                setIsBookingForm(false); // Close the dialog after successful submission
-                            }}
-                        >
-                            {({ handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
-                                <Form>
-                                    <Autocomplete
-                                        options={customerList?.data}
-                                        getOptionLabel={(option: any) => option.name}
-                                        onChange={(event, newValue) => {
-                                            setFieldValue('guest_id', newValue ? newValue.id : '');
-                                        }}
-                                        sx={{ marginTop: '10px' }}
-                                        renderOption={(props, option) => (
-                                            <li {...props} key={option.id}>
-                                                {option.name}
-                                            </li>
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Tên Khách Hàng"
-                                                error={touched.guest_id && Boolean(errors.guest_id)}
-                                                helperText={touched.guest_id && errors.guest_id}
-                                            />
-                                        )}
-                                    />
-                                    <TextField
-                                        label="Số Lượng Khách"
-                                        type="number"
-                                        name="guest_count"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.guest_count && Boolean(errors.guest_count)}
-                                        helperText={touched.guest_count && errors.guest_count}
-                                    />
-
-                                    <TextField
-                                        label="Số Tiền Cần Thanh Toán"
-                                        type="number"
-                                        name="paid_amount"
-                                        inputProps={{ min: 500, max: 5000 }}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.paid_amount}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.paid_amount && Boolean(errors.paid_amount)}
-                                        helperText={
-                                            touched.paid_amount && errors.paid_amount
-                                                ? errors.paid_amount
-                                                : `Số tiền đã nhập: ${values.paid_amount} / 5000`
-                                        }
-                                    />
-
-                                    <TextField
-                                        label="Ngày Bắt Đầu"
-                                        value={startDate}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-                                    <TextField
-                                        label="Ngày Kết Thúc"
-                                        value={endDate}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-
-                                    <TextField
-                                        label="Ghi Chú"
-                                        name="note"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        fullWidth
-                                        margin="dense"
-                                        multiline
-                                        rows={4}
-                                    />
-
-                                    <DialogActions>
-                                        <Button onClick={() => setIsBookingForm(false)} color="primary">
-                                            Hủy
-                                        </Button>
-                                        <Button type="submit" color="primary">
-                                            Xác Nhận
-                                        </Button>
-                                    </DialogActions>
-                                </Form>
-                            )}
-                        </Formik>
-                    </DialogContent>
-                </Dialog>
+                <BookingFormDialog
+                    isBookingForm={isBookingForm}
+                    setIsBookingForm={setIsBookingForm}
+                    selectedVillaName={selectedVillaName}
+                    priceQuotation={priceQuotation}
+                    customerList={customerList}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectionRange={selectionRange}
+                    handleBookingSubmit={handleBookingSubmit}
+                />
             )}
             {/* Biểu Mẫu Giữ Chỗ Dialog */}
             {isHoldingForm && (
-                <Dialog open={isHoldingForm} onClose={() => setIsHoldingForm(false)}>
-                    <DialogTitle>Giữ Chỗ Cho {selectedVillaName}</DialogTitle>
-                    <DialogContent>
-                        <Formik
-                            initialValues={{
-                                start_date: startDate,
-                                end_date: endDate,
-                                expire: '',
-                            }}
-                            validationSchema={Yup.object({
-                                expire: Yup.number()
-                                    .min(1, 'Hạn giữ chỗ phải lớn hơn 0.')
-                                    .max(100, 'Hạn giữ chỗ phải nhỏ hơn 100 phút.')
-                                    .required('Hạn giữ chỗ là bắt buộc.'),
-                            })}
-                            onSubmit={(values: any) => {
-                                onSubmitHolding(values); // Ensure this function handles the submission
-                            }}
-                        >
-                            {({
-                                handleChange,
-                                handleBlur,
-                                values,
-                                errors,
-                                touched,
-                            }: {
-                                handleChange: any;
-                                handleBlur: any;
-                                values: any;
-                                errors: any;
-                                touched: any;
-                            }) => (
-                                <Form>
-                                    <TextField
-                                        label="Ngày Bắt Đầu"
-                                        value={startDate}
-                                        fullWidth
-                                        margin="dense"
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                    />
-                                    <TextField
-                                        label="Ngày Kết Thúc"
-                                        value={endDate}
-                                        fullWidth
-                                        margin="dense"
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                    />
-
-                                    <TextField
-                                        label="Hạn Giữ Chỗ (Phút)"
-                                        type="number"
-                                        name="expire"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.expire}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.expire && Boolean(errors.expire)}
-                                        helperText={touched.expire && errors.expire}
-                                    />
-
-                                    <DialogActions>
-                                        <Button onClick={() => setIsHoldingForm(false)} color="primary">
-                                            Hủy
-                                        </Button>
-                                        <Button type="submit" color="primary">
-                                            Xác Nhận
-                                        </Button>
-                                    </DialogActions>
-                                </Form>
-                            )}
-                        </Formik>
-                    </DialogContent>
-                </Dialog>
+                <HoldingFormDialog
+                    isHoldingForm={isHoldingForm}
+                    setIsHoldingForm={setIsHoldingForm}
+                    selectedVillaName={selectedVillaName}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onSubmitHolding={onSubmitHolding}
+                />
             )}
         </div>
     );

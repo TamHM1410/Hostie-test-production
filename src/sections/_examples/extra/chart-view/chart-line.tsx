@@ -13,7 +13,7 @@ type Props = {
 export default function ChartLine({ series }: Props) {
   const chartOptions = useChart({
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+      categories: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9'],
     },
     tooltip: {
       x: {

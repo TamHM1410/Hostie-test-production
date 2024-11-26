@@ -26,7 +26,7 @@ interface Booking {
     status: number;
 }
 
-const baseURl = `http://34.81.244.146:5005`;
+const baseURl = `https://core-api.thehostie.com`;
 // Define the context state type
 interface BookingContextType {
     rows: Booking[];
@@ -41,8 +41,10 @@ interface BookingContextType {
         bank_id: number,
         commission: number
     ) => Promise<void>;
-    cancelBooking: (holdId: number, checkin: string, checkout: string) => Promise<void>;
+    cancelBooking: (holdId: number, checkin: string, checkout: string, rejectionReason: string) => Promise<void>;
     confirmReceiveMoney: (holdId: number, checkin: string, checkout: string) => Promise<void>;
+    fetchBookingLogs: (id: any) => void;
+    logs: any;
     bankList: any;
 }
 
@@ -73,7 +75,8 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
     const [isLoading, setIsLoading] = useState(true);
     const [bankList, setBankList] = useState();
     const ROWS_PER_PAGE = 9999;
-
+    const { data: session } = useSession()
+    const [logs, setLogs] = useState()
     // Function to fetch booking data
     const fetchData = async () => {
         setIsLoading(true);
@@ -90,18 +93,11 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             setIsLoading(false);
         }
     };
-
-
-
-
-
-    const { data: session } = useSession()
-
     const fetchDataBankAccount = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get(
-                `http://34.81.244.146:8080/v1/api/users/bank-accounts`, {
+                `https://api.thehostie.com/v1/api/users/bank-accounts`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.token}`
                 }
@@ -114,6 +110,23 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             setIsLoading(false);
         }
     };
+
+    const fetchBookingLogs = async (id: any) => {
+        setIsLoading(true);
+        try {
+            const response = await axiosClient.get(
+                `${baseURl}/booking/${id}/logs`, {
+            }
+            );
+            setLogs(response.data.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
     // Function Confirm booking
     const confirmBooking = async (
         holdId: number,
@@ -141,7 +154,7 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
         }
     };
     // Function Confirm reject booking
-    const cancelBooking = async (holdId: number, checkin: string, checkout: string) => {
+    const cancelBooking = async (holdId: number, checkin: string, checkout: string, rejectionReason: string) => {
         try {
             setIsLoading(true);
             await axiosClient.post(`${baseURl}/booking/accept`, {
@@ -151,6 +164,7 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
                 checkout,
                 commission_rate: 10,
                 bank_account_id: 25,
+                reason_reject: rejectionReason || 'deo thic',
             });
             toast.success('Đặt chỗ đã được hủy thành công.');
 
@@ -200,8 +214,10 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             confirmBooking,
             confirmReceiveMoney,
             bankList,
+            fetchBookingLogs,
+            logs
         }),
-        [rows, totalRecords, page, isLoading, bankList]
+        [rows, totalRecords, page, isLoading, bankList, logs]
     );
 
     return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

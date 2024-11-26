@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-nested-ternary */
 import * as React from 'react';
@@ -15,9 +16,11 @@ import {
     Box,
     TextField,
     Autocomplete,
+    InputAdornment,
 } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useBooking } from 'src/auth/context/service-context/BookingContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { Formik, Form } from 'formik';
@@ -26,14 +29,52 @@ import { useManageBookingResidencesContext } from 'src/auth/context/manage-book-
 import { useBookingListContext } from 'src/auth/context/booking-list-context/BookingListContext';
 import { MRT_Localization_VI } from 'material-react-table/locales/vi'; // Nhập localization tiếng Việt
 import BookingDetailSidebar from '../booking-list/BookingDetailSideBar';
+import { formatCurrency } from '../booking-service/Booking';
+import BookingLogsModal from '../booking-list/BookingLogs';
+import { CalendarMonthRounded } from '@mui/icons-material';
 
-const validationSchema = Yup.object({
-    bank: Yup.string().required('Vui lòng chọn ngân hàng'),
-    commission: Yup.number()
-        .required('Vui lòng nhập hoa hồng')
-        .min(10, 'Lớn hơn 10')
-        .max(100, 'Không vượt quá 100'),
-});
+const logsData = [
+    {
+        date: "2024-11-23T16:07:26.76524Z",
+        event_type: "BOOKING_CREATED",
+        user_id: 1,
+        username: "seller",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
+        data_change: [
+            { field: "id", old_value: null, new_value: 408 },
+            { field: "residence_id", old_value: null, new_value: 192 },
+            { field: "guest_name", old_value: null, new_value: "Hoàng Thiên" },
+            { field: "total_amount", old_value: null, new_value: 1100 },
+        ],
+    },
+    {
+        date: "2024-11-23T16:09:27.928592Z",
+        event_type: "HOST_ACCEPTED_BOOKING",
+        user_id: 3,
+        username: "host",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/c0e9b6dd-ed1e-4042-b16c-d5770094f5c8.jpg",
+        data_change: [
+            { field: "paid_amount", old_value: 0, new_value: 440 },
+            { field: "is_host_accept", old_value: false, new_value: true },
+        ],
+    },
+    {
+        date: "2024-11-23T16:11:38.892049Z",
+        event_type: "SELLER_TRANSFERRED",
+        user_id: 1,
+        username: "seller",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
+        data_change: [{ field: "updated_at", old_value: "2024-11-23T16:09:27.928592Z", new_value: "2024-11-23T16:11:38.892049Z" }],
+    },
+    {
+        date: "2024-11-23T16:24:28.036904Z",
+        event_type: "BOOKING_SYSTEM_CANCELLED",
+        user_id: 2,
+        username: "admin",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/b5e98741-ee7d-4eec-b88b-e66e2a14effe.png",
+        data_change: null,
+    },
+];
 
 interface HoldData {
     id: number;
@@ -57,28 +98,58 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         'accept'
     );
     const [selectedRowId, setSelectedRowId] = React.useState<number | null>(null);
-    const { confirmBooking, cancelBooking, confirmReceiveMoney, bankList } =
+    const { confirmBooking, cancelBooking, confirmReceiveMoney, bankList, fetchBookingLogs, logs } =
         useManageBookingResidencesContext();
+
+
+    const { fetchPriceQuotation,
+        priceQuotation } = useBooking();
     const { detail, fetchDataDetail } = useBookingListContext();
     const [openSidebar, setOpenSidebar] = React.useState(false);
     const [isEdit, setIsEdit] = React.useState(false);
+
+
+    const [openLogs, setOpenLogs] = React.useState(false);
+
+    const handleOpenLogs = () => setOpenLogs(true);
+
+    const handleCloseLogs = () => setOpenLogs(false);
+
     const handleViewBooking = () => {
         setOpenSidebar(true);
         setIsEdit(false);
     };
-    const handleActionClick = (type: 'accept' | 'cancel' | 'confirmPayment', rowId: number) => {
+    const handleActionClick = async (type: 'accept' | 'cancel' | 'confirmPayment', rowId: number) => {
         setActionType(type);
         setSelectedRowId(rowId);
-        setOpenDialog(true);
+
+        const row = rows.find((r) => r.id === rowId);
+        if (!row) return;
+
+        if (type === 'accept') {
+            await fetchPriceQuotation(row.checkin, row.checkout, row.residence_id); // Fetch giá trị commission trước
+        }
+
+        setOpenDialog(true); // Mở form sau khi fetch xong
     };
+
+    const validationSchema = Yup.object({
+        bank: Yup.string().required('Vui lòng chọn ngân hàng'),
+        commission: Yup.number()
+            .required('Vui lòng nhập hoa hồng')
+            .min(priceQuotation?.commission_rate - 1, `Lớn hơn hoặc bằng ${priceQuotation?.commission_rate}`)
+            .max(100, 'Không vượt quá 100'),
+    });
     const handleDialogClose = () => {
         setOpenDialog(false);
     };
 
-    const handleConfirmAction = async (values?: { bank: any; commission: any }) => {
+    const handleConfirmAction = async (values?: { bank: any; commission: any, rejectionReason: any }) => {
         if (selectedRowId === null) return;
         const row = rows.find((r) => r.id === selectedRowId);
         if (!row) return;
+
+
         const formattedCheckin = row.checkin;
         const formattedCheckout = row.checkout;
         if (actionType === 'accept') {
@@ -90,7 +161,9 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                 values?.commission
             );
         } else if (actionType === 'cancel') {
-            await cancelBooking(row.id, formattedCheckin, formattedCheckout);
+
+
+            await cancelBooking(row.id, formattedCheckin, formattedCheckout, values?.rejectionReason);
         } else if (actionType === 'confirmPayment') {
             await confirmReceiveMoney(row.id, formattedCheckin, formattedCheckout);
         }
@@ -99,8 +172,8 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
     const columns: MRT_ColumnDef<HoldData>[] = [
         {
             accessorKey: 'id',
-            header: 'ID Giữ Chỗ',
-            size: 100,
+            header: 'Mã đặt chỗ',
+            size: 10,
             Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
         },
         {
@@ -111,82 +184,65 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         },
         {
             accessorKey: 'seller_name',
-            header: 'Tên Người Bán',
+            header: 'Tên Người Đặt',
             size: 200,
             Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
         },
-        {
-            accessorKey: 'checkin',
-            header: 'Ngày Nhận Phòng',
-            size: 150,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
-        },
-        {
-            accessorKey: 'checkout',
-            header: 'Ngày Trả Phòng',
-            size: 150,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
-        },
+
         {
             accessorKey: 'total_amount',
             header: 'Tổng Số Tiền',
             size: 150,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+            Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
         },
         {
             accessorKey: 'paid_amount',
-            header: 'Số Tiền Đã Thanh Toán',
+            header: 'Số Tiền Cần Thanh Toán',
             size: 150,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+            Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
         },
+
         {
-            accessorKey: 'guest_name',
-            header: 'Tên Khách',
-            size: 200,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue() || 'Không có'}</Typography>,
-        },
-        {
-            accessorKey: 'guest_phone',
-            header: 'Điện Thoại Khách',
-            size: 150,
-            Cell: ({ cell }: any) => <Typography>{cell.getValue() || 'Không có'}</Typography>,
-        },
-        {
-            accessorKey: 'is_host_accept',
-            header: 'Chấp Nhận Của Chủ',
-            size: 150,
+            accessorKey: 'is_customer_checkin',
+            header: 'Nhận nơi lưu trú ',
+            size: 100,
             Cell: ({ row, cell }: any) =>
                 renderBooleanChip(
                     cell.getValue(),
-                    'Đã Chấp Nhận',
-                    'Chưa Chấp Nhận',
+                    'Đã nhận',
+                    'Chưa nhận',
+                    row.original.status === 0
+                ),
+        },
+        {
+            accessorKey: 'is_customer_out',
+            header: 'Trả nơi lưu trú ',
+            size: 100,
+            Cell: ({ row, cell }: any) =>
+                renderBooleanChip(
+                    cell.getValue(),
+                    'Đã trả',
+                    'Chưa trả',
                     row.original.status === 0
                 ),
         },
         {
             accessorKey: 'is_seller_transfer',
             header: 'Chuyển Giao',
-            size: 150,
+            size: 100,
             Cell: ({ row, cell }: any) =>
                 renderBooleanChip(cell.getValue(), 'Đã Chuyển', 'Chưa Chuyển', row.original.status === 0),
         },
         {
-            accessorKey: 'is_host_receive',
-            header: 'Chủ Nhận',
-            size: 150,
-            Cell: ({ row, cell }: any) =>
-                renderBooleanChip(cell.getValue(), 'Đã Nhận', 'Chưa Nhận', row.original.status === 0),
-        },
-        {
             accessorKey: 'action',
             header: 'Hành Động',
-            size: 150,
+            size: 100,
             Cell: ({ row }: any) => {
                 const { status } = row.original;
                 return (
                     <Box display="flex">
                         {status === 0 ? (
-                            <Tooltip title="Xem chi tiết nơi lưu trú">
+                            <Tooltip title="Xem chi tiết ">
                                 <IconButton
                                     color="info"
                                     onClick={() => {
@@ -199,15 +255,15 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                             </Tooltip>
                         ) : status === 1 ? (
                             <>
-                                <Tooltip title="Xác nhận đã giữ chỗ">
+                                <Tooltip title="Xác nhận đặt nơi lưu trú">
                                     <IconButton
                                         color="success"
-                                        onClick={() => handleActionClick('accept', row.original.id)}
+                                        onClick={() => { handleActionClick('accept', row.original.id); }}
                                     >
                                         <CheckCircleIcon />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Hủy giữ chỗ">
+                                <Tooltip title="Hủy đặt nơi lưu trú">
                                     <IconButton
                                         color="error"
                                         onClick={() => handleActionClick('cancel', row.original.id)}
@@ -218,17 +274,30 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                             </>
                         ) : status === 2 ? (
                             row.original.is_host_receive ? (
-                                <Tooltip title="Xem chi tiết nơi lưu trú">
-                                    <IconButton
-                                        color="info"
-                                        onClick={() => {
-                                            fetchDataDetail(row.original.id);
-                                            handleViewBooking();
-                                        }}
-                                    >
-                                        <VisibilityIcon />
-                                    </IconButton>
-                                </Tooltip>
+                                <>
+                                    <Tooltip title="Xem chi tiết nơi lưu trú">
+                                        <IconButton
+                                            color="info"
+                                            onClick={() => {
+                                                fetchDataDetail(row.original.id);
+                                                handleViewBooking();
+                                            }}
+                                        >
+                                            <VisibilityIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Xem nhật kí đặt nơi lưu trú">
+                                        <IconButton
+                                            color="info"
+                                            onClick={async () => {
+                                                await fetchBookingLogs(row.original.id)
+                                                handleOpenLogs()
+                                            }}
+                                        >
+                                            <CalendarMonthRounded />
+                                        </IconButton>
+                                    </Tooltip></>
+
                             ) : (
                                 <>
                                     <Tooltip title="Xác nhận đã nhận tiền">
@@ -239,7 +308,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                                             <CheckCircleIcon />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Xem chi tiết nơi lưu trú">
+                                    <Tooltip title="Xem chi tiết ">
                                         <IconButton
                                             color="info"
                                             onClick={() => {
@@ -296,20 +365,56 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                         cho đơn đặt nơi lưu trú này? Thao tác này không thể hoàn tác.
                     </DialogContentText>
 
-                    {actionType === 'accept' && (
+                    {actionType === 'cancel' && (
+
                         <Formik
-                            initialValues={{ bank: '', commission: 10 }}
-                            validationSchema={validationSchema}
+                            initialValues={{ rejectionReason: '' }}
+                            validationSchema={Yup.object({
+                                rejectionReason: Yup.string().required('Vui lòng nhập lý do từ chối.')
+                            })}
                             onSubmit={(values) => handleConfirmAction(values)}
                         >
-                            {({ errors, touched, handleSubmit, setFieldValue, handleChange, initialValues }) => (
+                            {({ errors, touched, handleSubmit, handleChange, values }) => (
+                                <Form onSubmit={handleSubmit}>
+                                    <TextField
+                                        name="rejectionReason"
+                                        label="Lý Do Từ Chối"
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="normal"
+                                        onChange={handleChange}
+                                        multiline
+                                        rows={3}
+                                        error={touched.rejectionReason && Boolean(errors.rejectionReason)}
+                                        helperText={touched.rejectionReason && errors.rejectionReason}
+                                    />
+                                    <DialogActions>
+                                        <Button onClick={handleDialogClose} color='primary'>Hủy</Button>
+                                        <Button type="submit" color="error" autoFocus>
+                                            Xác Nhận
+                                        </Button>
+                                    </DialogActions>
+                                </Form>
+                            )}
+                        </Formik>
+                    )}
+
+
+
+
+                    {actionType !== 'cancel' && actionType === 'accept' && (
+                        <Formik
+                            initialValues={{ bank: '', commission: priceQuotation?.commission_rate }}
+                            validationSchema={validationSchema}
+                            onSubmit={(values: any) => handleConfirmAction(values)}
+                        >
+                            {({ errors, touched, handleSubmit, setFieldValue, handleChange, values }) => (
                                 <Form onSubmit={handleSubmit}>
                                     <Autocomplete
                                         id="bank-autocomplete"
                                         options={bankList || []}
-                                        getOptionLabel={(option: any) => option.bank.vnName || ''} // Display the bank name
+                                        getOptionLabel={(option: any) => option.bank.vnName || ''}
                                         onChange={(event, value) => {
-                                            // Set Formik field value when an option is selected
                                             setFieldValue('bank', value?.id || '');
                                         }}
                                         renderInput={(params) => (
@@ -329,14 +434,18 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                                         label="Hoa hồng"
                                         type="number"
                                         fullWidth
-                                        onChange={handleChange}
                                         margin="normal"
+                                        onChange={handleChange}
+                                        value={values.commission}
                                         error={touched.commission && Boolean(errors.commission)}
                                         helperText={touched.commission && errors.commission}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">%</InputAdornment>, // Thêm dấu %
+                                        }}
                                     />
                                     <DialogActions>
-                                        <Button onClick={handleDialogClose}>Hủy</Button>
-                                        <Button type="submit" color="primary" autoFocus>
+                                        <Button onClick={handleDialogClose} color='primary'>Hủy</Button>
+                                        <Button type="submit" color="success" autoFocus>
                                             Xác Nhận
                                         </Button>
                                     </DialogActions>
@@ -344,16 +453,17 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                             )}
                         </Formik>
                     )}
-                    {actionType !== 'accept' && (
+                    {actionType === 'confirmPayment' && (
                         <DialogActions>
-                            <Button onClick={handleDialogClose}>Hủy</Button>
-                            <Button onClick={() => handleConfirmAction()} color="primary" autoFocus>
+                            <Button onClick={handleDialogClose} color='primary'>Hủy</Button>
+                            <Button onClick={() => handleConfirmAction()} color="success" autoFocus>
                                 Xác Nhận
                             </Button>
                         </DialogActions>
                     )}
                 </DialogContent>
             </Dialog>
+
             <BookingDetailSidebar
                 open={openSidebar}
                 onClose={() => setOpenSidebar(false)}
@@ -363,6 +473,8 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                 }}
                 isEditing={isEdit}
             />
+
+            <BookingLogsModal logs={logs} open={openLogs} onClose={handleCloseLogs} />
         </>
     );
 };

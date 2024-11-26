@@ -29,6 +29,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 ///
 
 //------------------
@@ -42,14 +43,10 @@ const updateInfor = async (payload: any) => {
 export default function AccountGeneral(props: any) {
   const { enqueueSnackbar } = useSnackbar();
 
+  const queryClient = useQueryClient();
   const { userData, bankName = [] } = props;
 
   const { defaultAvatar } = useDefaultAvatar();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['userInfo'],
-    queryFn: async () => getUserInfor(),
-  });
 
   const handleChange = (event: SelectChangeEvent, index: number) => {
     setBankList((prevBankList) =>
@@ -59,8 +56,8 @@ export default function AccountGeneral(props: any) {
   };
 
   const [phoneList, setPhoneList] = useState<any[]>(() =>
-    data?.phones && Array.isArray(data?.phones) && data?.phones.length > 0
-      ? data?.phones
+    userData?.phones && Array.isArray(userData?.phones) && userData?.phones.length > 0
+      ? userData?.phones
       : [
           {
             phone: '',
@@ -70,8 +67,10 @@ export default function AccountGeneral(props: any) {
   );
 
   const [bankList, setBankList] = useState<any[]>(() =>
-    data?.bankAccounts && Array.isArray(data?.bankAccounts) && data?.bankAccounts.length > 0
-      ? data?.bankAccounts
+    userData?.bankAccounts &&
+    Array.isArray(userData?.bankAccounts) &&
+    userData?.bankAccounts.length > 0
+      ? userData?.bankAccounts
       : [
           {
             accountNo: 0,
@@ -113,11 +112,11 @@ export default function AccountGeneral(props: any) {
   });
 
   const defaultValues: any = {
-    firstName: data?.firstName,
-    middleName: data?.middleName,
-    lastName: data?.lastName,
+    firstName: userData?.firstName,
+    middleName: userData?.middleName,
+    lastName: userData?.lastName,
     phones: phoneList,
-    email: data?.email,
+    email: userData?.email,
     bankAccounts: bankList,
   };
 
@@ -152,9 +151,10 @@ export default function AccountGeneral(props: any) {
         bankAccounts: data.bankAccounts,
         email: data.email,
       };
-   
 
+      setEditImage(false);
       mutate(payload);
+      queryClient.invalidateQueries(['userTest'] as any);
     } catch (error) {
       console.error(error);
     }
@@ -174,10 +174,6 @@ export default function AccountGeneral(props: any) {
     },
     [setValue]
   );
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -274,7 +270,7 @@ export default function AccountGeneral(props: any) {
               <RHFTextField name="firstName" label="Tên" disabled={!isEdit} />
               <RHFTextField name="middleName" label="Tên đệm" disabled={!isEdit} />
               <RHFTextField name="lastName" label="Họ" disabled={!isEdit} />
-              {data?.phones &&
+              {userData?.phones &&
                 phoneList.map((phone, index) => (
                   <RHFTextField
                     key={index}

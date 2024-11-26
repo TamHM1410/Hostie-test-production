@@ -12,6 +12,7 @@ import { Divider, Typography, Link as MUILink, Box, Grid, Paper } from '@mui/mat
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import axiosClient from 'src/utils/axiosClient';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 interface ResidenceAddress {
     address: string;
@@ -47,7 +48,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
         const fetchImages = async () => {
             try {
                 const response = await axiosClient.get(
-                    `http://34.81.244.146:5005/residences/${id}/images`,
+                    `https://core-api.thehostie.com/residences/${id}/images`,
                     {
                         params: {
                             page_size: 99,
@@ -73,7 +74,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
 
         const fetchResidenceData = async () => {
             try {
-                const response = await axiosClient.get(`http://34.81.244.146:5005/residences/${id}`, {});
+                const response = await axiosClient.get(`https://core-api.thehostie.com/residences/${id}`, {});
 
                 if (response.status === 200) {
                     const data1 = response.data;
@@ -95,8 +96,22 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
 
     return (
         <div>
+            <CustomBreadcrumbs
+                heading="Thông tin chi tiết nơi lưu trú"
+                links={[{ name: '' }]}
+                sx={{
+                    mb: { xs: 3, md: 5 },
+                    px: 1,
+                }}
+            />
             {residenceData ? (
-                <Paper style={{ padding: '20px', margin: '20px 0' }}>
+                <Paper style={{
+                    padding: '20px',
+                    margin: '20px 0',
+                    border: '1px solid #E0E0E0', // Light grey border
+                    borderRadius: '8px', // Rounded corners
+                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)', // Soft shadow for depth
+                }}>
                     <Grid container spacing={2} justifyContent="center" alignItems="center">
                         <Grid item xs={12} lg={6}>
                             <Box flex={1}>

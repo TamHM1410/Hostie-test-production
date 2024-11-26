@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
 /* eslint-disable radix */
@@ -29,6 +31,7 @@ import Step1 from './CreateStep1';
 import Step3 from './CreateStep3';
 import Step2 from './CreateStep2';
 import Step4 from './CreateStep4';
+import CreatePolicy from './CreateStep3-2';
 
 
 
@@ -53,7 +56,7 @@ export default function ServiceView() {
         onDrop,
         accept: 'image/*' as unknown as Accept,
     });
-
+    const [isLoading2, setIsLoading2] = useState(false)
     // another state
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
@@ -87,6 +90,7 @@ export default function ServiceView() {
     const handleClose = () => {
         setOpen(false);
         setCurrentStep(0);
+        fetchData(1, '')
         localStorage.removeItem('step3Data');
         localStorage.removeItem('formValues');
         localStorage.removeItem('formValues2');
@@ -94,7 +98,7 @@ export default function ServiceView() {
         setImages([]);
     };
     const nextStep = () => {
-        if (currentStep < 4) {
+        if (currentStep < 5) {
             setCurrentStep((prev) => prev + 1);
         }
     };
@@ -120,7 +124,7 @@ export default function ServiceView() {
             };
 
             try {
-                const response = await axiosClient.post('http://34.81.244.146:5005/residences', payload, {
+                const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
                 });
                 setIdService(response.data.data.id);
@@ -144,7 +148,7 @@ export default function ServiceView() {
             };
 
             try {
-                const response = await axiosClient.post('http://34.81.244.146:5005/residences', payload, {
+                const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
                 });
                 setIdService(response.data.data.id);
@@ -166,7 +170,7 @@ export default function ServiceView() {
         };
 
         try {
-            const response = await axiosClient.post('http://34.81.244.146:5005/residences', payload, {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
             });
 
@@ -183,7 +187,7 @@ export default function ServiceView() {
         };
 
         try {
-            const response = await axiosClient.post('http://34.81.244.146:5005/residences', payload, {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
             });
 
@@ -216,7 +220,7 @@ export default function ServiceView() {
         };
 
         try {
-            const response = await axiosClient.post('http://34.81.244.146:5005/residences', payload, {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
             });
 
@@ -226,6 +230,7 @@ export default function ServiceView() {
         }
     };
     const handleStep5Submit = async (data: any) => {
+        setIsLoading2(true)
         const formData = new FormData();
         formData.append('step', '5');
         formData.append('id', idService);
@@ -233,16 +238,53 @@ export default function ServiceView() {
             formData.append('files', file);
         });
         try {
-            const response = await axiosClient.post('http://34.81.244.146:5005/residences', formData, {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', formData, {
 
             });
             handleClose();
             fetchData(1, '');
+            setIsLoading2(false)
             toast.success('Tạo nơi lưu trú thành công');
         } catch (error) {
             console.error('Error submitting step 4:', error);
         }
+        finally {
+            setIsLoading2(false)
+        }
     };
+
+
+    const policyTemplate = `
+🏨 Chính Sách Khách Sạn Paradise
+
+⏰ Thời gian nhận phòng và trả phòng
+- Nhận phòng: sau 14:00
+- Trả phòng: trước 12:00
+`;
+
+    const handleSavePolicy = async (files: File[]) => {
+
+        const formData = new FormData();
+        formData.append('policy', policyTemplate);
+        formData.append('residence_id', idService);
+        files.forEach((file) => {
+            formData.append('files', file);
+        });
+        try {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences/policy', formData, {
+
+            });
+
+            nextStep();
+        } catch (error) {
+            toast.error('Đã có lỗi trong bước tạo chính sách')
+        }
+
+
+    };
+
+
+
 
     const renderStepContent = () => {
         switch (currentStep) {
@@ -284,6 +326,14 @@ export default function ServiceView() {
                 );
             case 4:
                 return (
+                    <CreatePolicy
+                        currentStep={currentStep}
+                        previousStep={previousStep}
+                        onSave={handleSavePolicy}
+                    />
+                );
+            case 5:
+                return (
                     <Step4
                         currentStep={currentStep}
                         previousStep={previousStep}
@@ -304,7 +354,7 @@ export default function ServiceView() {
 
     return (
         <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-            <Backdrop open={isLoading} style={{ zIndex: 9999, color: '#fff' }}>
+            <Backdrop open={isLoading || isLoading2} style={{ zIndex: 9999, color: '#fff' }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
             <Box display="flex" justifyContent="flex-end">
@@ -326,22 +376,31 @@ export default function ServiceView() {
                     + Thêm nơi lưu trú
                 </Button>
             </Box>
-            <Box mb={2}>
-                <TextField
-                    variant="outlined"
-                    placeholder="Tìm nơi lưu trú..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    fullWidth
-                />
-            </Box>
-            <ServiceCard
-                fetchData={fetchData}
-                currentItems={serviceData}
-                totalPages={totalPage}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-            />
+
+            {serviceData.length === 0 ? <Typography sx={{ width: 'full', textAlign: 'center', marginTop: 10, fontSize: 20, fontWeight: 'bold' }}>Hãy bắt đầu tạo những nơi lưu trú nào !</Typography> :
+                <>
+
+                    <Box mb={2}>
+                        <TextField
+                            variant="outlined"
+                            placeholder="Tìm nơi lưu trú..."
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            fullWidth
+                        />
+                    </Box>
+
+
+                    <ServiceCard
+                        fetchData={fetchData}
+                        currentItems={serviceData}
+                        totalPages={totalPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
+                </>
+            }
+
             {/* Dialog */}
             <Dialog open={open} onClose={undefined} maxWidth="md">
                 <DialogTitle>

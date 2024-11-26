@@ -38,7 +38,7 @@ const TABS = [
 
 // ----------------------------------------------------------------------
 
-export default function xMyResidenceView() {
+export default function MyResidenceView() {
 
   const [filter,setFilter]=useState('all')
   const [currentTab, setCurrentTab] = useState('work');

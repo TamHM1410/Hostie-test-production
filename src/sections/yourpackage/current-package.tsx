@@ -14,8 +14,7 @@ import Typography from '@mui/material/Typography';
 // assets
 import { PlanFreeIcon, PlanStarterIcon, PlanPremiumIcon } from 'src/assets/icons';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
+import { useCurrentPaymentType } from 'src/zustand/package';
 
 // ----------------------------------------------------------------------
 
@@ -34,17 +33,21 @@ type Props = CardProps & {
 
 
 export default function CurrentPackage({ card, sx, ...other }: Props | any) {
-  const { price, caption, name, description } = card;
 
+  const { updateType ,updateId} = useCurrentPaymentType();
+
+  const { price, caption, name, description ,duration,id } = card;
   const router = useRouter();
 
-  const basic = 'basic';
-
+  const handleOnclick =()=>{
+    updateType('extend')
+    updateId(id)
+    router.push(`/pricing/checkout?step=0&type=extend&packageId=${id}`);
+  }
   const renderIcon = (
     <Stack direction="row" alignItems="center" justifyContent="space-between">
    
 
-      {/* {starter && <Label color="info">POPULAR</Label>} */}
     </Stack>
   );
 
@@ -65,8 +68,8 @@ export default function CurrentPackage({ card, sx, ...other }: Props | any) {
   const renderList = (
     <Stack spacing={2}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Box component="span" sx={{ typography: 'overline' }}>
-          Tính năng
+        <Box component="span" sx={{ typography: 'overline' }} >
+          Gói của bạn còn  <span style={{fontSize:30,margin:2}}>  {duration}</span>  ngày
         </Box>
       </Stack>
 
@@ -78,8 +81,7 @@ export default function CurrentPackage({ card, sx, ...other }: Props | any) {
           typography: 'body2',
         }}
       >
-        <Iconify icon="eva:checkmark-fill" width={16} sx={{ mr: 1 }} />
-        {description}
+        <Button sx={{width:'100%',color:'primary'}} variant='outlined' onClick={ handleOnclick}> Gia hạn ngay</Button>
       </Stack>
     </Stack>
   );

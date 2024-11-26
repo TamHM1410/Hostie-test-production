@@ -41,9 +41,14 @@ const updateAvatar=async(file:any)=>{
 
 }
 
+const getUserRole=async (): Promise<UserInfoResponse>=>{
+  return await axiosClient.get(endPoint.user.role)
+}
+
+
 ///// admin user management
-const getAllUserApi = async () => {
-  return await axiosClient.get(endPoint.admin.getAllUser);
+const getAllUserApi = async ({limit=1000,search=''}) => {
+  return await axiosClient.get(`${endPoint.admin.getAllUser}?size=${limit}&search=${search}`);
 };
 
 const updateUserActive=async (id:any,isActive:any)=>{
@@ -80,8 +85,9 @@ const updatedRoleApi = async ({id,payload}:{ id: any; payload: any }): Promise<U
 
 
 
-export {
 
+export {
+  getUserRole,
   registerApi,
   loginApi,
   refreshToken,

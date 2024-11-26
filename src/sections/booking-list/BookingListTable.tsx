@@ -14,6 +14,12 @@ import {
     DialogActions,
     Button,
     Box,
+    Popover,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
 } from '@mui/material';
 import { useBookingListContext } from 'src/auth/context/booking-list-context/BookingListContext';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -24,6 +30,59 @@ import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { MRT_Localization_VI } from 'material-react-table/locales/vi'; // Import Vietnamese localization
 import QRDialog from './QrCode';
 import BookingDetailSidebar from './BookingDetailSideBar';
+import { useBooking } from 'src/auth/context/service-context/BookingContext';
+import { CalendarMonthRounded, ReportOffRounded, ReportRounded } from '@mui/icons-material';
+import { useReportListContext } from 'src/auth/context/report-list-context/ReportListContext';
+import ReportForm from './ReportForm';
+import { formatCurrency } from '../booking-service/Booking';
+import BookingLogsModal from './BookingLogs';
+import { BookmarkPlusIcon, KeyIcon, MoreVerticalIcon } from 'lucide-react';
+
+
+
+
+const logsData = [
+    {
+        date: "2024-11-23T16:07:26.76524Z",
+        event_type: "BOOKING_CREATED",
+        user_id: 1,
+        username: "seller",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
+        data_change: [
+            { field: "id", old_value: null, new_value: 408 },
+            { field: "residence_id", old_value: null, new_value: 192 },
+            { field: "guest_name", old_value: null, new_value: "Hoàng Thiên" },
+            { field: "total_amount", old_value: null, new_value: 1100 },
+        ],
+    },
+    {
+        date: "2024-11-23T16:09:27.928592Z",
+        event_type: "HOST_ACCEPTED_BOOKING",
+        user_id: 3,
+        username: "host",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/c0e9b6dd-ed1e-4042-b16c-d5770094f5c8.jpg",
+        data_change: [
+            { field: "paid_amount", old_value: 0, new_value: 440 },
+            { field: "is_host_accept", old_value: false, new_value: true },
+        ],
+    },
+    {
+        date: "2024-11-23T16:11:38.892049Z",
+        event_type: "SELLER_TRANSFERRED",
+        user_id: 1,
+        username: "seller",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
+        data_change: [{ field: "updated_at", old_value: "2024-11-23T16:09:27.928592Z", new_value: "2024-11-23T16:11:38.892049Z" }],
+    },
+    {
+        date: "2024-11-23T16:24:28.036904Z",
+        event_type: "BOOKING_SYSTEM_CANCELLED",
+        user_id: 2,
+        username: "admin",
+        user_avatar: "https://hostie-image.s3.amazonaws.com/b5e98741-ee7d-4eec-b88b-e66e2a14effe.png",
+        data_change: null,
+    },
+];
 
 interface BookingData {
     id: number;
@@ -47,12 +106,43 @@ interface BookingListTableProps {
 
 const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     const [openDialog, setOpenDialog] = useState(false);
+
     const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+
     const [bookingToCancel, setBookingToCancel] = useState<number | null>(null);
-    const { detail, fetchDataDetail, confirmTransfer, cancelBooking, handleUpdateBookingSubmit, qr, fetchDataDetailBookingQR } = useBookingListContext();
+
+    const { detail, fetchDataDetail, confirmTransfer, cancelBooking, handleUpdateBookingSubmit, qr, fetchDataDetailBookingQR, logs, fetchBookingLogs } = useBookingListContext();
+
+    const { createReport } = useReportListContext()
+
     const [openSidebar, setOpenSidebar] = useState(false);
+
     const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null);
+
     const [isEdit, setIsEdit] = useState(false);
+
+    const [residenceId, setResidenceId] = useState()
+
+    const [bookingId2, setBookingId] = useState()
+
+    const [openReportDialog, setOpenReportDialog] = useState(false);
+
+    const handleOpenReportDialog = () => setOpenReportDialog(true);
+
+    const handleCloseReportDialog = () => setOpenReportDialog(false);
+
+
+    const [openLogs, setOpenLogs] = useState(false);
+
+    const handleOpenLogs = () => setOpenLogs(true);
+
+    const handleCloseLogs = () => setOpenLogs(false);
+
+    const handleReportSubmit = (data: any) => {
+
+        createReport(residenceId, bookingId2, data.reportType, data.severity, data.title, data.description)
+    };
+
 
     const handleViewBooking = (bookingId: number) => {
         const bookingDetails = rows.find((row) => row.id === bookingId);
@@ -72,6 +162,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
 
     const handleCloseDialog = () => setOpenDialog(false);
 
+
     const handleOpenConfirmationDialog = (id: number) => {
         setBookingToCancel(id);
         setOpenConfirmationDialog(true);
@@ -80,7 +171,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     const handleCloseConfirmationDialog = () => {
         setOpenConfirmationDialog(false);
         setBookingToCancel(null);
-    };
+    }
 
     const handleConfirmCancellation = () => {
         if (bookingToCancel) {
@@ -117,15 +208,15 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         () => [
             {
                 accessorKey: 'id',
-                header: 'ID',
+                header: 'Mã Đặt Chỗ',
                 size: 100,
                 Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
             },
             {
                 accessorKey: 'paid_amount',
-                header: 'Số Tiền Đã Thanh Toán',
+                header: 'Số Tiền Cần Thanh Toán',
                 size: 150,
-                Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+                Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
             },
             {
                 accessorKey: 'checkin',
@@ -140,16 +231,28 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
             },
             {
-                accessorKey: 'guest_name',
-                header: 'Tên Khách',
-                size: 200,
-                Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+                accessorKey: 'is_customer_checkin',
+                header: 'Nhận nơi lưu trú ',
+                size: 100,
+                Cell: ({ row, cell }: any) =>
+                    renderBooleanChip(
+                        cell.getValue(),
+                        'Đã nhận',
+                        'Chưa nhận',
+                        row.original.status === 0
+                    ),
             },
             {
-                accessorKey: 'guest_phone',
-                header: 'Số Điện Thoại Khách',
-                size: 150,
-                Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+                accessorKey: 'is_customer_out',
+                header: 'Trả nơi lưu trú ',
+                size: 100,
+                Cell: ({ row, cell }: any) =>
+                    renderBooleanChip(
+                        cell.getValue(),
+                        'Đã trả',
+                        'Chưa trả',
+                        row.original.status === 0
+                    ),
             },
             {
                 accessorKey: 'is_host_accept',
@@ -164,13 +267,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                     ),
             },
             {
-                accessorKey: 'is_seller_transfer',
-                header: 'Chuyển Giao',
-                size: 150,
-                Cell: ({ row, cell }: any) =>
-                    renderBooleanChip(cell.getValue(), 'Đã Chuyển', 'Chưa Chuyển', row.original.status === 0),
-            },
-            {
                 accessorKey: 'is_host_receive',
                 header: 'Chủ Nhận',
                 size: 150,
@@ -181,77 +277,172 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 accessorKey: 'action',
                 header: 'Hành Động',
                 size: 200,
-                Cell: ({ row }: any) => (
-                    <Box display="flex">
-                        {row.original.status === 0 ? (
-                            <Tooltip title="Xem Chi Tiết">
-                                <IconButton
-                                    color="info"
-                                    onClick={() => {
-                                        fetchDataDetail(row.original.id);
-                                        handleViewBooking(row.original.id);
-                                    }}
-                                >
-                                    <VisibilityIcon />
-                                </IconButton>
-                            </Tooltip>
-                        ) : (
-                            <>
-                                <Tooltip title="Hủy Đặt">
-                                    <IconButton
-                                        color="error"
-                                        onClick={() => handleOpenConfirmationDialog(row.original.id)}
-                                    >
-                                        <CancelIcon />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Xem Chi Tiết">
-                                    <IconButton
-                                        color="info"
-                                        onClick={() => {
-                                            fetchDataDetail(row.original.id);
-                                            handleViewBooking(row.original.id);
-                                        }}
-                                    >
-                                        <VisibilityIcon />
-                                    </IconButton>
-                                </Tooltip>
-                                {!row.original.is_host_accept && (
-                                    <Tooltip title="Sửa Đặt">
-                                        <IconButton
-                                            color="success"
-                                            onClick={() => {
-                                                fetchDataDetail(row.original.id);
-                                                handleEditBooking(row.original.id);
-                                            }}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                                {row.original.is_host_accept && !row.original.is_seller_transfer && (
-                                    <Tooltip title="Chuyển Tiền">
-                                        <IconButton
-                                            color="success"
-                                            onClick={() => {
-                                                fetchDataDetail(row.original.id);
-                                                fetchDataDetailBookingQR(row.original.id);
-                                                handleOpenDialog();
-                                            }}
-                                        >
-                                            <AttachMoneyIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                            </>
-                        )}
-                    </Box>
-                ),
+                Cell: ({ row }: any) => {
+                    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+                    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+                        setAnchorEl(event.currentTarget);
+                    };
+
+                    const handleClose = () => {
+                        setAnchorEl(null);
+                    };
+
+                    const open = Boolean(anchorEl);
+                    const id = open ? 'action-popover' : undefined;
+
+                    return (
+                        <>
+                            <IconButton onClick={handleOpen}>
+                                <MoreVerticalIcon />
+                            </IconButton>
+                            <Popover
+                                id={id}
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={handleClose}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                            >
+                                <List>
+                                    {row.original.status === 0 ? (
+                                        <>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={() => {
+                                                        fetchDataDetail(row.original.id);
+                                                        handleViewBooking(row.original.id);
+                                                        handleClose();
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <VisibilityIcon color="info" />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="Xem Chi Tiết" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={() => {
+                                                        handleOpenReportDialog();
+                                                        handleClose();
+                                                        setBookingId(row.original.id);
+                                                        setResidenceId(row.original.residence_id);
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <ReportRounded color="warning" />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="Báo cáo vấn đề" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={async () => {
+                                                        await fetchBookingLogs(row.original.id);
+                                                        handleOpenLogs();
+                                                        handleClose();
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <CalendarMonthRounded />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="Xem nhật kí đặt nơi lưu trú" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={() => {
+                                                        fetchDataDetail(row.original.id);
+                                                        handleViewBooking(row.original.id);
+                                                        handleClose();
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <VisibilityIcon color="info" />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="Xem Chi Tiết" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={() => {
+                                                        handleOpenConfirmationDialog(row.original.id);
+                                                        handleClose();
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <CancelIcon color="error" />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="Hủy Đặt" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                            {row.original.is_seller_transfer && (
+                                                <ListItem disablePadding>
+                                                    <ListItemButton
+                                                        onClick={() => {
+                                                            handleOpenReportDialog();
+                                                            setBookingId(row.original.id);
+                                                            setResidenceId(row.original.residence_id);
+                                                            handleClose();
+                                                        }}
+                                                    >
+                                                        <ListItemIcon>
+                                                            <ReportRounded color="warning" />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary="Báo cáo vấn đề" />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            )}
+                                            {!row.original.is_host_accept && (
+                                                <ListItem disablePadding>
+                                                    <ListItemButton
+                                                        onClick={() => {
+                                                            fetchDataDetail(row.original.id);
+                                                            handleEditBooking(row.original.id);
+                                                            handleClose();
+                                                        }}
+                                                    >
+                                                        <ListItemIcon>
+                                                            <EditIcon color="success" />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary="Sửa Đặt Nơi Lưu Trú" />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            )}
+                                            {row.original.is_host_accept && !row.original.is_seller_transfer && (
+                                                <ListItem disablePadding>
+                                                    <ListItemButton
+                                                        onClick={() => {
+                                                            fetchDataDetail(row.original.id);
+                                                            fetchDataDetailBookingQR(row.original.id);
+                                                            handleOpenDialog();
+                                                            handleClose();
+                                                        }}
+                                                    >
+                                                        <ListItemIcon>
+                                                            <AttachMoneyIcon color="success" />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary="Chuyển Tiền" />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            )}
+                                        </>
+                                    )}
+                                </List>
+                            </Popover>
+                        </>
+                    );
+                },
             },
         ],
         [rows]
     );
-
     return (
         <>
             <MaterialReactTable
@@ -275,6 +466,16 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                     )
                 }
             />
+
+            <ReportForm
+                open={openReportDialog}
+                onClose={handleCloseReportDialog}
+                onSubmit={handleReportSubmit}
+            />
+
+            <BookingLogsModal logs={logs} open={openLogs} onClose={handleCloseLogs} />
+
+
             <Dialog open={openConfirmationDialog} onClose={handleCloseConfirmationDialog}>
                 <DialogTitle>Xác Nhận Hủy Đặt</DialogTitle>
                 <DialogContent>
@@ -284,13 +485,15 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseConfirmationDialog} color="primary">
-                        Hủy
+                        Đóng
                     </Button>
-                    <Button onClick={handleConfirmCancellation} color="success">
+                    <Button onClick={handleConfirmCancellation} color="error">
                         Xác Nhận
                     </Button>
                 </DialogActions>
             </Dialog>
+
+
             <BookingDetailSidebar
                 open={openSidebar}
                 onClose={() => setOpenSidebar(false)}

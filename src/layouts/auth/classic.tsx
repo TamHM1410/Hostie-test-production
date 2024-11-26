@@ -74,10 +74,14 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       sx={{
         width: 1,
         mx: 'auto',
-        maxWidth: 480,
+        maxWidth: {
+          md:480,
+          xs:'100%'
+        },
+        
         px: { xs: 2, md: 8 },
-        pt: { xs: 15, md: 20 },
-        pb: { xs: 15, md: 0 },
+        pt: { xs: 0, md: 20 },
+        pb: { xs: 0, md: 0 },
       }}
     >
       {children}
@@ -87,7 +91,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   const renderSection = (
     <Stack
       flexGrow={1}
-      spacing={10}
+      spacing={8}
       alignItems="center"
       justifyContent="center"
       sx={{
@@ -143,7 +147,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   return (
     <Stack
       component="main"
-      direction="row"
+      direction={mdUp ? "row" :"column"}
       sx={{
         minHeight: '100vh',
       }}

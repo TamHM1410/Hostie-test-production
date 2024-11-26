@@ -9,7 +9,7 @@ import axiosClient from 'src/utils/axiosClient';
 
 const ROWS_PER_PAGE = 9999;
 
-const baseUrl = 'http://34.81.244.146:5005';
+const baseUrl = 'https://core-api.thehostie.com';
 type RowData = {
     id: number;
     residence_name: string;
@@ -27,7 +27,7 @@ type ManageHoldResidencesContextType = {
     setPage: (value: number) => void;
     isLoading: boolean;
     confirmHold: (holdId: number, checkin: string, checkout: string) => Promise<void>;
-    cancelHold: (holdId: number, checkin: string, checkout: string) => Promise<void>;
+    cancelHold: (holdId: number, checkin: string, checkout: string, rejectionReason: string) => Promise<void>;
     // fetchData: () => Promise<void>;
 };
 
@@ -68,6 +68,7 @@ export const ManageHoldResidencesProvider = ({ children }: { children: ReactNode
                 accept: true,
                 checkin,
                 checkout,
+
             });
             toast.success('Đã xác nhận thành công');
             const fetchData = async () => {
@@ -98,14 +99,16 @@ export const ManageHoldResidencesProvider = ({ children }: { children: ReactNode
         }
     };
 
-    const cancelHold = async (holdId: number, checkin: string, checkout: string) => {
+    const cancelHold = async (holdId: number, checkin: string, checkout: string, rejectionReason: string) => {
         try {
             setIsLoading(true)
             await axiosClient.post(`${baseUrl}/booking/hold/accept`, {
                 hold_id: holdId,
                 accept: false,
                 checkin,
+                reason_reject: rejectionReason,
                 checkout,
+
             });
             toast.success('Hủy đặt chỗ thành công');
             const fetchData = async () => {

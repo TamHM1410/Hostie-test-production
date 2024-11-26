@@ -1,6 +1,8 @@
+/* eslint-disable radix */
 /* eslint-disable arrow-body-style */
 
 'use client';
+
 
 import { useSession } from 'next-auth/react';
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
@@ -8,7 +10,17 @@ import toast from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
 import axiosClient from 'src/utils/axiosClient';
 
-const API_BASE_URL = 'http://34.81.244.146:5005';
+interface CalendarFilterParams {
+    type: number;
+    checkin: string;
+    checkout: string;
+    province_id: number;
+    page: any;
+}
+interface CalendarFilterResponse {
+    data: any; // Replace `any` with the actual API response structure
+}
+const API_BASE_URL = 'https://core-api.thehostie.com';
 interface BookingContextProps {
     bookingData: any[];
     fetchListCustomer: () => void;
@@ -20,9 +32,22 @@ interface BookingContextProps {
     residenceInfor: any;
     fetchResidenceInfor: any;
     setCurrentPage: (page: number) => void;
-    fetchBookingData: (month: number, year: number, page: number) => void;
+    fetchBookingData: (page: number,
+        year: string,
+        month: string,
+        selectedProvince: string | null,
+        selectedAccommodationType: string | null,
+        dateRange: [Date | null, Date | null],
+        maxPrice: number | null) => void;
+    priceQuotation: any;
+    fetchPriceQuotation: (checkin: string, checkout: string, id: number) => void;
     handleHoldingSubmit: (residence_id: string, startDate: string, endDate: string, expireTime: number) => Promise<void>;
     handleBookingSubmit: (values: any) => Promise<void>;
+    fetchCalendarFilter: (params: CalendarFilterParams) => Promise<void>;
+    fetchProvince: () => void;
+    provinceList: any;
+    fetchPolicy: (id: any) => void;
+    policy: any;
 
 }
 
@@ -46,40 +71,109 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const pageSize = 7;
     const { data: session } = useSession();
     const userId = session?.user?.id;
+    const [priceQuotation, setPriceQuotation] = useState()
+    const [policy, setPolicy] = useState()
 
-
-
-    const fetchResidenceInfor = async (id: any) => {
+    const fetchPolicy = async (id: any) => {
+        setLoading(true)
         try {
-            const response = await axiosClient.get(`http://34.81.244.146:5005/residences/${id}`, {});
+            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}/policy`, {});
 
             if (response.status === 200) {
                 const data1 = response.data;
-                console.log(data1.data);
-                setResidenceInfor(data1.data);
+                setPolicy(data1.data);
+                setLoading(false)
             } else {
                 console.error('Failed to fetch residence data');
             }
         } catch (error) {
             console.error('Error fetching residence data:', error);
         }
+        finally {
+            setLoading(false)
+        }
+    };
+    const fetchResidenceInfor = async (id: any) => {
+        setLoading(true)
+        try {
+            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}`, {});
+
+            if (response.status === 200) {
+                const data1 = response.data;
+                setResidenceInfor(data1.data);
+                setLoading(false)
+            } else {
+                console.error('Failed to fetch residence data');
+            }
+        } catch (error) {
+            console.error('Error fetching residence data:', error);
+        }
+        finally {
+            setLoading(false)
+        }
     };
 
-
-
-    const fetchBookingData = async (month: number, year: number, page: number) => {
+    const fetchBookingData = async (
+        page: number,
+        year: string,
+        month: string,
+        selectedProvince: string | null,
+        selectedAccommodationType: string | null,
+        dateRange: [Date | null, Date | null],
+        maxPrice: number | null
+    ) => {
         setLoading(true);
         setError(null);
+        const formatDate = (date: Date | null): string => {
+            if (!date) return '';
+
+            // Use Intl.DateTimeFormat with the Vietnam time zone (UTC+7)
+            const options: Intl.DateTimeFormatOptions = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                timeZone: 'Asia/Ho_Chi_Minh' // Vietnam Time Zone (UTC+7)
+            };
+
+            const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
+
+            // Replace '/' with '-' to match the desired format (dd-mm-yyyy)
+            return formattedDate.replace(/\//g, '-');
+        };
+
+        const formattedCheckinDate = dateRange?.[0] ? formatDate(new Date(dateRange[0])) : '';
+        const formattedCheckoutDate = dateRange?.[1] ? formatDate(new Date(dateRange[1])) : '';
+
+        const formattedMonth = month.length === 1 ? `0${month}` : month;
+        // Initialize the base query string
+        let apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
+
+        // Add parameters to the query only if they are not null or undefined
+        if (formattedCheckinDate) {
+            apiQuery += `&checkin=${formattedCheckinDate}`;
+        }
+        if (formattedCheckoutDate) {
+            apiQuery += `&checkout=${formattedCheckoutDate}`;
+        }
+        if (selectedAccommodationType) {
+            apiQuery += `&type=${selectedAccommodationType}`;
+        }
+        if (selectedProvince) {
+            apiQuery += `&province_id=${selectedProvince}`;
+        }
+        if (maxPrice !== null) {
+            apiQuery += `&max_prices=${maxPrice}`;
+        }
 
         try {
             const response = await axiosClient.get(
-                `${API_BASE_URL}/residences/calendar?page_size=${pageSize}&page=${page}&month=2024-${month < 10 ? `0${month}` : month
-                }`,
-                {}
+                `${API_BASE_URL}/residences/calendar${apiQuery}`
             );
+
             if (!response) {
                 throw new Error('Unable to fetch booking data');
             }
+
             const data = response;
             setBookingData(data.data.data.calendars);
             setTotalPages(data.data.data.total_pages);
@@ -89,6 +183,27 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setLoading(false);
         }
     };
+
+
+    const [provinceList, setProviceList] = useState()
+
+    const fetchProvince = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axiosClient.get(`${API_BASE_URL}/region/provinces`, {});
+            if (!response) {
+                throw new Error('Unable to fetch customer list');
+            }
+            setProviceList(response.data.data);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchListCustomer = async () => {
         setLoading(true);
         setError(null);
@@ -102,6 +217,48 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setCustomerList(response.data.data);
         } catch (err: any) {
             setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const fetchPriceQuotation = async (checkin: string, checkout: string, id: number) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axiosClient.post(
+                `${API_BASE_URL}/booking/price_quotation`,
+                {
+                    for_host: true,
+                    residence_ids: [parseInt(id)],
+                    checkin,
+                    checkout,
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error('Unable to fetch price quotation');
+            }
+            const newData = response.data?.data?.find((d: any) => d.residence_id === id)
+            setPriceQuotation(newData);
+        } catch (err: any) {
+            setError(err?.response?.data?.message || 'An error occurred while fetching the price quotation.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    const fetchCalendarFilter = async (params: CalendarFilterParams): Promise<void> => {
+        setLoading(true);
+        try {
+            const response = await axiosClient.get<CalendarFilterResponse>(
+                `http://{{DeployURL}}:5005/residences/calendar?page_size=${pageSize}&page=${1}`,
+                { params }
+            );
+            const data = response;
+            setBookingData(data.data.data.calendars);
+            setTotalPages(data.data.data.total_pages);
+        } catch (error) {
+            console.error("Error fetching calendar filter:", error);
         } finally {
             setLoading(false);
         }
@@ -139,7 +296,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (values.hold_id) {
             const payload = {
                 hold_residence_id: values.hold_id,
-                paid_amount: values.paid_amount,
+
                 residence_id: values.residence_id || '',
                 checkin: values.start_date,
                 checkout: values.end_date,
@@ -164,7 +321,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         } else {
             const payload = {
 
-                paid_amount: values.paid_amount,
                 residence_id: values.residence_id || '',
                 checkin: values.start_date,
                 checkout: values.end_date,
@@ -214,13 +370,17 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             });
         });
     }
+
+
     useEffect(() => {
+
+
         if (!userId) return;
 
-        const socket: Socket = io('http://34.81.244.146:3333');
+        const socket: Socket = io('https://socket.thehostie.com');
 
         socket.on('connect', () => {
-            console.log('Socket.IO connected');
+
             socket.emit('subscribe', { room_id: userId });
         });
 
@@ -229,7 +389,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
 
         socket.on('disconnect', () => {
-            console.log('Socket.IO disconnected');
+
         });
 
         socket.on('connect_error', (err) => {
@@ -239,6 +399,11 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             socket.disconnect();
         };
     })
+
+    useEffect(() => {
+        fetchProvince()
+    }, [])
+
 
     const value = useMemo(
         () => ({
@@ -255,9 +420,16 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             fetchResidenceInfor,
             residenceInfor,
             customerList,
+            priceQuotation,
+            fetchPriceQuotation,
+            fetchCalendarFilter,
+            fetchProvince,
+            provinceList,
+            fetchPolicy, policy
+
 
         }),
-        [bookingData, totalPages, currentPage, loading, errorr, customerList, residenceInfor]
+        [bookingData, totalPages, currentPage, loading, errorr, customerList, residenceInfor, priceQuotation, provinceList, policy]
     );
 
     return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

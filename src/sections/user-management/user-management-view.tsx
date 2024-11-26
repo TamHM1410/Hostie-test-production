@@ -5,28 +5,31 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Box } from '@mui/material';
-import {LoadingScreen} from 'src/components/loading-screen';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import { getAllUserApi } from 'src/api/users';
-import UserFilter from './user-filter-modal';
 
+import UserFilter from './user-filter-modal';
 
 import UserTable from './user-table';
 
+import { useDebounce } from 'src/hooks/use-debounce';
 
 export default function UserManagementView() {
+  const [filter, setFilter] = useState('all');
+  const [value, setValue] = useState('');
 
-  const [filter,setFilter]=useState('all')
-
+  const debouncedSearchTerm = useDebounce(value, 600);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['usersList',filter],
+    queryKey: ['usersList', filter, debouncedSearchTerm],
 
-    queryFn:async () => {
-      const res = await getAllUserApi()
-      switch(filter){
-        case 'all':return res;
+    queryFn: async () => {
+      const res = await getAllUserApi({ search: debouncedSearchTerm });
+      switch (filter) {
+        case 'all':
+          return res;
         case 'accepted': {
           if (Array.isArray(res)) {
             const rs = res.filter((item) => item?.status === 2);
@@ -49,17 +52,13 @@ export default function UserManagementView() {
           return [];
         }
 
-
-        default :return res;
+        default:
+          return res;
       }
     },
   });
 
-
-  if (isLoading) {
-    return <LoadingScreen/>;
-  }
-
+  
   return (
     <Box>
       <CustomBreadcrumbs
@@ -67,15 +66,17 @@ export default function UserManagementView() {
         links={[{ name: '' }]}
         sx={{
           mb: { xs: 3, md: 5 },
-          px:5
+          px: 5,
         }}
       />
-      <UserFilter filter={filter} setFilter={setFilter}/>
-      <Box sx={{ py: 5, px: 5 }}>
-        <UserTable data={data} />
-      </Box>
-     
+      <UserFilter filter={filter} setFilter={setFilter} value={value} setValue={setValue} />
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <Box sx={{ py: 5, px: 5 }}>
+          <UserTable data={data} />
+        </Box>
+      )}
     </Box>
-
   );
 }

@@ -58,23 +58,42 @@ export default function JwtRegisterView() {
 
   const password = useBoolean();
 
-  const RegisterSchema = Yup.object().shape({
-    username: Yup.string().required(' Nhập tên đăng nhập'),
-    reference_code: Yup.string().required('First name required'),
-    email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
-    password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'mật khẩu ít nhất 8 ký tự'),
-    retype_password: Yup.string()
-      .required('Mật khẩu là bắt buộc')
-      .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
-    social_urls: Yup.array()
-      .of(
-        Yup.object().shape({
-          url: Yup.string().required('URL is required'),
-          social_name: Yup.string().required('Social name is required'),
-        })
-      )
-      .min(1, 'At least one social URL is required'),
-  });
+  const RegisterSchema = Yup.object()
+    .shape({
+      username: Yup.string().required('Nhập tên đăng nhập'),
+      reference_code: Yup.string().notRequired(),
+      email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
+      password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'Mật khẩu ít nhất 8 ký tự'),
+      retype_password: Yup.string()
+        .required('Mật khẩu là bắt buộc')
+        .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
+      social_urls: Yup.array()
+        .of(
+          Yup.object().shape({
+            url: Yup.string().notRequired(),
+            social_name: Yup.string().notRequired(),
+          })
+        )
+        .notRequired(),
+    })
+    .test(
+      'at-least-one',
+      'Phải có ít nhất một trong reference_code hoặc social_urls',
+      function (value) {
+        // Nếu không có giá trị, coi như không hợp lệ
+        if (!value) return false;
+
+        const { reference_code, social_urls } = value;
+
+        // Kiểm tra từng điều kiện
+        const hasReferenceCode = reference_code && reference_code.trim() !== '';
+        const hasSocialUrls =
+          Array.isArray(social_urls) &&
+          social_urls.some((social) => social.url?.trim() || social.social_name?.trim());
+
+        return hasReferenceCode || hasSocialUrls;
+      }
+    );
 
   const defaultValues: SignUp = {
     username: '',
@@ -122,14 +141,23 @@ export default function JwtRegisterView() {
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
-      console.log(data, 'ta');
-      await registerApi(data);
+      if (data?.reference_code === '') {
+        delete data['reference_code'];
+      }
+
+      if (Array.isArray(data?.social_urls) && data?.social_urls.length === 0) {
+        delete data['social_urls'];
+      }
+      const res = await registerApi(data);
       toast.success('Đăng ký thành công');
+
+      console.log(res, 'res');
 
       router.push('/auth/jwt/login');
     } catch (error) {
-      toast.error('Đăng ký thất bại');
-      reset();
+      toast.error(` 'Có lỗi xảy ra. Vui lòng thử lại.'}`);
+
+     
     }
   });
   const renderHead = (
@@ -238,7 +266,7 @@ export default function JwtRegisterView() {
             </Stack>
           ))}
         <Stack direction={{ xs: 'column', sm: 'row', display: 'row-reverse' }} spacing={2}>
-          <Button onClick={handleAddNewSocial}>Add Social</Button>
+          <Button onClick={handleAddNewSocial}>Thêm địa chỉ mạng xã hội</Button>
         </Stack>
 
         <LoadingButton

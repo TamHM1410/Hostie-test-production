@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { butler_add_residence } from 'src/api/butler';
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { getButlerResidence, getButlerBooking } from 'src/api/butler';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -94,7 +94,7 @@ export default function ButlerView() {
   };
 
   if (result.pending) {
-    return <SplashScreen />;
+    return <LoadingScreen />;
   }
   return (
     <Box>

@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 
 /// nextauth
-import { useSession } from 'next-auth/react';
 // routes
 import { paths } from 'src/routes/paths';
 // locales
 import { useLocales } from 'src/locales';
 
 import { useRouter } from 'next/navigation';
+
+import { useGetUserCurrentRole } from 'src/zustand/user';
 // components
 
 import SvgColor from 'src/components/svg-color';
@@ -51,81 +52,81 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
 
-  const { data: session } = useSession();
 
-  const roles: any = session?.user.roles ?? 'seller';
 
-  const router = useRouter()
+  const router = useRouter();
+
+  const { userCurrentRole } = useGetUserCurrentRole();
+
 
   const data = useMemo(
     () => [
       // OVERVIEW
       // ----------------------------------------------------------------------
       {
-        subheader: t('overview'),
+        subheader: "Tổng quan",
         items: [
           {
-            title: t('app'),
+            title: "Ứng dụng",
             path: paths.dashboard.root,
             icon: ICONS.dashboard,
           },
-          {
-            title: t('analytics'),
-            path: paths.dashboard.general.analytics,
-            icon: ICONS.analytics,
-          },
-         
         ],
       },
 
       // MANAGEMENT
       // ----------------------------------------------------------------------
       {
-        subheader: t('management'),
+        subheader: 'Quản lý',
         items: [
           // USER
           {
-            title: t('user'),
-            path: paths.dashboard.user.root,
+            title: 'Người dùng',
+            path: '/dashboasrsdsdsa',
             icon: ICONS.user,
             children: [
-              { title: t('users'), path: paths.dashboard.user.root },
-              { title: t('roles'), path: paths.dashboard.user.roles },
+              { title: 'Quản lý người dùng', path: paths.dashboard.user.root },
+              { title: 'Quản lý quyền ', path: paths.dashboard.user.roles },
             ],
           },
           {
-            title: t('residence'),
+            title: "Cư trú",
             path: paths.dashboard.residence.root,
             icon: ICONS.tour,
-            children: [{ title: t('residence_type'), path: paths.dashboard.residence.type }],
+            children: [{ title: 'Loại cư trú', path: paths.dashboard.residence.type }],
           },
           {
-            title: t('package'),
+            title: 'Gói',
             path: paths.dashboard.package,
             icon: ICONS.ecommerce,
           },
           {
-            title: t('amenity'),
+            title: 'Tiện ích',
             path: paths.dashboard.amenity,
             icon: ICONS.label,
           },
           {
             title: 'Giao dịch',
             path: '/dashboard/transactions',
-            icon:<Icon icon="hugeicons:bitcoin-transaction" style={{width:40,height:40}}/>,
+            icon: <Icon icon="hugeicons:bitcoin-transaction" style={{ width: 40, height: 40 }} />,
+          },
+          {
+            title: 'Báo cáo vi phạm',
+            path: '/dashboard/report',
+            icon: <Icon icon="tabler:report-off" style={{ width: 40, height: 40 }} />,
           },
         ],
       },
       {
-        subheader: t('Other'),
+        subheader: 'Khác',
         items: [
           // USER
           {
-            title: t('chat'),
+            title: 'Tin nhắn',
             path: paths.dashboard.chat,
             icon: ICONS.chat,
           },
-          { title: t('account'), path: paths.dashboard.user.account, icon: ICONS.user },
+          { title: 'Tài khoản', path: paths.dashboard.user.account, icon: ICONS.user },
         ],
       },
     ],
@@ -133,32 +134,22 @@ export function useNavData() {
     [t]
   );
 
-
   const bulterNav = useMemo(
     () => [
       // OVERVIEW
       // ----------------------------------------------------------------------
       {
-        subheader: t('overview'),
+        subheader: "Tổng quan",
         items: [
+
           {
-            title: t('app'),
-            path: '/DASH',
-            icon: ICONS.dashboard,
-          },
-          {
-            title: t('analytics'),
-            path: paths.dashboard.general.analytics,
-            icon: ICONS.analytics,
-          },
-          {
-            title: t('my-residence'),
+            title: 'Căn hộ đang làm việc',
             path: '/dashboard/housekeepers',
             icon: ICONS.ecommerce,
           },
-          
+
           {
-            title: t('account'),
+            title: 'Tài khoản',
             path: '/dashboard/user/account',
             icon: ICONS.user,
           },
@@ -172,70 +163,69 @@ export function useNavData() {
       // OVERVIEW
       // ----------------------------------------------------------------------
       {
-        subheader: t('overview'),
+        subheader: 'Tổng quan',
         items: [
+
           {
-            title: t('app'),
-            path: paths.dashboard.root,
-            icon: ICONS.dashboard,
-          },
-          {
-            title: t('analytics'),
+            title: 'Phân tích',
             path: paths.dashboard.general.analytics,
             icon: ICONS.analytics,
           },
           {
-            title: t('booking service'),
+            title: "Đặt dịch vụ",
             path: paths.dashboard.general.booking,
             icon: ICONS.booking,
           },
           {
-            title: t('service'),
+            title: "Dịch vụ",
             path: paths.dashboard.service,
-            icon: ICONS.job,
+            icon: <Icon icon="carbon:stay-inside" style={{ width: 35, height: 35 }} />,
           },
-          
+
           {
-            title: 'Lưu trú',
-            path: paths.dashboard.user.root,
-            icon: <Icon icon="carbon:stay-inside"  style={{width:35,height:35}}/>,
+            title: 'Danh sách ',
+            path: 'hidsshisd',
+            icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
             children: [
               {
                 title: t('booking residence list'),
                 path: paths.dashboard.bookingList,
-                
               },
               {
                 title: t('hold  residence list'),
                 path: paths.dashboard.hold_residence,
-                
               },
+
             ],
           },
           {
-            title: 'Quản lí booking',
-            path: paths.dashboard.user.root,
-            icon: <Icon icon="fluent-mdl2:reservation-orders" style={{width:35,height:35}} />,
+            title: 'Quản lý ',
+            path: 'dsihsdhis',
+            icon: ICONS.job,
             children: [
               {
-                title: t('manage booking residence'),
+                title: 'Quản lý đặt phòng',
                 path: paths.dashboard.manage_booking_residence,
               },
               {
-                title: t('manage hold residence'),
+                title: 'Quản lý giữ ',
                 path: paths.dashboard.manage_hold_residence,
               },
               {
-                title: t('manage customer'),
+                title: 'Quản lý khách hàng',
                 path: paths.dashboard.manage_customer,
+              },
+              {
+                title: t('Quản lí báo cáo'),
+                path: paths.dashboard.report_list,
               },
             ],
           },
           {
             title: 'Quản gia',
             path: '/dashboard/butler',
-            icon: <Icon icon="fa:users" />
-          }
+            icon: <Icon icon="fa:users" />,
+          },
         ],
       },
 
@@ -243,92 +233,76 @@ export function useNavData() {
       // ----------------------------------------------------------------------
 
       {
-        subheader: t('Other'),
+        subheader: 'Khác',
         items: [
           // USER
           {
-            title: t('chat'),
+            title: 'Tin nhắn',
             path: paths.dashboard.chat,
             icon: ICONS.chat,
           },
-          { title: t('account'), path: paths.dashboard.user.account, icon: ICONS.user },
-          { title: 'Gói của bạn', path: '/dashboard/yourpackage', icon: <Icon icon="hugeicons:work-history"  style={{width:35,height:35}}/>}
-
+          { title: 'Tài khoản', path: paths.dashboard.user.account, icon: ICONS.user },
+          {
+            title: 'Gói của bạn',
+            path: '/dashboard/yourpackage',
+            icon: <Icon icon="hugeicons:work-history" style={{ width: 35, height: 35 }} />,
+          },
         ],
       },
     ],
 
     [t]
   );
-  const seller =useMemo(
+  const seller = useMemo(
     () => [
       // OVERVIEW
       // ----------------------------------------------------------------------
       {
-        subheader: t('overview'),
+        subheader: 'Tổng quan',
         items: [
+
           {
-            title: t('app'),
-            path: paths.dashboard.root,
-            icon: ICONS.dashboard,
-          },
-          {
-            title: t('analytics'),
+            title: "Phân tích",
             path: paths.dashboard.general.analytics,
             icon: ICONS.analytics,
           },
           {
-            title: t('booking service'),
+            title: 'Đặt dịch vụ',
             path: paths.dashboard.general.booking,
             icon: ICONS.booking,
           },
           {
-            title: t('service'),
-            path: paths.dashboard.service,
-            icon: ICONS.job,
-          },
-          
-          {
-            title: 'Lưu trú',
-            path: paths.dashboard.user.root,
-            icon: <Icon icon="carbon:stay-inside"  style={{width:35,height:35}}/>,
+            title: 'Danh sách ',
+            path: '/dashboard/booking/xxxdsd',
+            icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
+
             children: [
               {
-                title: t('booking residence list'),
+                title: "Danh sách đặt",
                 path: paths.dashboard.bookingList,
-                
               },
               {
-                title: t('hold  residence list'),
+                title: "Danh sách giữ ",
                 path: paths.dashboard.hold_residence,
-                
               },
+
             ],
-          },
-          {
-            title: 'Quản lí booking',
-            path: paths.dashboard.user.root,
-            icon: <Icon icon="fluent-mdl2:reservation-orders" style={{width:35,height:35}} />,
+          }, {
+            title: 'Quản lý ',
+            path: 'dsihsdhis',
+            icon: ICONS.job,
             children: [
               {
-                title: t('manage booking residence'),
-                path: paths.dashboard.manage_booking_residence,
-              },
-              {
-                title: t('manage hold residence'),
-                path: paths.dashboard.manage_hold_residence,
-              },
-              {
-                title: t('manage customer'),
+                title: 'Quản lý khách hàng',
                 path: paths.dashboard.manage_customer,
               },
+              {
+                title: 'Quản lý báo cáo',
+                path: paths.dashboard.report_list,
+              },
+
             ],
           },
-          {
-            title: 'Quản gia',
-            path: '/dashboard/butler',
-            icon: <Icon icon="fa:users" />
-          }
         ],
       },
 
@@ -336,24 +310,27 @@ export function useNavData() {
       // ----------------------------------------------------------------------
 
       {
-        subheader: t('Other'),
+        subheader: "Khác",
         items: [
           // USER
           {
-            title: t('chat'),
+            title: "Tin nhắn",
             path: paths.dashboard.chat,
             icon: ICONS.chat,
           },
-          { title: t('account'), path: paths.dashboard.user.account, icon: ICONS.user },
-          { title: 'Gói của bạn', path: '/dashboard/yourpackage', icon: <Icon icon="hugeicons:work-history"  style={{width:35,height:35}}/>}
-
+          { title: "Tài khoản", path: paths.dashboard.user.account, icon: ICONS.user },
+          {
+            title: 'Gói của bạn',
+            path: '/dashboard/yourpackage',
+            icon: <Icon icon="hugeicons:work-history" style={{ width: 35, height: 35 }} />,
+          },
         ],
       },
     ],
 
     [t]
   );
-  switch (roles) {
+  switch (userCurrentRole) {
     case 'HOUSEKEEPER':
       return bulterNav;
     case 'ADMIN':
@@ -362,9 +339,11 @@ export function useNavData() {
       return seller;
     case 'HOST':
       return hostNav;
-    case 'USER': router.push('/pricing') 
-     break;
+    case 'USER':
+      router.push('/pricing');
+      break;
 
-    default: router.push('/auth/jwt/login')
+    default:
+      router.push('/auth/jwt/login');
   }
 }

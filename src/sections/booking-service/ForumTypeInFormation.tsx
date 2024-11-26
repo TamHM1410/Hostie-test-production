@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Slider from 'react-slick';
-import { BathroomOutlined, BedOutlined, BedroomParentOutlined, FireTruckOutlined, HomeOutlined, LinkOutlined, PhoneOutlined, VerifiedUserOutlined } from "@mui/icons-material";
+import { BathroomOutlined, BedOutlined, BedroomParentOutlined, LinkOutlined, PhoneOutlined, VerifiedUserOutlined } from "@mui/icons-material";
 import { Divider, Typography, Link as MUILink, Box, Grid, Paper } from "@mui/material";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -34,16 +34,23 @@ export default function ForumTypeInFormation() {
         autoplay: true,
         autoplaySpeed: 3000,
     };
-    const { fetchResidenceInfor, residenceInfor } = useBooking()
-    console.log(residenceInfor);
+    const { fetchResidenceInfor, residenceInfor, fetchPolicy, policy } = useBooking()
+
 
 
     useEffect(() => {
         fetchResidenceInfor(149)
+        fetchPolicy(188)
     }, [])
 
     return (
-        <Paper style={{ padding: '20px', margin: '20px 0' }}>
+        <Paper style={{
+            padding: '20px',
+            margin: '20px 0',
+            border: '1px solid #E0E0E0', // Light grey border
+            borderRadius: '8px', // Rounded corners
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+        }}>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12} lg={6}>
                     <Box flex={1}>
@@ -70,12 +77,14 @@ export default function ForumTypeInFormation() {
                             </MUILink>
                             <Divider orientation="vertical" flexItem />
                             <MUILink
-                                href="/"
+                                href={policy?.files?.[0]?.file_url || "https://www.facebook.com/"} // Đúng cú pháp
                                 variant="body1"
                                 underline="hover"
                                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                target="_blank"  // Mở liên kết trong tab mới
+                                rel="noopener noreferrer"  // Bảo mật khi dùng target="_blank"
                             >
-                                Zalo <LinkOutlined style={{ color: '#2152FF' }} />
+                                Chính sách <LinkOutlined style={{ color: '#2152FF' }} />
                             </MUILink>
                         </Box>
                         <Typography variant="body1" mt={4}>
@@ -84,6 +93,14 @@ export default function ForumTypeInFormation() {
                                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
                             >
                                 <Typography fontWeight='bold'>Địa chỉ :</Typography >  {residenceInfor?.residence_address}
+                            </Typography>
+                        </Typography>
+                        <Typography variant="body1" mt={4}>
+                            <Typography
+
+                                sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                            >
+                                <Typography fontWeight='bold'>Loại lưu trú :</Typography >  {residenceInfor?.residence_type}
                             </Typography>
                         </Typography>
                         <Grid container spacing={2} mt={2}>

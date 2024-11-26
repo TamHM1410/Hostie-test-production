@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import {
     Chip,
     Typography,
@@ -13,7 +12,10 @@ import {
     DialogTitle,
     Button,
     Box,
+    TextField,
 } from '@mui/material';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
@@ -39,7 +41,6 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
     const [openDialog, setOpenDialog] = React.useState(false);
     const [actionType, setActionType] = React.useState<'accept' | 'cancel'>('accept');
     const { confirmHold, cancelHold } = useManageHoldResidencesContext();
-
     const renderStatusChip = (status: number) => {
         switch (status) {
             case 2:
@@ -65,7 +66,7 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
         setOpenDialog(false);
     };
 
-    const handleConfirmAction = async () => {
+    const handleConfirmAction = async (value: any) => {
         if (selectedRowId === null) return;
 
         const row = rows.find((r) => r.id === selectedRowId);
@@ -76,7 +77,7 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
         if (actionType === 'accept') {
             await confirmHold(row.id, row.checkin, row.checkout);
         } else {
-            await cancelHold(row.id, row.checkin, row.checkout);
+            await cancelHold(row.id, row.checkin, row.checkout, value);
         }
 
         setOpenDialog(false);
@@ -87,9 +88,15 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
         () => [
             {
                 accessorKey: 'id',
-                header: 'ID Hold',
+                header: 'Mã giữ chỗ',
                 size: 100,
                 Cell: ({ cell }: any) => <Typography >{cell.getValue()}</Typography>,
+            },
+            {
+                accessorKey: 'expire',
+                header: 'Thời gian giữ',
+                size: 200,
+                Cell: ({ cell }: any) => <Typography >{cell.getValue()} Phút</Typography>,
             },
             {
                 accessorKey: 'residence_name',
@@ -97,6 +104,7 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
                 size: 200,
                 Cell: ({ cell }: any) => <Typography >{cell.getValue()}</Typography>,
             },
+
             {
                 accessorKey: 'seller_name',
                 header: 'Tên Người Bán',
@@ -161,7 +169,6 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
     );
 
     const memoizedRows = React.useMemo(() => rows, [rows]);
-
     return (
         <>
             <MaterialReactTable
@@ -174,6 +181,7 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
 
             />
 
+
             <Dialog open={openDialog} onClose={handleDialogClose}>
                 <DialogTitle>Xác Nhận Hành Động</DialogTitle>
                 <DialogContent>
@@ -182,15 +190,56 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
                             ? 'Bạn có chắc chắn muốn xác nhận giữ chỗ này?'
                             : 'Bạn có chắc chắn muốn hủy giữ chỗ này?'}
                     </DialogContentText>
+
+                    <Formik
+                        initialValues={{ rejectionReason: '' }}
+                        validationSchema={Yup.object({
+                            rejectionReason: Yup.string()
+                                .when('actionType', {
+                                    is: 'cancel',
+                                    then: Yup.string().required('Vui lòng nhập lý do từ chối.')
+                                })
+                        })}
+                        onSubmit={(values) => {
+                            handleConfirmAction(values.rejectionReason);
+                        }}
+                    >
+                        {({ values, errors, touched, handleChange, handleBlur }) => (
+                            <Form>
+                                {actionType === 'cancel' && (
+                                    <Field
+                                        as={TextField}
+                                        sx={{ marginTop: 2 }}
+                                        name="rejectionReason"
+                                        label="Lý Do Từ Chối"
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="dense"
+                                        value={values.rejectionReason}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        multiline
+                                        rows={3}
+                                        error={touched.rejectionReason && Boolean(errors.rejectionReason)}
+                                        helperText={touched.rejectionReason && errors.rejectionReason}
+                                    />
+                                )}
+                                <DialogActions>
+                                    <Button onClick={handleDialogClose} color="primary">
+                                        Hủy
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        color="success"
+                                        disabled={actionType === 'cancel' && !values.rejectionReason} // vô hiệu hóa nếu chưa nhập lý do
+                                    >
+                                        Xác Nhận
+                                    </Button>
+                                </DialogActions>
+                            </Form>
+                        )}
+                    </Formik>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDialogClose} color="primary">
-                        Hủy
-                    </Button>
-                    <Button onClick={handleConfirmAction} color="primary">
-                        Xác Nhận
-                    </Button>
-                </DialogActions>
             </Dialog>
         </>
     );

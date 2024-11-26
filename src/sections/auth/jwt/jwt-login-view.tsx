@@ -96,7 +96,7 @@ export default function JwtLoginView() {
 
       toast.success('Đăng nhập thành công!');
     } catch (error) {
-      toast.error('Đăng nhập không thành công vui lòng thử lại!');
+      toast.error('Đăng nhập không thành công !');
     }
   });
 

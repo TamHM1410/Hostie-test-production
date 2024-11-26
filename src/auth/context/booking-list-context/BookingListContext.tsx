@@ -21,11 +21,13 @@ interface BookingListContextProps {
     cancelBooking: any;
     handleUpdateBookingSubmit: (values: any) => Promise<void>
     qr: any;
+    fetchBookingLogs: (id: any) => void;
+    logs: any;
 }
 
 const ROWS_PER_PAGE = 9999;
 
-const baseURl = `http://34.81.244.146:5005`;
+const baseURl = `https://core-api.thehostie.com`;
 
 export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [rows, setRows] = useState<any[]>([]);
@@ -34,11 +36,13 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [isLoading, setIsLoading] = useState(true);
     const [detail, setDetail] = useState();
     const [qr, setQR] = useState()
+    const [logs, setLogs] = useState()
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const response = await axiosClient.get(`${baseURl}/booking?id=desc`, {
+                const response = await axiosClient.get(`${baseURl}/booking?sort=id:desc`, {
                     params: { page, page_size: ROWS_PER_PAGE, },
                 });
                 setRows(response.data.data.result);
@@ -52,7 +56,20 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         fetchData();
     }, [page]);
 
-
+    const fetchBookingLogs = async (id: any) => {
+        setIsLoading(true);
+        try {
+            const response = await axiosClient.get(
+                `${baseURl}/booking/${id}/logs`, {
+            }
+            );
+            setLogs(response.data.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const fetchDataDetail = async (id: any) => {
         setIsLoading(true);
@@ -65,7 +82,6 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setIsLoading(false);
         }
     };
-
 
     const fetchDataDetailBookingQR = async (id: any) => {
         setIsLoading(true);
@@ -80,6 +96,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setIsLoading(false);
         }
     };
+
     const confirmTransfer = async (confirmId: number, checkin: string, checkout: string, commission: any) => {
         try {
             setIsLoading(true)
@@ -107,6 +124,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setIsLoading(false);
         }
     };
+
     const cancelBooking = async (confirmId: number, checkin: string, checkout: string) => {
         try {
             setIsLoading(true)
@@ -133,6 +151,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setIsLoading(false);
         }
     };
+
     const handleUpdateBookingSubmit = async (values: any) => {
         const payload = {
             id: values.id,
@@ -163,6 +182,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setIsLoading(false)
         }
     };
+
     // Wrap the value in useMemo to prevent unnecessary re-renders
     const providerValue = useMemo(
         () => ({
@@ -177,9 +197,11 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             cancelBooking,
             handleUpdateBookingSubmit,
             fetchDataDetailBookingQR,
-            qr
+            qr,
+            fetchBookingLogs,
+            logs
         }),
-        [rows, totalRecords, isLoading, page, setPage, detail, qr]
+        [rows, totalRecords, isLoading, page, setPage, detail, qr, logs]
     );
 
     return (

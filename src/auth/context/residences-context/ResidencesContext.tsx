@@ -20,7 +20,7 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const fetchData = async (page: number, searchTerm: string) => {
         setIsLoading(true);
         try {
-            const response = await axiosClient.get(`http://34.81.244.146:5005/residences/`, {
+            const response = await axiosClient.get(`https://core-api.thehostie.com/residences/`, {
                 params: {
                     page,
                     q: searchTerm,

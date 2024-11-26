@@ -59,7 +59,7 @@ const Tiptap = ({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const [imagePreviews, setImagePreviews] = useState<string[]|any[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const {
     handleSubmit,
@@ -110,7 +110,7 @@ const Tiptap = ({
                 file_type: 'image',
               };
               if (typeof result === 'string') {
-                setImagePreviews((prev:any) => [...prev, rs]);
+                setImagePreviews((prev) => [...prev, rs]);
                 setIsUploadImage(true);
               }
             };
@@ -152,7 +152,7 @@ const Tiptap = ({
             thumb_name:file.name
           };
           if (typeof result === 'string') {
-            setImagePreviews((prev:any) => [...prev, rs]);
+            setImagePreviews((prev) => [...prev, rs]);
             setIsUploadImage(true);
           }
         };
@@ -185,8 +185,6 @@ const Tiptap = ({
       form.append('group_id', id);
       form.append('uuid', uuid);
       for (const base64Image of imagePreviews) {
-      
-      
         const response = await fetch(base64Image);
         const blob = await response.blob();
         const name_blob= base64Image?.file_type ==='image' ?`${uuid}-${Date.now()}.png` :`${uuid}-${Date.now()}.doc`
@@ -196,7 +194,7 @@ const Tiptap = ({
       const payload = {
         uuid: uuid,
         group_id: id,
-        sender_id: session?.user?.id? +session?.user?.id :0,
+        sender_id: +session?.user?.id,
         sender_avatar: '',
         receiver_id: null,
         message: data?.message,
