@@ -192,8 +192,8 @@ export default function OverviewAnalyticsView() {
           <AnalyticsWidgetSummary
             title={
               Array.isArray(results) && userCurrentRole === 'HOST'
-                ? results[0].data?.total_commission
-                : 333
+                ? 'Hoa hồng cho seller'
+                : 'Hoa hồng của bạn'
             }
             total={commission}
             color="error"
