@@ -359,7 +359,7 @@ export function useNavData() {
       return seller;
     case 'HOST':
       return hostNav;
-    case 'USER': return userNav
+      case 'USER': return userNav
       break;
 
     default:

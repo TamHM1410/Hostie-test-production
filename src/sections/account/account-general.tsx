@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import { LoadingScreen } from 'src/components/loading-screen';
+
 // hooks
 // utils
 import { fData } from 'src/utils/format-number';
@@ -27,6 +27,8 @@ import { UserInfor } from 'src/types/users';
 import { useDefaultAvatar } from 'src/hooks/use-avatar';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Textfield from '../_examples/mui/textfield-view/textfield';
+import { useGetUserCurrentRole } from 'src/zustand/user';
 
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -84,6 +86,8 @@ export default function AccountGeneral(props: any) {
   const [isEdit, setIsEdit] = useState(false);
 
   const [isEditImage, setEditImage] = useState(false);
+
+  const { userCurrentRole } = useGetUserCurrentRole();
 
   const UpdateUserSchema = Yup.object().shape({
     firstName: Yup.string().required('Tên là bắt buộc'),
@@ -250,8 +254,12 @@ export default function AccountGeneral(props: any) {
             )}
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
-              {userData?.username}
+              {userCurrentRole}
             </Button>
+            <Box sx={{ mt: 3, display: 'flex', width: '100%', justifyContent: 'center', gap: 2 }}>
+              <span> Mã giới thiệu của bạn:</span>
+              <Box>{userData?.referenceCode}</Box>
+            </Box>
           </Card>
         </Grid>
 

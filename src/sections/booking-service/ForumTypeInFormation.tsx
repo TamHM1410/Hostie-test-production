@@ -1,10 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import { BathroomOutlined, BedOutlined, BedroomParentOutlined, LinkOutlined, PhoneOutlined, VerifiedUserOutlined } from "@mui/icons-material";
-import { Divider, Typography, Link as MUILink, Box, Grid, Paper } from "@mui/material";
+import { Divider, Typography, Link as MUILink, Box, Grid, Paper, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
+import { DatePicker } from '@mui/x-date-pickers';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import BookingFormDialog from './BookingDialogForm';
+import HoldingFormDialog from './HoldingForm';
 
 const data = {
     name: "Luxury Villa by the Sea",
@@ -34,10 +39,70 @@ export default function ForumTypeInFormation() {
         autoplay: true,
         autoplaySpeed: 3000,
     };
-    const { fetchResidenceInfor, residenceInfor, fetchPolicy, policy } = useBooking()
+    const { fetchResidenceInfor, residenceInfor, fetchPolicy, policy, customerList, priceQuotation, fetchPriceQuotation, handleBookingSubmit, handleHoldingSubmit } = useBooking()
+    const [actionType, setActionType] = useState<'book' | 'hold' | null>(null);
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+    const [openForm, setOpenForm] = useState(false);
 
+    const formik = useFormik({
+        initialValues: {
+            checkin: null,
+            checkout: null,
 
+        },
+        validationSchema: Yup.object({
+            checkin: Yup.date().nullable().required('Vui lòng chọn ngày đến.'),
+            checkout: Yup.date()
+                .nullable()
+                .required('Vui lòng chọn ngày rời đi.')
+                .min(
+                    Yup.ref('checkin'),
+                    'Ngày rời đi phải sau ngày đến.'
+                ),
+        }),
+        onSubmit: (values) => {
+            console.log('Form values:', values);
+            alert(
+                actionType === 'book'
+                    ? 'Đặt ngay thành công!'
+                    : 'Giữ ngay thành công!'
+            );
+            setOpenForm(false);
+        },
+    });
 
+    const handleAction = (type: 'book' | 'hold') => {
+        setActionType(type);
+        setOpenDatePicker(true);
+    };
+    const formatDate = (date: Date | null): string => {
+        if (!date) return '';
+        const day = date.getDate().toString().padStart(2, '0'); // Lấy ngày, đảm bảo 2 chữ số
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng, đảm bảo 2 chữ số
+        const year = date.getFullYear(); // Lấy năm
+        return `${day}-${month}-${year}`; // Kết hợp thành định dạng dd-mm-yyyy
+    };
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const handleNext = async () => {
+        setOpenDatePicker(false);
+        await fetchPriceQuotation(startDate, endDate, residenceInfor?.residence_id)
+        setOpenForm(true);
+    };
+
+    const onSubmitHolding = (values: { expire: number }) => {
+        if (!startDate && !endDate) return;
+
+        // Extract the necessary data
+        const { expire } = values;
+
+        // Pass all necessary values to the submission handler
+        handleHoldingSubmit(residenceInfor.residence_id, startDate, endDate, expire);
+
+        // Close the dialog after successful submission
+        setOpenForm(false);
+    };
     useEffect(() => {
         fetchResidenceInfor(149)
         fetchPolicy(188)
@@ -72,6 +137,8 @@ export default function ForumTypeInFormation() {
                                 variant="body1"
                                 underline="hover"
                                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                target="_blank"  // Mở liên kết trong tab mới
+                                rel="noopener noreferrer"  // Bảo mật khi dùng target="_blank"
                             >
                                 Google Drive <LinkOutlined style={{ color: '#2152FF' }} />
                             </MUILink>
@@ -138,6 +205,26 @@ export default function ForumTypeInFormation() {
                                 </Typography>
                             </Grid>
                         </Grid>
+                        <Grid container spacing={2} mt={2}>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleAction('book')}
+                                >
+                                    Đặt ngay
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    onClick={() => handleAction('hold')}
+                                >
+                                    Giữ ngay
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Box>
                 </Grid>
                 <Grid item xs={12} lg={6}>
@@ -189,6 +276,117 @@ export default function ForumTypeInFormation() {
                     </Box>
                 </Grid>
             </Grid>
+            <Dialog open={openDatePicker} onClose={() => setOpenDatePicker(false)}>
+                <DialogTitle>Chọn ngày</DialogTitle>
+                <DialogContent sx={{ marginTop: 2, display: 'flex', gap: 2, flexDirection: 'column' }}>
+                    {/* DatePicker for Checkin */}
+                    <DatePicker
+                        label="Ngày đến"
+                        value={formik.values.checkin}
+                        onChange={(date) => {
+                            formik.setFieldValue('checkin', date, true);
+                            setStartDate(formatDate(date)); // Update startDate variable
+                        }}
+                        onBlur={formik.handleBlur}  // Mark the field as touched
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                name="checkin"  // Ensure the name matches the field in initialValues
+                                error={Boolean(formik.touched.checkin && formik.errors.checkin)}
+                                helperText={formik.touched.checkin && formik.errors.checkin}
+                                fullWidth
+                                margin="normal"
+                                sx={{
+
+                                    '& .MuiInputBase-root': {
+                                        borderRadius: '8px',
+                                    },
+
+                                }}
+                            />
+                        )}
+                    />
+
+                    {/* DatePicker for Checkout */}
+                    <DatePicker
+                        label="Ngày rời đi"
+                        value={formik.values.checkout}
+                        onChange={(date) => {
+                            formik.setFieldValue('checkout', date, true);
+                            setEndDate(formatDate(date)); // Update endDate variable
+                        }}
+                        onBlur={formik.handleBlur}  // Mark the field as touched
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                name="checkout"  // Ensure the name matches the field in initialValues
+                                error={Boolean(formik.touched.checkout && formik.errors.checkout)}
+                                helperText={formik.touched.checkout && formik.errors.checkout}
+                                fullWidth
+                                margin="normal"
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        borderRadius: '8px',
+                                    },
+                                }}
+                            />
+                        )}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button onClick={() => setOpenDatePicker(false)} color="secondary">
+                        Hủy
+                    </Button>
+                    <Button
+                        onClick={async () => {
+                            // Trigger validation first
+                            const isValid = await formik.validateForm();
+
+                            // If the form is valid, proceed with the next step
+                            if (Object.keys(isValid).length === 0) {
+                                handleNext();
+                            }
+                        }}
+                        variant="contained"
+                        color="primary"
+                    >
+                        Tiếp theo
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
+
+            {/* Dialog form đặt hoặc giữ */}
+
+            {actionType === 'book' && (
+                <BookingFormDialog
+                    isBookingForm={openForm}
+                    setIsBookingForm={setOpenForm}
+                    selectedVillaName={residenceInfor?.residence_name}
+                    priceQuotation={priceQuotation}
+                    customerList={customerList}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectionRange={residenceInfor}
+                    handleBookingSubmit={handleBookingSubmit}
+                />
+            )}
+
+
+            {actionType === 'hold' && (
+
+                <HoldingFormDialog
+                    isHoldingForm={openForm}
+                    setIsHoldingForm={setOpenForm}
+                    selectedVillaName={residenceInfor?.residence_name}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onSubmitHolding={onSubmitHolding}
+                />
+
+            )}
+
         </Paper>
     );
 }

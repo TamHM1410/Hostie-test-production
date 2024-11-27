@@ -316,6 +316,9 @@ export default function ServiceCardList({
                                     <Typography variant="body2" color="text.secondary">
                                         Loại lưu trú: {data.residence_type}
                                     </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Code quản gia: {data.housekeeper_registration_code}
+                                    </Typography>
                                     {data.status === 1 && (
                                         <Chip
                                             label="Chưa hoàn thành"

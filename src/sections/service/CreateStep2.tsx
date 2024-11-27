@@ -41,7 +41,7 @@ export default function Step2({
     previousStep,
     currentStep,
     onSubmit,
-}: Step2Props |any) {
+}: Step2Props | any) {
     const [icons, setIcons] = useState<IconOption[]>([]);
     const [amenityName, setAmenityName] = useState<string>('');
     const [selectedIcon, setSelectedIcon] = useState<string>('');
@@ -78,7 +78,7 @@ export default function Step2({
     };
 
     const handleRemoveAmenity = (amenityToRemove: Amenity) => {
-        setSelectedAmenities(selectedAmenities.filter((a:any) => a.name !== amenityToRemove.name));
+        setSelectedAmenities(selectedAmenities.filter((a: any) => a.name !== amenityToRemove.name));
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -149,7 +149,7 @@ export default function Step2({
                 <Typography variant="subtitle1">Tiện ích đã thêm:</Typography>
                 <Box mt={1} display="flex" gap={1} flexWrap="wrap">
                     {selectedAmenities.length > 0 ? (
-                        selectedAmenities.map((amenity:any, index:any) => (
+                        selectedAmenities.map((amenity: any, index: any) => (
                             <Chip
                                 key={index}
                                 label={`${amenity.name} `}
@@ -166,7 +166,7 @@ export default function Step2({
                 <Typography variant="subtitle1">Biểu tượng đã chọn:</Typography>
                 <Box mt={1} display="flex" gap={3} flexWrap="wrap">
                     {selectedAmenities.length > 0 ? (
-                        selectedAmenities.map((amenity:any, index:any) => (
+                        selectedAmenities.map((amenity: any, index: any) => (
                             <Typography key={index} sx={{ textAlign: 'center' }}>
                                 <img src={icons.find(a => a.id === amenity.amenity_id)?.icon || ''} alt={amenity.name} />
                             </Typography>

@@ -153,7 +153,6 @@ export default function JwtLoginView() {
     if (session) {
       router.push('/');
     }
-   
 
   },[session])
  

@@ -62,7 +62,6 @@ const refreshToken = async (token: string) => {
   try {
 
     const response = await axios.post('http://34.81.244.146:8080/v1/api/auth/refresh-token', { token });
-
     return response?.data.result?.token;
   } catch (error) {
     console.error('Error refreshing token', error);

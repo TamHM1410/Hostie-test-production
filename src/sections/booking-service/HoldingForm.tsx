@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, InputAdornment } from '@mui/material';
 import { Formik, Form } from 'formik';

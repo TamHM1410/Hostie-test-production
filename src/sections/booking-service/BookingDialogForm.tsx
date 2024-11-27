@@ -90,7 +90,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                     {({ handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
                         <Form>
                             <Autocomplete
-                                options={customerList?.data}
+                                options={customerList?.data || []}
                                 getOptionLabel={(option: any) => option.name}
                                 onChange={(event, newValue) => {
                                     setFieldValue('guest_id', newValue ? newValue.id : '');

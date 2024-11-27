@@ -43,7 +43,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
         autoplaySpeed: 3000,
     };
     const [images, setImages] = useState<string[]>([]); // Changed to string array type
-
+    const [policy, setPolicy] = useState()
     useEffect(() => {
         const fetchImages = async () => {
             try {
@@ -71,6 +71,22 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
         };
 
 
+        const fetchPolicy = async () => {
+
+            try {
+                const response = await axiosClient.get(`https://core-api.thehostie.com/residences/${id}/policy`, {});
+
+                if (response.status === 200) {
+                    const data1 = response.data;
+                    setPolicy(data1.data);
+                } else {
+                    console.error('Failed to fetch residence data');
+                }
+            } catch (error) {
+                console.error('Error fetching residence data:', error);
+            }
+
+        };
 
         const fetchResidenceData = async () => {
             try {
@@ -90,6 +106,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
 
         fetchResidenceData();
         fetchImages();
+        fetchPolicy()
     }, [id]);
 
     console.log(residenceData);
@@ -138,12 +155,14 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                     </MUILink>
                                     <Divider orientation="vertical" flexItem />
                                     <MUILink
-                                        href="/"
+                                        href={policy?.files?.[0]?.file_url || "https://www.facebook.com/"} // Đúng cú pháp
                                         variant="body1"
                                         underline="hover"
                                         sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                        target="_blank"  // Mở liên kết trong tab mới
+                                        rel="noopener noreferrer"  // Bảo mật khi dùng target="_blank"
                                     >
-                                        Zalo <LinkOutlined style={{ color: '#2152FF' }} />
+                                        Chính sách <LinkOutlined style={{ color: '#2152FF' }} />
                                     </MUILink>
                                 </Box>
                                 <Typography variant="body1" mt={4}>
@@ -154,6 +173,14 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                     >
                                         <Typography fontWeight='bold'>Địa chỉ :</Typography >  {residenceData.residence_address} <LinkOutlined style={{ color: '#2152FF' }} />
                                     </MUILink>
+                                </Typography>
+                                <Typography variant="body1" mt={4}>
+                                    <Typography
+
+                                        sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                    >
+                                        <Typography fontWeight='bold'>Loại lưu trú :</Typography >  {residenceData?.residence_type}
+                                    </Typography>
                                 </Typography>
                                 <Grid container spacing={2} mt={2}>
                                     {residenceData?.amenities?.map((ani: any, index: any) => (
@@ -197,7 +224,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                 <Slider {...settings}>
                                     <div>
                                         <Box display="flex">
-                                            {images.slice(0, 2).map((image, index) => (
+                                            {images.slice(0, 3).map((image, index) => (
                                                 <Box key={index} flex={1} px={1}>
                                                     <img
                                                         src={image}
@@ -215,7 +242,7 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                     </div>
                                     <div>
                                         <Box display="flex">
-                                            {images.slice(3, 2).map((image, index) => (
+                                            {images.slice(3, 6).map((image, index) => (
                                                 <Box key={index} flex={1} px={1}>
                                                     <img
                                                         src={image}
