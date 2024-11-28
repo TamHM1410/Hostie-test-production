@@ -14,7 +14,8 @@ const endPoint = {
     forgot:`/v1/api/password/forgot`,
     reset:`/v1/api/password/reset`,
     avatar:`/v1/api/files/upload-avatar`,
-    role:'/v1/api/users/my-roles'
+    role:'/v1/api/users/my-roles',
+    confirmVerification:'/v1/api/email/confirm-verification'
   },
   butler:{
     residence:'/v1/api/housekeepers/my-residences',
@@ -93,6 +94,7 @@ const goEndPoint={
   update_checkout:`/booking/checkout`,
   all_residence:'/residences',
   butler_add_residence:'/v1/api/housekeepers/add-residence',
+  addCharge:'/booking/additional_charge',
 
   chat:{
     getListConversion:'/chats/groups',

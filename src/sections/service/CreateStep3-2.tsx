@@ -22,20 +22,34 @@ const CreatePolicy: React.FC<PolicyProps> = ({ onSave, previousStep, currentStep
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+    console.log(uploadedFiles.length);
 
     // Handle file drop
-    const onDrop = (acceptedFiles: File[]) => {
-        if (uploadedFiles.length >= 1) {
+    const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+        // Nếu người dùng tải lên nhiều hơn 1 file
+        if (uploadedFiles.length + acceptedFiles.length > 1) {
             setErrorSnackbarOpen(true); // Hiển thị thông báo lỗi
             return;
         }
-        setUploadedFiles([...uploadedFiles, ...acceptedFiles.slice(0, 1)]); // Chỉ thêm 1 hình ảnh
+
+        // Nếu có tệp không hợp lệ
+        if (fileRejections.length > 0) {
+            setErrorSnackbarOpen(true); // Hiển thị thông báo lỗi
+            return;
+        }
+
+        // Thêm tệp hợp lệ vào danh sách
+        setUploadedFiles([...uploadedFiles, ...acceptedFiles]);
         setSnackbarOpen(true); // Hiển thị thông báo thành công
     };
 
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
-        accept: 'image/*', // Chỉ chấp nhận hình ảnh
+        accept: {
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/png': ['.png'],
+            'image/gif': ['.gif'],
+        }, // Chỉ chấp nhận các loại hình ảnh được liệt kê
     });
 
     // Handle delete file
@@ -78,7 +92,16 @@ const CreatePolicy: React.FC<PolicyProps> = ({ onSave, previousStep, currentStep
             {uploadedFiles.length > 0 && (
                 <Box mt={2}>
                     <Typography variant="subtitle1">Ảnh đã tải lên:</Typography>
-                    <Box display="flex" flexWrap="wrap" gap={2}>
+                    <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        sx={{
+                            maxWidth: 200,
+                            margin: '0 auto',
+                            position: 'relative',
+                        }}
+                    >
                         {uploadedFiles.map((file, index) => {
                             const fileUrl = URL.createObjectURL(file);
 
@@ -86,18 +109,18 @@ const CreatePolicy: React.FC<PolicyProps> = ({ onSave, previousStep, currentStep
                                 <Paper
                                     key={index}
                                     sx={{
-                                        position: 'relative',
                                         padding: 1,
                                         border: '1px solid #ddd',
                                         borderRadius: 1,
                                         maxWidth: 200,
                                         textAlign: 'center',
+                                        position: 'relative',
                                     }}
                                 >
                                     <img
                                         src={fileUrl}
                                         alt={file.name}
-                                        style={{ maxWidth: '100%', maxHeight: 150 }}
+                                        style={{ maxWidth: '100%', maxHeight: 150, objectFit: 'cover', borderRadius: 8 }}
                                     />
                                     <IconButton
                                         onClick={handleDeleteFile}
@@ -116,20 +139,26 @@ const CreatePolicy: React.FC<PolicyProps> = ({ onSave, previousStep, currentStep
                         })}
                     </Box>
                 </Box>
+
             )}
 
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
-                message="Tệp đã được tải lên!"
-            />
+
 
             <Snackbar
                 open={errorSnackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setErrorSnackbarOpen(false)}
                 message="Chỉ được tải lên một hình ảnh!"
+            />
+            <Snackbar
+                open={errorSnackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setErrorSnackbarOpen(false)}
+                message={
+                    uploadedFiles.length >= 1
+                        ? "Chỉ được tải lên một hình ảnh!"
+                        : "Tệp không hợp lệ. Vui lòng tải lên tệp có định dạng .jpg, .jpeg, hoặc .png!"
+                }
             />
 
             <Divider sx={{ marginTop: 3 }} />

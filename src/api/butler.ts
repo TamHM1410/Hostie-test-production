@@ -17,25 +17,33 @@ const getButlerBooking = async () => {
   return res?.data?.result;
 };
 
-const confirm_checkin=async (id:any)=>{
-  const res=await goAxiosClient.post(goEndPoint.update_checkin,{
-    id
-  })
-  return res
+const confirm_checkin = async (id: any) => {
+  const res = await goAxiosClient.post(goEndPoint.update_checkin, {
+    id,
+  });
+  return res;
+};
+const confirm_checkout = async (id: any) => {
+  const res = await goAxiosClient.post(goEndPoint.update_checkout, {
+    id,
+  });
+  return res;
+};
+const butler_add_residence = async (payload: any) => {
+  const res = await axiosClient.post(goEndPoint.butler_add_residence, payload);
+  return res;
+};
+const addCharge = async (payload: any) => {
+  const res = await goAxiosClient.post(goEndPoint.addCharge, payload);
+  return res;
+};
 
-}
-const confirm_checkout=async (id:any)=>{
-  const res=await goAxiosClient.post(goEndPoint.update_checkout,{
-    id
-  })
-  return res
-
-}
-const butler_add_residence=async(payload:any)=>{
-  const res =await axiosClient.post(goEndPoint.butler_add_residence,payload)
-  return res
-}
-
-
-
-export { getButlerResidence, registerButler, getButlerBooking ,confirm_checkin,confirm_checkout,butler_add_residence};
+export {
+  getButlerResidence,
+  registerButler,
+  getButlerBooking,
+  confirm_checkin,
+  confirm_checkout,
+  butler_add_residence,
+  addCharge,
+};

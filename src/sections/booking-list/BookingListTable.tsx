@@ -30,13 +30,12 @@ import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { MRT_Localization_VI } from 'material-react-table/locales/vi'; // Import Vietnamese localization
 import QRDialog from './QrCode';
 import BookingDetailSidebar from './BookingDetailSideBar';
-import { useBooking } from 'src/auth/context/service-context/BookingContext';
 import { CalendarMonthRounded, ReportOffRounded, ReportRounded } from '@mui/icons-material';
 import { useReportListContext } from 'src/auth/context/report-list-context/ReportListContext';
 import ReportForm from './ReportForm';
-import { formatCurrency } from '../booking-service/Booking';
 import BookingLogsModal from './BookingLogs';
-import { BookmarkPlusIcon, KeyIcon, MoreVerticalIcon } from 'lucide-react';
+import { MoreVerticalIcon } from 'lucide-react';
+import { formattedAmount } from '../../utils/format-time';
 
 
 
@@ -216,7 +215,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 accessorKey: 'paid_amount',
                 header: 'Số Tiền Cần Thanh Toán',
                 size: 150,
-                Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
+                Cell: ({ cell }: any) => <Typography>{`${formattedAmount(cell.getValue())} `}</Typography>,
             },
             {
                 accessorKey: 'checkin',

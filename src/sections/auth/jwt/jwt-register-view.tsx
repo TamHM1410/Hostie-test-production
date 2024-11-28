@@ -2,7 +2,7 @@
 
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -36,6 +36,7 @@ import { registerApi } from 'src/api/users';
 import toast from 'react-hot-toast';
 import RegisterTab from './register-tab';
 import ButlerForm from './butler-form';
+import RegisterPrivacy from './register-privacy';
 
 // ----------------------------------------------------------------------
 
@@ -49,6 +50,8 @@ export default function JwtRegisterView() {
       social_name: '',
     },
   ]);
+
+  const [isChecked, setIsChecked] = useState(false); // Chú ý 'setIsChecked' thay vì 'setIschecked'
 
   const [currentTab, setCurrentTab] = useState('user');
 
@@ -75,6 +78,9 @@ export default function JwtRegisterView() {
           })
         )
         .notRequired(),
+      isChecked: Yup.boolean()
+        .oneOf([true], 'Bạn cần đồng ý với điều khoản')
+        .required('Bạn cần đồng ý với điều khoản'),
     })
     .test(
       'at-least-one',
@@ -95,13 +101,14 @@ export default function JwtRegisterView() {
       }
     );
 
-  const defaultValues: SignUp = {
+  const defaultValues: any = {
     username: '',
     retype_password: '',
     email: '',
     password: '',
     social_urls: listSocial,
     reference_code: '',
+    isChecked: isChecked,
   };
 
   const methods = useForm({
@@ -141,6 +148,7 @@ export default function JwtRegisterView() {
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
+      delete data['isChecked'];
       if (data?.reference_code === '') {
         delete data['reference_code'];
       }
@@ -151,13 +159,9 @@ export default function JwtRegisterView() {
       const res = await registerApi(data);
       toast.success('Đăng ký thành công');
 
-      console.log(res, 'res');
-
       router.push('/auth/jwt/login');
     } catch (error) {
       toast.error(` 'Có lỗi xảy ra. Vui lòng thử lại.'}`);
-
-     
     }
   });
   const renderHead = (
@@ -268,6 +272,17 @@ export default function JwtRegisterView() {
         <Stack direction={{ xs: 'column', sm: 'row', display: 'row-reverse' }} spacing={2}>
           <Button onClick={handleAddNewSocial}>Thêm địa chỉ mạng xã hội</Button>
         </Stack>
+        <RegisterPrivacy
+          isChecked={isChecked}
+          setIsChecked={setIsChecked}
+          reset={reset}
+          methods={methods}
+        />
+        {methods.formState.errors.isChecked && (
+          <Typography color="error" variant="body2">
+            {methods.formState.errors.isChecked.message}
+          </Typography>
+        )}
 
         <LoadingButton
           fullWidth

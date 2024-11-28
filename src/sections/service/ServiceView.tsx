@@ -47,6 +47,7 @@ export default function ServiceView() {
     // Upload Image state
     const [images, setImages] = React.useState<File[]>([]);
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
     const onDrop = useCallback((acceptedFiles: File[]) => {
         setImages((prevImages) => [...prevImages, ...acceptedFiles]);
         setSnackbarOpen(true);
@@ -115,11 +116,11 @@ export default function ServiceView() {
                 name: data.serviceName,
                 num_bath_room: data.bathrooms,
                 num_bed_room: data.bedrooms,
-                num_of_beds: data.capacity,
+                num_of_beds: data.numOfBeds,
                 max_guests: data.capacity,
-                residence_email: data.email,
-                residence_website: data.website,
+                standard_num_guests: data.capacityStander,
                 residence_description: data.description,
+                extra_guest_fee: data.surcharge,
                 type: parseInt(data.serviceType),
             };
 
@@ -139,11 +140,11 @@ export default function ServiceView() {
                 name: data.serviceName,
                 num_bath_room: data.bathrooms,
                 num_bed_room: data.bedrooms,
-                num_of_beds: data.capacity,
+                num_of_beds: data.numOfBeds,
                 max_guests: data.capacity,
-                residence_website: data.website,
-                residence_email: data.email,
+                standard_num_guests: data.capacityStander,
                 residence_description: data.description,
+                extra_guest_fee: data.surcharge,
                 type: parseInt(data.serviceType),
             };
 
@@ -158,6 +159,7 @@ export default function ServiceView() {
             }
         }
     };
+
     const handleStep2Submit = async (data: any) => {
         const payload = {
             step: 2,
@@ -179,6 +181,7 @@ export default function ServiceView() {
             console.error('Error submitting step 1:', error);
         }
     };
+
     const handleStep3Submit = async (data: any) => {
         const payload = {
             step: 3,
@@ -196,6 +199,7 @@ export default function ServiceView() {
             console.error('Error submitting step 1:', error);
         }
     };
+
     const handleStep4Submit = async (data: any) => {
         console.log(typeof data.weekendSurcharge);
         const payload = {
@@ -229,6 +233,7 @@ export default function ServiceView() {
             console.error('Error submitting step 3:', error);
         }
     };
+
     const handleStep5Submit = async (data: any) => {
         setIsLoading2(true)
         const formData = new FormData();
@@ -296,6 +301,7 @@ export default function ServiceView() {
                         currentStep={currentStep}
                         previousStep={previousStep}
                     />
+
                 );
             case 1:
                 return (

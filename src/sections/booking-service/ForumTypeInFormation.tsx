@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import { BathroomOutlined, BedOutlined, BedroomParentOutlined, LinkOutlined, PhoneOutlined, VerifiedUserOutlined } from "@mui/icons-material";
-import { Divider, Typography, Link as MUILink, Box, Grid, Paper, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
+import { Divider, Typography, Link as MUILink, Box, Grid, Paper, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Tooltip, IconButton } from "@mui/material";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
@@ -10,6 +10,8 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import BookingFormDialog from './BookingDialogForm';
 import HoldingFormDialog from './HoldingForm';
+import DatePickerForm from './BooingFormOnInFor';
+import { formattedAmount } from 'src/utils/format-time';
 
 const data = {
     name: "Luxury Villa by the Sea",
@@ -44,50 +46,17 @@ export default function ForumTypeInFormation() {
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openForm, setOpenForm] = useState(false);
 
-    const formik = useFormik({
-        initialValues: {
-            checkin: null,
-            checkout: null,
-
-        },
-        validationSchema: Yup.object({
-            checkin: Yup.date().nullable().required('Vui lòng chọn ngày đến.'),
-            checkout: Yup.date()
-                .nullable()
-                .required('Vui lòng chọn ngày rời đi.')
-                .min(
-                    Yup.ref('checkin'),
-                    'Ngày rời đi phải sau ngày đến.'
-                ),
-        }),
-        onSubmit: (values) => {
-            console.log('Form values:', values);
-            alert(
-                actionType === 'book'
-                    ? 'Đặt ngay thành công!'
-                    : 'Giữ ngay thành công!'
-            );
-            setOpenForm(false);
-        },
-    });
-
     const handleAction = (type: 'book' | 'hold') => {
         setActionType(type);
         setOpenDatePicker(true);
     };
-    const formatDate = (date: Date | null): string => {
-        if (!date) return '';
-        const day = date.getDate().toString().padStart(2, '0'); // Lấy ngày, đảm bảo 2 chữ số
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng, đảm bảo 2 chữ số
-        const year = date.getFullYear(); // Lấy năm
-        return `${day}-${month}-${year}`; // Kết hợp thành định dạng dd-mm-yyyy
-    };
 
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+
     const handleNext = async () => {
+
         setOpenDatePicker(false);
-        await fetchPriceQuotation(startDate, endDate, residenceInfor?.residence_id)
         setOpenForm(true);
     };
 
@@ -107,6 +76,22 @@ export default function ForumTypeInFormation() {
         fetchResidenceInfor(149)
         fetchPolicy(188)
     }, [])
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        if (residenceInfor?.phones[0]?.phone) {
+            navigator.clipboard.writeText(residenceInfor?.phones[0]?.phone);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset trạng thái sau 2 giây
+        }
+    };
+    const handleCopy2 = () => {
+        if (residenceInfor?.residence_address) {
+            navigator.clipboard.writeText(residenceInfor?.residence_address);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset trạng thái sau 2 giây
+        }
+    };
 
     return (
         <Paper style={{
@@ -116,31 +101,50 @@ export default function ForumTypeInFormation() {
             borderRadius: '8px', // Rounded corners
             boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
         }}>
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
+            <Grid container spacing={0} justifyContent="center" alignItems="center">
                 <Grid item xs={12} lg={6}>
                     <Box flex={1}>
                         <Typography fontWeight='bold' fontSize='20px' sx={{ display: 'flex', gap: 1, }} >
                             Tên nơi lưu trú :   <Typography fontSize='20px' > {residenceInfor?.residence_name}</Typography>
                         </Typography>
-                        <Box display="flex" alignItems="center" gap={4} mt={4}>
-                            <MUILink
-                                href="/"
-                                variant="body1"
-                                underline="hover"
-                                sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                        <Box display="flex" flexWrap="wrap" alignItems="center" gap={4} mt={2}>
+                            <Tooltip
+                                title={copied ? 'Đã sao chép' : 'Sao chép số điện thoại'}
                             >
-                                {residenceInfor?.phones[0]?.phone} <PhoneOutlined style={{ color: '#2152FF' }} />
-                            </MUILink>
+                                <Typography onClick={handleCopy} sx={{
+                                    display: 'flex', gap: 1, color: 'inherit',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        backgroundColor: 'transparent', // Xóa background khi hover vào số điện thoại/ Chỉ hiển thị gạch chân khi hover
+
+                                    },
+                                }} >
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
+                                            color: 'inherit',
+                                            '&:hover': {
+                                                textDecoration: 'underline', // Chỉ hiển thị gạch chân khi hover
+
+                                            },
+                                        }}
+                                    >
+                                        {residenceInfor?.phones[0]?.phone}
+                                    </Typography>
+                                    <PhoneOutlined sx={{ color: '#2152FF' }} />
+                                </Typography>
+                            </Tooltip>
+
                             <Divider orientation="vertical" flexItem />
                             <MUILink
-                                href={residenceInfor?.residence_website}
+                                href={residenceInfor?.residence_website || "https://www.facebook.com/"}
                                 variant="body1"
                                 underline="hover"
                                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
                                 target="_blank"  // Mở liên kết trong tab mới
                                 rel="noopener noreferrer"  // Bảo mật khi dùng target="_blank"
                             >
-                                Google Drive <LinkOutlined style={{ color: '#2152FF' }} />
+                                Link hình ảnh  <LinkOutlined style={{ color: '#2152FF' }} />
                             </MUILink>
                             <Divider orientation="vertical" flexItem />
                             <MUILink
@@ -154,15 +158,36 @@ export default function ForumTypeInFormation() {
                                 Chính sách <LinkOutlined style={{ color: '#2152FF' }} />
                             </MUILink>
                         </Box>
-                        <Typography variant="body1" mt={4}>
-                            <Typography
 
-                                sx={{ display: 'flex', gap: 1, color: 'inherit' }}
-                            >
-                                <Typography fontWeight='bold'>Địa chỉ :</Typography >  {residenceInfor?.residence_address}
+                        <Tooltip
+                            title={copied ? 'Đã sao chép địa chỉ' : 'Sao chép địa chỉ'}
+                            placement='left'
+                        >
+                            <Typography onClick={handleCopy2} sx={{
+                                display: 'flex', gap: 1, color: 'inherit', cursor: 'pointer',
+                                '&:hover': {
+                                    backgroundColor: 'transparent', // Xóa background khi hover vào số điện thoại/ Chỉ hiển thị gạch chân khi hover
+
+                                },
+                            }} >
+                                <Typography variant="body1" mt={2}>
+                                    <Typography
+
+                                        sx={{
+                                            display: 'flex', gap: 1, color: 'inherit',
+                                            '&:hover': {
+                                                textDecoration: 'underline', // Chỉ hiển thị gạch chân khi hover
+
+                                            },
+                                        }}
+
+                                    >
+                                        <Typography fontWeight='bold' >Địa chỉ :</Typography  >  {residenceInfor?.residence_address}
+                                    </Typography>
+                                </Typography>
                             </Typography>
-                        </Typography>
-                        <Typography variant="body1" mt={4}>
+                        </Tooltip>
+                        <Typography variant="body1" mt={2}>
                             <Typography
 
                                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
@@ -170,7 +195,14 @@ export default function ForumTypeInFormation() {
                                 <Typography fontWeight='bold'>Loại lưu trú :</Typography >  {residenceInfor?.residence_type}
                             </Typography>
                         </Typography>
-                        <Grid container spacing={2} mt={2}>
+
+                        <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+                            <Typography fontWeight='bold'>Phụ thu nếu quá số lượng khách tiêu chuẩn :</Typography >  {formattedAmount(residenceInfor?.extra_guest_fee)} / 1 người
+                        </Typography>
+                        <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+                            <Typography fontWeight='bold'>Ghi chú và miêu tả :</Typography >  {residenceInfor?.residence_description || 'Không có'}
+                        </Typography>
+                        <Grid container spacing={2} mt={1}>
                             {residenceInfor?.amenities?.map((ani: any, index: any) => (
                                 <Grid item key={index}>
                                     <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -179,31 +211,42 @@ export default function ForumTypeInFormation() {
                                 </Grid>
                             ))}
                         </Grid>
-                        <Grid container spacing={2} mt={2}>
+                        <Grid container spacing={1} mt={2} columns={12}>
+                            {/* Phòng ngủ */}
+                            <Grid item xs={4}>
+                                <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
+                                    <BedroomParentOutlined color="primary" /> {residenceInfor?.num_of_bedrooms} phòng ngủ
+                                </Typography>
+                            </Grid>
 
+                            {/* Giường ngủ */}
+                            <Grid item xs={4}>
+                                <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
+                                    <BedOutlined color="primary" /> {residenceInfor?.num_of_beds} giường ngủ
+                                </Typography>
+                            </Grid>
 
-                            <Grid item>
+                            {/* Phòng tắm */}
+                            <Grid item xs={4}>
                                 <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                    <BedroomParentOutlined color='primary' /> {residenceInfor?.num_of_bedrooms}{' '}
-                                    phòng ngủ
+                                    <BathroomOutlined color="primary" /> {residenceInfor?.num_of_bathrooms} Nhà vệ sinh
                                 </Typography>
                             </Grid>
-                            <Grid item>
+
+                            {/* Tiêu chuẩn */}
+                            <Grid item xs={4}>
                                 <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                    <BedOutlined color='primary' />{residenceInfor?.num_of_beds} giường ngủ
+                                    <VerifiedUserOutlined color="primary" /> Tiêu chuẩn: {residenceInfor?.standard_num_guests} người
                                 </Typography>
                             </Grid>
-                            <Grid item>
+
+                            {/* Tối đa */}
+                            <Grid item xs={4}>
                                 <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                    <BathroomOutlined color='primary' />  {residenceInfor?.num_of_bathrooms} phòng tắm
+                                    <VerifiedUserOutlined color="primary" /> Tối đa: {residenceInfor?.max_guests} người
                                 </Typography>
                             </Grid>
-                            <Grid item>
-                                <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                    <VerifiedUserOutlined color='primary' /> Tiêu chuẩn :{' '}
-                                    {residenceInfor?.max_guests} người
-                                </Typography>
-                            </Grid>
+
                         </Grid>
                         <Grid container spacing={2} mt={2}>
                             <Grid item>
@@ -276,84 +319,9 @@ export default function ForumTypeInFormation() {
                     </Box>
                 </Grid>
             </Grid>
-            <Dialog open={openDatePicker} onClose={() => setOpenDatePicker(false)}>
-                <DialogTitle>Chọn ngày</DialogTitle>
-                <DialogContent sx={{ marginTop: 2, display: 'flex', gap: 2, flexDirection: 'column' }}>
-                    {/* DatePicker for Checkin */}
-                    <DatePicker
-                        label="Ngày đến"
-                        value={formik.values.checkin}
-                        onChange={(date) => {
-                            formik.setFieldValue('checkin', date, true);
-                            setStartDate(formatDate(date)); // Update startDate variable
-                        }}
-                        onBlur={formik.handleBlur}  // Mark the field as touched
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                name="checkin"  // Ensure the name matches the field in initialValues
-                                error={Boolean(formik.touched.checkin && formik.errors.checkin)}
-                                helperText={formik.touched.checkin && formik.errors.checkin}
-                                fullWidth
-                                margin="normal"
-                                sx={{
 
-                                    '& .MuiInputBase-root': {
-                                        borderRadius: '8px',
-                                    },
 
-                                }}
-                            />
-                        )}
-                    />
-
-                    {/* DatePicker for Checkout */}
-                    <DatePicker
-                        label="Ngày rời đi"
-                        value={formik.values.checkout}
-                        onChange={(date) => {
-                            formik.setFieldValue('checkout', date, true);
-                            setEndDate(formatDate(date)); // Update endDate variable
-                        }}
-                        onBlur={formik.handleBlur}  // Mark the field as touched
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                name="checkout"  // Ensure the name matches the field in initialValues
-                                error={Boolean(formik.touched.checkout && formik.errors.checkout)}
-                                helperText={formik.touched.checkout && formik.errors.checkout}
-                                fullWidth
-                                margin="normal"
-                                sx={{
-                                    '& .MuiInputBase-root': {
-                                        borderRadius: '8px',
-                                    },
-                                }}
-                            />
-                        )}
-                    />
-                </DialogContent>
-                <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Button onClick={() => setOpenDatePicker(false)} color="secondary">
-                        Hủy
-                    </Button>
-                    <Button
-                        onClick={async () => {
-                            // Trigger validation first
-                            const isValid = await formik.validateForm();
-
-                            // If the form is valid, proceed with the next step
-                            if (Object.keys(isValid).length === 0) {
-                                handleNext();
-                            }
-                        }}
-                        variant="contained"
-                        color="primary"
-                    >
-                        Tiếp theo
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <DatePickerForm fetchPriceQuotation={fetchPriceQuotation} residence_id={residenceInfor?.residence_id} setEndDate={setEndDate} setStartDate={setStartDate} openDatePicker={openDatePicker} handleNext={handleNext} setOpenDatePicker={setOpenDatePicker} />
 
 
 
@@ -361,6 +329,7 @@ export default function ForumTypeInFormation() {
 
             {actionType === 'book' && (
                 <BookingFormDialog
+                    fetchPriceQuotation={fetchPriceQuotation}
                     isBookingForm={openForm}
                     setIsBookingForm={setOpenForm}
                     selectedVillaName={residenceInfor?.residence_name}

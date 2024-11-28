@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, TextField, Typography, MenuItem, Button, Divider, DialogActions } from '@mui/material';
+import { Box, TextField, Typography, MenuItem, Button, Divider, DialogActions, InputAdornment } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -12,32 +12,39 @@ const validationSchema = Yup.object({
         .max(100, 'Tên lưu trú không được vượt quá 100 ký tự'),
     serviceType: Yup.number()
         .required('Loại lưu trú là bắt buộc'),
-    email: Yup.string()
-        .email('Email không hợp lệ')
-        .required('Email là bắt buộc')
-        .max(255, 'Email không được vượt quá 255 ký tự'),
-    website: Yup.string()
-        .url('Website không hợp lệ')
-        .nullable()
-        .max(255, 'URL không được vượt quá 255 ký tự'),
+    numOfBeds: Yup.number()
+        .required('Số giường ngủ là bắt buộc')
+        .min(1, 'Phải có ít nhất 1 giường ngủ')
+        .typeError('Số giường ngủ phải là một số hợp lệ'),
     bedrooms: Yup.number()
         .required('Số phòng ngủ là bắt buộc')
         .min(1, 'Phải có ít nhất 1 phòng ngủ')
-        .max(100, 'Số phòng ngủ không được vượt quá 100')
         .typeError('Số phòng ngủ phải là một số hợp lệ'),
     bathrooms: Yup.number()
         .required('Số phòng tắm là bắt buộc')
         .min(1, 'Phải có ít nhất 1 phòng tắm')
-        .max(100, 'Số phòng tắm không được vượt quá 100')
         .typeError('Số phòng tắm phải là một số hợp lệ'),
+
+    capacityStander: Yup.number()
+        .required('Số lượng khách tiêu chuẩn là bắt buộc')
+        .min(1, 'Số lượng khách tiêu chuẩn phải ít nhất là 1 người')
+        .typeError('Số lượng khách tiêu chuẩn phải là một số hợp lệ'),
+
     capacity: Yup.number()
-        .required('Sức chứa là bắt buộc')
-        .min(1, 'Sức chứa phải ít nhất là 1 người')
-        .max(1000, 'Sức chứa không được vượt quá 1000 người')
-        .typeError('Sức chứa phải là một số hợp lệ'),
+        .required('Số lượng khách tiêu chuẩn là bắt buộc')
+        .typeError('Số lượng khách tối đa phải là một số hợp lệ')
+        .when('capacityStander', (capacityStander, schema) =>
+            schema.min(
+                capacityStander,
+                'Số lượng khách tối đa phải lớn hơn hoặc bằng số lượng khách tiêu chuẩn'
+            )
+        ),
+    surcharge: Yup.number()
+        .min(1, 'Số tiền phụ thu nếu quá số lượng khách tiêu chuẩn phải ít nhất là 1.000 VNĐ')
+        .typeError('Số tiền phụ thu nếu quá số lượng khách tiêu chuẩn  phải là một số hợp lệ'),
     description: Yup.string()
-        .required('Miêu tả là bắt buộc')
-        .min(10, 'Miêu tả phải có ít nhất 10 ký tự')
+        .required('Miêu tả hoặc ghi chú là bắt buộc')
+        .min(10, 'Miêu tả hoặc ghi chú phải có ít nhất 10 ký tự')
         .max(1000, 'Miêu tả không được vượt quá 1000 ký tự'),
 }).noUnknown();
 
@@ -52,7 +59,10 @@ interface InitialValues {
     email: string;
     website?: string | null;
     bedrooms: number;
+    numOfBeds: number;
     bathrooms: number;
+    surcharge: number;
+    capacityStander: number;
     capacity: number;
     description: string;
 }
@@ -71,10 +81,10 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
         defaultValues: initialValues || { // Set default values from initialValues or empty object
             serviceName: '',
             serviceType: 1, // Default value for serviceType if needed
-            email: '',
-            website: '',
             bedrooms: 0,
+            numOfBeds: 0,
             bathrooms: 0,
+            capacityStander: 0,
             capacity: 0,
             description: ''
         }
@@ -141,30 +151,6 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
                     ))}
                 </TextField>
             </Box>
-
-            <Box display="flex" flexWrap="nowrap" gap={2} width="100%" sx={{
-                '@media (max-width: 600px)': { flexWrap: 'wrap' },
-            }}>
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    {...register('email')}
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                    margin="normal"
-                />
-                <TextField
-                    label="Google Drive URL"
-                    variant="outlined"
-                    fullWidth
-                    {...register('website')}
-                    error={!!errors.website}
-                    helperText={errors.website?.message}
-                    margin="normal"
-                />
-            </Box>
-
             <Box display="flex" flexWrap="nowrap" gap={2} width="100%" sx={{
                 '@media (max-width: 600px)': { flexWrap: 'wrap' },
             }}>
@@ -179,6 +165,17 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
                     margin="normal"
                 />
                 <TextField
+                    label="Số giường ngủ"
+                    variant="outlined"
+                    fullWidth
+                    type="number"
+                    {...register('numOfBeds')}
+                    error={!!errors.numOfBeds}
+                    helperText={errors.numOfBeds?.message}
+                    margin="normal"
+                />
+
+                <TextField
                     label="Số phòng tắm"
                     variant="outlined"
                     fullWidth
@@ -188,8 +185,25 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
                     helperText={errors.bathrooms?.message}
                     margin="normal"
                 />
+            </Box>
+
+            <Box display="flex" flexWrap="nowrap" gap={2} width="100%" sx={{
+                '@media (max-width: 600px)': { flexWrap: 'wrap' },
+            }}>
+
+
                 <TextField
-                    label="Sức chứa"
+                    label="Số khách tiêu chuẩn"
+                    variant="outlined"
+                    fullWidth
+                    type="number"
+                    {...register('capacityStander')}
+                    error={!!errors.capacityStander}
+                    helperText={errors.capacityStander?.message}
+                    margin="normal"
+                />
+                <TextField
+                    label="Số khách tối đa"
                     variant="outlined"
                     fullWidth
                     type="number"
@@ -198,10 +212,23 @@ export default function Step0({ onSubmit, previousStep, currentStep, initialValu
                     helperText={errors.capacity?.message}
                     margin="normal"
                 />
-            </Box>
 
+            </Box>
             <TextField
-                label="Miêu tả nơi lưu trú"
+                label="Số tiền phụ thu nếu quá số lượng khách tiêu chuẩn"
+                variant="outlined"
+                fullWidth
+                type="number"
+                {...register('surcharge')}
+                error={!!errors.surcharge}
+                helperText={errors.surcharge?.message}
+                margin="normal"
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                }}
+            />
+            <TextField
+                label="Miêu tả hoặc ghi chú cho nơi lưu trú"
                 variant="outlined"
                 fullWidth
                 {...register('description')}

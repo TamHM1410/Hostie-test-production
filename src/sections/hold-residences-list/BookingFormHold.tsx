@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
     Dialog,
-    DialogActions,
-    DialogContent,
     DialogTitle,
+    DialogContent,
+    DialogActions,
     Box,
     Typography,
-    TextField,
     Button,
+    TextField,
     Autocomplete,
     Accordion,
     AccordionSummary,
@@ -15,45 +15,63 @@ import {
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { formattedAmount } from 'src/utils/format-time';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+interface Customer {
+    id: number;
+    name: string;
+}
+
+interface PriceQuotation {
+    total_price: number;
+    commission_rate: number;
+    total_days: number;
+}
+
+interface Detail {
+    residence_name: string;
+    residence_id: string;
+    id: string;
+    checkin: string;
+    checkout: string;
+}
+
 interface BookingFormDialogProps {
-    isBookingForm: boolean;
-    setIsBookingForm: (value: boolean) => void;
-    selectedVillaName: string;
-    priceQuotation: any;
-    customerList: any[];
-    startDate: string;
-    endDate: string;
-    selectionRange: any;
-    handleBookingSubmit: (values: any) => void;
+    isOpen: boolean;
+    onClose: () => void;
+    customerList: { data: Customer[] } | null;
+    priceQuotation: PriceQuotation | null;
+    detail: Detail | null;
+    handleBookingSubmit: (values: any) => Promise<void>;
+    fetchData: () => void;
     fetchPriceQuotation: any
 }
 
-const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
-    isBookingForm,
-    setIsBookingForm,
-    selectedVillaName,
-    priceQuotation,
+export const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
+    isOpen,
+    onClose,
     customerList,
-    startDate,
-    endDate,
-    selectionRange,
-    fetchPriceQuotation,
+    priceQuotation,
+    detail,
     handleBookingSubmit,
-}) => {
+    fetchData,
+    fetchPriceQuotation,
 
+
+}) => {
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false); // State for confirm dialog
     const [formValues, setFormValues] = useState<any>({}); // Store form values for confirmation
 
 
 
     return (
+
         <>
-            <Dialog open={isBookingForm} onClose={() => setIsBookingForm(false)}>
-                <DialogTitle>Đặt Chỗ Cho {selectedVillaName}</DialogTitle>
+
+            <Dialog open={isOpen} onClose={onClose}>
+                <DialogTitle>Đặt Chỗ Cho {detail?.residence_name}</DialogTitle>
                 <DialogContent>
                     <Box
                         sx={{
@@ -120,14 +138,14 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
 
                     </Box>
 
-
                     <Formik
                         initialValues={{
                             guest_id: '',
                             guest_count: 1,
-                            start_date: startDate,
-                            end_date: endDate,
-                            residence_id: selectionRange?.residence_id || '',
+                            start_date: detail?.checkin || '',
+                            end_date: detail?.checkout || '',
+                            residence_id: detail?.residence_id || '',
+                            hold_id: detail?.id,
                             note: '',
                         }}
                         validationSchema={Yup.object({
@@ -138,7 +156,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                                 .required('Số lượng khách là bắt buộc.'),
                             note: Yup.string().optional(),
                         })}
-                        onSubmit={(values) => {
+                        onSubmit={async (values, { setSubmitting, setFieldError }) => {
                             fetchPriceQuotation(values.start_date, values.end_date, values.residence_id, values.guest_count)
                             setFormValues(values); // Save form values
                             setIsConfirmDialogOpen(true); // Open confirmation dialog
@@ -152,6 +170,12 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                                     onChange={(event, newValue) => {
                                         setFieldValue('guest_id', newValue ? newValue.id : '');
                                     }}
+                                    sx={{ marginTop: '10px' }}
+                                    renderOption={(props, option) => (
+                                        <li {...props} key={option.id}>
+                                            {option.name}
+                                        </li>
+                                    )}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -169,20 +193,21 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                                     onBlur={handleBlur}
                                     fullWidth
                                     margin="dense"
+                                    value={values.guest_count}
                                     error={touched.guest_count && Boolean(errors.guest_count)}
                                     helperText={touched.guest_count && errors.guest_count}
                                 />
                                 <TextField
                                     label="Ngày Bắt Đầu"
-                                    value={startDate}
-                                    InputProps={{ readOnly: true }}
+                                    value={detail?.checkin}
+                                    disabled
                                     fullWidth
                                     margin="dense"
                                 />
                                 <TextField
                                     label="Ngày Kết Thúc"
-                                    value={endDate}
-                                    InputProps={{ readOnly: true }}
+                                    value={detail?.checkout}
+                                    disabled
                                     fullWidth
                                     margin="dense"
                                 />
@@ -193,14 +218,13 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                                     onBlur={handleBlur}
                                     fullWidth
                                     margin="dense"
-                                    multiline
-                                    rows={4}
+                                    value={values.note}
                                 />
                                 <DialogActions>
-                                    <Button onClick={() => setIsBookingForm(false)} color="primary">
+                                    <Button onClick={onClose} color="primary">
                                         Hủy
                                     </Button>
-                                    <Button type="submit" color="primary">
+                                    <Button type="submit" color="success">
                                         Đặt
                                     </Button>
                                 </DialogActions>
@@ -209,8 +233,6 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                     </Formik>
                 </DialogContent>
             </Dialog>
-
-            {/* Confirm Dialog */}
             <Dialog
                 open={isConfirmDialogOpen}
                 onClose={() => setIsConfirmDialogOpen(false)}
@@ -353,8 +375,9 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                     <Button
                         onClick={() => {
                             handleBookingSubmit(formValues);
+                            fetchData();
                             setIsConfirmDialogOpen(false);
-                            setIsBookingForm(false);
+                            onClose();
                         }}
                         color="primary"
                         variant="contained"
@@ -363,9 +386,9 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                     </Button>
                 </DialogActions>
             </Dialog>
-
         </>
     );
 };
 
-export default BookingFormDialog;
+
+

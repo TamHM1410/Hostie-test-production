@@ -24,6 +24,7 @@ const getUserInfor = async (): Promise<UserInfoResponse|any> => {
   return await axiosClient.get(endPoint.user.info);
 };
 
+
 const updateUserById = async (payload: UserInfor): Promise<UserInfoResponse> => {
   return await axiosClient.put(endPoint.user.update, payload);
 };
@@ -43,6 +44,13 @@ const updateAvatar=async(file:any)=>{
 
 const getUserRole=async (): Promise<UserInfoResponse>=>{
   return await axiosClient.get(endPoint.user.role)
+}
+const confirmVerifyEmail=async (token:any)=>{
+  const res=await axiosClient.post(endPoint.user.confirmVerification,{
+    token:token
+  })
+  return res
+
 }
 
 
@@ -87,6 +95,7 @@ const updatedRoleApi = async ({id,payload}:{ id: any; payload: any }): Promise<U
 
 
 export {
+  confirmVerifyEmail,
   getUserRole,
   registerApi,
   loginApi,

@@ -87,7 +87,7 @@ export default function ButlerView() {
 
       await butler_add_residence(payload);
       setHousekeeperRegistrationCode('');
-      toast.success('Đăng ký thành công! Xin chờ chủ nhà xét duyệt')
+      toast.success('Đăng ký thành công! Xin chờ chủ nhà xét duyệt');
     } catch (error) {
       toast.error('Đã xảy ra lỗi');
     }

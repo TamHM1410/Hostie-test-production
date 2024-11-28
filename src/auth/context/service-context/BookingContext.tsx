@@ -38,9 +38,9 @@ interface BookingContextProps {
         selectedProvince: string | null,
         selectedAccommodationType: string | null,
         dateRange: [Date | null, Date | null],
-        maxPrice: number | null) => void;
+        maxPrice: number | null, minPrice: number | null) => void;
     priceQuotation: any;
-    fetchPriceQuotation: (checkin: string, checkout: string, id: number) => void;
+    fetchPriceQuotation: (checkin: string, checkout: string, id: number, guest_count?: any) => void;
     handleHoldingSubmit: (residence_id: string, startDate: string, endDate: string, expireTime: number) => Promise<void>;
     handleBookingSubmit: (values: any) => Promise<void>;
     fetchCalendarFilter: (params: CalendarFilterParams) => Promise<void>;
@@ -120,7 +120,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         selectedProvince: string | null,
         selectedAccommodationType: string | null,
         dateRange: [Date | null, Date | null],
-        maxPrice: number | null
+        maxPrice: number | null,
+        minPrice: number | null
     ) => {
         setLoading(true);
         setError(null);
@@ -161,10 +162,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (selectedProvince) {
             apiQuery += `&province_id=${selectedProvince}`;
         }
-        if (maxPrice !== null) {
-            apiQuery += `&max_prices=${maxPrice}`;
+        if (maxPrice !== undefined && maxPrice !== null) {
+            apiQuery += `&max_price=${maxPrice}`;
         }
-
+        if (minPrice !== undefined && minPrice !== null) {
+            apiQuery += `&min_price=${minPrice}`;
+        }
         try {
             const response = await axiosClient.get(
                 `${API_BASE_URL}/residences/calendar${apiQuery}`
@@ -221,7 +224,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setLoading(false);
         }
     };
-    const fetchPriceQuotation = async (checkin: string, checkout: string, id: number) => {
+    const fetchPriceQuotation = async (checkin: string, checkout: string, id: number, guest_count?: any) => {
         setLoading(true);
         setError(null);
 
@@ -233,6 +236,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     residence_ids: [parseInt(id)],
                     checkin,
                     checkout,
+                    guest_count
                 }
             );
 

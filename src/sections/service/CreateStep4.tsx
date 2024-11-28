@@ -1,17 +1,16 @@
 import React from 'react';
-import { Box, Typography, Snackbar, Paper, Divider, DialogActions, Button } from '@mui/material';
+import { Box, Typography, Snackbar, Paper, Divider, DialogActions, Button, IconButton } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Step4Props {
     images: File[];
     setImages: (files: File[]) => void;
     snackbarOpen: boolean;
     setSnackbarOpen: (open: boolean) => void;
-    getRootProps: () => any;
-    getInputProps: () => any;
     previousStep: () => void; // Function to go back to the previous step
     currentStep: number;
-    onSubmit: any; // New onSubmit prop
+    onSubmit: () => void; // Updated onSubmit type
 }
 
 export default function Step4({
@@ -19,41 +18,41 @@ export default function Step4({
     setImages,
     snackbarOpen,
     setSnackbarOpen,
-    getRootProps,
-    getInputProps,
     previousStep,
     currentStep,
-    onSubmit, // Destructure onSubmit
+    onSubmit,
 }: Step4Props) {
-    // Limit for uploaded images
-    const maxImages = 6;
+    // Define minimum and maximum upload limits
+    const minImages = 6;
+    const maxImages = 12;
 
     // Function to handle file drop
     const onDrop = (acceptedFiles: File[]) => {
-        // Only add files if the current number of images is less than the maximum
         if (images.length + acceptedFiles.length <= maxImages) {
             setImages([...images, ...acceptedFiles]);
-            setSnackbarOpen(true); // Show snackbar
+            setSnackbarOpen(true); // Show snackbar for success
         } else {
-            // You can show an error message or snackbar here if needed
-            setSnackbarOpen(true); // This can be replaced with a custom message
+            setSnackbarOpen(true); // Show snackbar for exceeding limit
         }
     };
-
-    const { getRootProps: dropzoneProps, getInputProps: inputProps }  = useDropzone({
+    const handleDeleteImage = (indexToDelete: number) => {
+        const updatedImages = images.filter((_, index) => index !== indexToDelete);
+        setImages(updatedImages); // Cập nhật danh sách hình ảnh
+    };
+    const { getRootProps: dropzoneProps, getInputProps: inputProps } = useDropzone({
         onDrop,
-        accept: 'image/*' as any, // Accept only images
-        maxFiles: maxImages - images.length, // Limit number of files based on current images
-    }) ;
+        accept: 'image/*' as any,
+        maxFiles: maxImages - images.length,
+    });
 
     return (
         <Box>
             <Typography variant="h6" sx={{ marginBottom: 2 }}>Thêm hình ảnh cho nơi lưu trú</Typography>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload hình ảnh rõ nét, tối đa 50mb. Không sử dụng hình ảnh không rõ xác thực
+                *Yêu cầu upload tối thiểu 6 và tối đa 12 hình ảnh rõ nét.
             </Typography>
             <Box
-                {...dropzoneProps()} // Use the dropzone props here
+                {...dropzoneProps()}
                 sx={{
                     border: '2px dashed #1976d2',
                     borderRadius: 2,
@@ -61,7 +60,7 @@ export default function Step4({
                     textAlign: 'center',
                     cursor: 'pointer',
                     marginTop: 2,
-                    backgroundColor: images.length >= maxImages ? '#f0f0f0' : 'transparent', // Change background if limit reached
+                    backgroundColor: images.length >= maxImages ? '#f0f0f0' : 'transparent',
                 }}
             >
                 <input {...inputProps()} />
@@ -81,12 +80,34 @@ export default function Step4({
                 <Typography variant="subtitle1">Hình ảnh đã được tải lên:</Typography>
                 <Box display="flex" flexWrap="wrap" gap={1}>
                     {images.map((file, index) => (
-                        <Paper key={index} sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Paper
+                            key={index}
+                            sx={{
+                                padding: 1,
+                                border: '1px solid #ddd',
+                                borderRadius: 1,
+                                maxWidth: 200,
+                                textAlign: 'center',
+                                position: 'relative',
+                            }}
+                        >
                             <img
                                 src={URL.createObjectURL(file)}
                                 alt="Uploaded"
-                                style={{ maxWidth: '100%', maxHeight: '100%' }}
+                                style={{ maxWidth: '100%', maxHeight: 150, objectFit: 'cover', borderRadius: 8 }}
                             />
+                            <IconButton
+                                onClick={() => handleDeleteImage(index)}
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 4,
+                                    right: 4,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                }}
+                            >
+                                <DeleteIcon color="error" fontSize="small" />
+                            </IconButton>
                         </Paper>
                     ))}
                 </Box>
@@ -96,14 +117,23 @@ export default function Step4({
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setSnackbarOpen(false)}
-                message={images.length < maxImages ? "Hình ảnh đã được tải lên!" : "Đã đạt giới hạn tải lên hình ảnh!"}
+                message={
+                    images.length < maxImages
+                        ? "Hình ảnh đã được tải lên!"
+                        : "Đã đạt giới hạn tải lên hình ảnh!"
+                }
             />
             <Divider sx={{ marginTop: 3 }} />
             <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Button onClick={previousStep} disabled={currentStep === 0}>
                     Trở lại
                 </Button>
-                <Button onClick={onSubmit} variant="contained" color="primary">
+                <Button
+                    onClick={onSubmit}
+                    variant="contained"
+                    color="primary"
+                    disabled={images.length < minImages} // Disable button if less than 6 images
+                >
                     Hoàn tất
                 </Button>
             </DialogActions>

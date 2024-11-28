@@ -19,13 +19,14 @@ import {
 
 } from '@mui/material';
 
-
+import './Booking.Module.css';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
 import { useSession } from 'next-auth/react';
 import HoldingFormDialog from './HoldingForm';
-
 import BookingFormDialog from './BookingDialogForm';
-import './Booking.Module.css';
+import { formattedAmount } from 'src/utils/format-time';
+
+
 
 
 export function formatCurrency(amount: number): string {
@@ -103,7 +104,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                 selectedProvince,
                 selectedAccommodationType,
                 dateRange,
-                maxPrice
+                maxPrice, minPrice
             } = parsedParams;
 
             // Use the loaded values in your API calls
@@ -114,7 +115,8 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                 selectedProvince,
                 selectedAccommodationType,
                 dateRange,
-                maxPrice
+                maxPrice,
+                minPrice,
             );
         } else {
             // If no saved data, fetch with default values
@@ -179,7 +181,6 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
             }
         }
     };
-
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
@@ -323,7 +324,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                             {isCellSelected(villa.name, day.day) && (
                                                 <div className="selected"></div> // This will be styled to create the border effect
                                             )}
-                                            <div className="corner-number">{bookingInfo ? `${formatCurrency(bookingInfo.price)}` : 'N/A'}</div>
+                                            <div className="corner-number">{bookingInfo ? `${formattedAmount(bookingInfo.price)}` : 'N/A'}</div>
 
                                             {/* Rectangle based on start_point, middle_point, end_point */}
                                             {bookingInfo && bookingInfo.start_point && (
@@ -384,6 +385,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
             {/* Booking Form Dialog */}
             {isBookingForm && (
                 <BookingFormDialog
+                    fetchPriceQuotation={fetchPriceQuotation}
                     isBookingForm={isBookingForm}
                     setIsBookingForm={setIsBookingForm}
                     selectedVillaName={selectedVillaName}

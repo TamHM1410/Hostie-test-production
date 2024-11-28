@@ -8,11 +8,12 @@ import {
     PhoneOutlined,
     VerifiedUserOutlined,
 } from '@mui/icons-material';
-import { Divider, Typography, Link as MUILink, Box, Grid, Paper } from '@mui/material';
+import { Divider, Typography, Link as MUILink, Box, Grid, Paper, Tooltip } from '@mui/material';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import axiosClient from 'src/utils/axiosClient';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { formattedAmount } from 'src/utils/format-time';
 
 interface ResidenceAddress {
     address: string;
@@ -109,7 +110,22 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
         fetchPolicy()
     }, [id]);
 
-    console.log(residenceData);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        if (residenceData?.phones[0]?.phone) {
+            navigator.clipboard.writeText(residenceData?.phones[0]?.phone);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset trạng thái sau 2 giây
+        }
+    };
+    const handleCopy2 = () => {
+        if (residenceData?.residence_address) {
+            navigator.clipboard.writeText(residenceData?.residence_address);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset trạng thái sau 2 giây
+        }
+    };
 
     return (
         <div>
@@ -129,29 +145,50 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                     borderRadius: '8px', // Rounded corners
                     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)', // Soft shadow for depth
                 }}>
-                    <Grid container spacing={2} justifyContent="center" alignItems="center">
+                    <Grid container spacing={0} justifyContent="center" alignItems="center">
                         <Grid item xs={12} lg={6}>
                             <Box flex={1}>
                                 <Typography fontWeight='bold' fontSize='20px' sx={{ display: 'flex', gap: 1, }} >
-                                    Tên nơi cư trú :   <Typography fontSize='20px' > {residenceData.residence_name}</Typography>
+                                    Tên nơi cư trú :   <Typography fontSize='20px' > {residenceData?.residence_name}</Typography>
                                 </Typography>
-                                <Box display="flex" alignItems="center" gap={4} mt={4}>
-                                    <MUILink
-                                        href="/"
-                                        variant="body1"
-                                        underline="hover"
-                                        sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                <Box display="flex" flexWrap="wrap" alignItems="center" gap={4} mt={2}>
+                                    <Tooltip
+                                        title={copied ? 'Đã sao chép' : 'Sao chép số điện thoại'}
                                     >
-                                        {residenceData.phones[0]?.phone} <PhoneOutlined style={{ color: '#2152FF' }} />
-                                    </MUILink>
+                                        <Typography onClick={handleCopy} sx={{
+                                            display: 'flex', gap: 1, color: 'inherit',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                backgroundColor: 'transparent', // Xóa background khi hover vào số điện thoại/ Chỉ hiển thị gạch chân khi hover
+
+                                            },
+                                        }} >
+                                            <Typography
+                                                variant="body1"
+                                                sx={{
+                                                    color: 'inherit',
+                                                    '&:hover': {
+                                                        textDecoration: 'underline', // Chỉ hiển thị gạch chân khi hover
+
+                                                    },
+                                                }}
+                                            >
+                                                {residenceData?.phones[0]?.phone}
+                                            </Typography>
+                                            <PhoneOutlined sx={{ color: '#2152FF' }} />
+                                        </Typography>
+                                    </Tooltip>
                                     <Divider orientation="vertical" flexItem />
                                     <MUILink
-                                        href={residenceData.residence_website}
+                                        href={residenceData.residence_website || "https://www.facebook.com/"}
                                         variant="body1"
                                         underline="hover"
                                         sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                                        target="_blank"  // Mở liên kết trong tab mới
+                                        rel="noopener noreferrer"  // Bảo mật khi dùng target="_blank"
+
                                     >
-                                        Google Drive <LinkOutlined style={{ color: '#2152FF' }} />
+                                        Link hình ảnh <LinkOutlined style={{ color: '#2152FF' }} />
                                     </MUILink>
                                     <Divider orientation="vertical" flexItem />
                                     <MUILink
@@ -165,16 +202,36 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                         Chính sách <LinkOutlined style={{ color: '#2152FF' }} />
                                     </MUILink>
                                 </Box>
-                                <Typography variant="body1" mt={4}>
-                                    <MUILink
-                                        href="/"
-                                        underline="hover"
-                                        sx={{ display: 'flex', gap: 1, color: 'inherit' }}
-                                    >
-                                        <Typography fontWeight='bold'>Địa chỉ :</Typography >  {residenceData.residence_address} <LinkOutlined style={{ color: '#2152FF' }} />
-                                    </MUILink>
-                                </Typography>
-                                <Typography variant="body1" mt={4}>
+
+                                <Tooltip
+                                    title={copied ? 'Đã sao chép địa chỉ' : 'Sao chép địa chỉ'}
+                                    placement='left'
+                                >
+                                    <Typography onClick={handleCopy2} sx={{
+                                        display: 'flex', gap: 1, color: 'inherit', cursor: 'pointer',
+                                        '&:hover': {
+                                            backgroundColor: 'transparent', // Xóa background khi hover vào số điện thoại/ Chỉ hiển thị gạch chân khi hover
+
+                                        },
+                                    }} >
+                                        <Typography variant="body1" mt={2}>
+                                            <Typography
+
+                                                sx={{
+                                                    display: 'flex', gap: 1, color: 'inherit',
+                                                    '&:hover': {
+                                                        textDecoration: 'underline', // Chỉ hiển thị gạch chân khi hover
+
+                                                    },
+                                                }}
+
+                                            >
+                                                <Typography fontWeight='bold' >Địa chỉ :</Typography  >  {residenceData?.residence_address}
+                                            </Typography>
+                                        </Typography>
+                                    </Typography>
+                                </Tooltip>
+                                <Typography variant="body1" mt={2}>
                                     <Typography
 
                                         sx={{ display: 'flex', gap: 1, color: 'inherit' }}
@@ -182,7 +239,16 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                         <Typography fontWeight='bold'>Loại lưu trú :</Typography >  {residenceData?.residence_type}
                                     </Typography>
                                 </Typography>
-                                <Grid container spacing={2} mt={2}>
+                                <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+                                    <Typography fontWeight='bold'>Mã giới thiệu cho quản gia:</Typography >  {residenceData?.housekeeper_registration_code}
+                                </Typography>
+                                <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+                                    <Typography fontWeight='bold'>Phụ thu nếu quá số lượng khách tiêu chuẩn :</Typography >  {formattedAmount(residenceData?.extra_guest_fee)} / 1 người
+                                </Typography>
+                                <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+                                    <Typography fontWeight='bold'>Ghi chú và miêu tả :</Typography >  {residenceData?.residence_description}
+                                </Typography>
+                                <Grid container spacing={2} mt={1}>
                                     {residenceData?.amenities?.map((ani: any, index: any) => (
                                         <Grid item key={index}>
                                             <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -191,29 +257,39 @@ export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
                                         </Grid>
                                     ))}
                                 </Grid>
-                                <Grid container spacing={2} mt={2}>
+                                <Grid container spacing={1} mt={2} columns={12}>
+                                    {/* Phòng ngủ */}
+                                    <Grid item xs={4}>
+                                        <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
+                                            <BedroomParentOutlined color="primary" /> {residenceData.num_of_bedrooms} phòng ngủ
+                                        </Typography>
+                                    </Grid>
 
+                                    {/* Giường ngủ */}
+                                    <Grid item xs={4}>
+                                        <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
+                                            <BedOutlined color="primary" /> {residenceData.num_of_beds} giường ngủ
+                                        </Typography>
+                                    </Grid>
 
-                                    <Grid item>
+                                    {/* Phòng tắm */}
+                                    <Grid item xs={4}>
                                         <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                            <BedroomParentOutlined color='primary' /> {residenceData.num_of_bedrooms}{' '}
-                                            phòng ngủ
+                                            <BathroomOutlined color="primary" /> {residenceData.num_of_bathrooms} nhà vệ sinh
                                         </Typography>
                                     </Grid>
-                                    <Grid item>
+
+                                    {/* Tiêu chuẩn */}
+                                    <Grid item xs={4}>
                                         <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                            <BedOutlined color='primary' />{residenceData.num_of_beds} giường ngủ
+                                            <VerifiedUserOutlined color="primary" /> Tiêu chuẩn: {residenceData.standard_num_guests} người
                                         </Typography>
                                     </Grid>
-                                    <Grid item>
+
+                                    {/* Tối đa */}
+                                    <Grid item xs={4}>
                                         <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                            <BathroomOutlined color='primary' />  {residenceData.num_of_bathrooms} phòng tắm
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item>
-                                        <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                                            <VerifiedUserOutlined color='primary' /> Tiêu chuẩn :{' '}
-                                            {residenceData.max_guests} người
+                                            <VerifiedUserOutlined color="primary" /> Tối đa: {residenceData.max_guests} người
                                         </Typography>
                                     </Grid>
                                 </Grid>

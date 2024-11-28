@@ -37,12 +37,12 @@ export default function ModernNewPasswordView() {
 
   const NewPasswordSchema = Yup.object().shape({
     // code: Yup.string().min(6, 'Code must be at least 6 characters').required('Code is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+    email: Yup.string().required('Bạn chưa nhập email').email('Địa chỉ email chưa đúng định dạng'),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(6, 'Mật khẩu phải trên 6 ký tự')
+      .required('Bạn chưa nhập mật khẩu'),
     confirmPassword: Yup.string()
-      .required('Confirm password is required')
+      .required('Bạn chưa nhập mật khẩu')
       .oneOf([Yup.ref('password')], 'Passwords must match'),
   });
 
@@ -138,7 +138,7 @@ export default function ModernNewPasswordView() {
         Cập nhật mật khẩu
       </LoadingButton>
 
-      <Typography variant="body2">
+      {/* <Typography variant="body2">
         {`Chưa có code `}
         <Link
           variant="subtitle2"
@@ -148,11 +148,11 @@ export default function ModernNewPasswordView() {
         >
           Gửi lại code
         </Link>
-      </Typography>
+      </Typography> */}
 
       <Link
         component={RouterLink}
-        href={paths.authDemo.modern.login}
+        href="/auth/jwt/login/"
         color="inherit"
         variant="subtitle2"
         sx={{

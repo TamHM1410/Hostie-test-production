@@ -32,6 +32,7 @@ import BookingDetailSidebar from '../booking-list/BookingDetailSideBar';
 import { formatCurrency } from '../booking-service/Booking';
 import BookingLogsModal from '../booking-list/BookingLogs';
 import { CalendarMonthRounded } from '@mui/icons-material';
+import { formattedAmount } from 'src/utils/format-time';
 
 const logsData = [
     {
@@ -193,13 +194,13 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
             accessorKey: 'total_amount',
             header: 'Tổng Số Tiền',
             size: 150,
-            Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
+            Cell: ({ cell }: any) => <Typography>{`${formattedAmount(cell.getValue())} `}</Typography>,
         },
         {
             accessorKey: 'paid_amount',
             header: 'Số Tiền Cần Thanh Toán',
             size: 150,
-            Cell: ({ cell }: any) => <Typography>{`${formatCurrency(cell.getValue())} VND`}</Typography>,
+            Cell: ({ cell }: any) => <Typography>{`${formattedAmount(cell.getValue())} `}</Typography>,
         },
 
         {
