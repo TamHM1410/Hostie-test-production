@@ -66,7 +66,6 @@ export default function HomeView() {
           bgcolor: 'background.default',
         }}
       >
-        <HomeMinimal />
 
 
         <Box sx={{ position: 'relative' }}>
@@ -74,6 +73,8 @@ export default function HomeView() {
           <HomeForDesigner />
           <StyledPolygon anchor="bottom" />
         </Box>
+        
+        <HomeMinimal />
 
     
 
