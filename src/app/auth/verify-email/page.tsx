@@ -4,9 +4,7 @@ import { ModernNewPasswordView ,ModernNewVerifyEmail} from 'src/sections/auth-de
 
 // ----------------------------------------------------------------------
 
-export const metadata = {
-  title: 'Auth Modern: Verify',
-};
+
 
 export default function ModernVerifyPage() {
   return <ModernNewVerifyEmail />;
