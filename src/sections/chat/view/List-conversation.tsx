@@ -21,12 +21,13 @@ import { useRouter } from 'next/navigation';
 
 export default function ListConversation({ item, index, id }: any) {
   const { data: session } = useSession();
+  
 
   const router = useRouter();
 
   return (
     <>
-      <ListItem button key={index} onClick={() => router.push(`/dashboard/chat?id=${item?.id}`)}>
+      <ListItem button key={index} onClick={() => router.push(`/dashboard/chat?group_id=${item?.id}`)}>
         <ListItemIcon>
           <AvatarGroup max={3}>
             {item?.users &&
@@ -43,14 +44,14 @@ export default function ListConversation({ item, index, id }: any) {
         <ListItemText primary={item?.username} sx={{ color: 'black' }}>
           {item?.name}
         </ListItemText>
-        <ListItemText
+        {/* <ListItemText
           secondary="online"
           // align="right"
           sx={{
             display: 'flex',
             alignItems: item?.id == id ? 'flex-start' : 'flex-end',
           }}
-        />
+        /> */}
       </ListItem>
     </>
   );

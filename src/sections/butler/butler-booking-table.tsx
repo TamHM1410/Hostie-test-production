@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Switch from '@mui/material/Switch';
+import { useRouter } from 'next/navigation';
 
 import {
   MaterialReactTable,
@@ -12,7 +13,8 @@ import Image from 'next/image';
 import { Box, Button, Chip, Menu, MenuItem } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
-import { useButlerBooking} from 'src/zustand/store';
+import { useButlerBooking } from 'src/zustand/store';
+import { IconButton } from '@mui/material';
 
 import CheckinModal from './checkin-modal';
 import CheckoutModal from './checkout-modal';
@@ -22,12 +24,51 @@ import useUpdateActiveModal from '../hooks/useUpdateActiveModal';
 
 const columnHelper = createMRTColumnHelper<any>();
 
+function BasicMenu() {
+  const { butler } = useButlerBooking();
+
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <Button
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+      >
+        Dashboard
+      </Button>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={() => router.push(`/dashboard/chat/?id=${butler.seller_id}`)}>
+          Nhắn tin
+        </MenuItem>
+      </Menu>
+    </div>
+  );
+}
+
 const ButlerBookingTable = (props: any) => {
   const { data = [] } = props;
 
-  console.log('data', data);
-
-    const { updateButlerBookingZustand} = useButlerBooking();
+  const { updateButlerBookingZustand } = useButlerBooking();
 
   const [openActiveModal, setOpenActive] = useState(false);
 
@@ -36,7 +77,6 @@ const ButlerBookingTable = (props: any) => {
   const [openCheckoutModal, setOpenCheckoutModal] = useState(false);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
-
 
   const activeModal = useUpdateActiveModal({
     open: openActiveModal,
@@ -51,12 +91,17 @@ const ButlerBookingTable = (props: any) => {
       size: 180,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
-      
+
         return (
           <Box sx={{ display: 'flex', gap: 3 }}>
             <Box>
-              <Image src='https://dulichvinhhalong.net.vn/wp-content/uploads/2023/05/mau-villa-dep-1.jpg' alt="cc" width={100} height={100} loading="lazy" />
-             
+              <Image
+                src="https://dulichvinhhalong.net.vn/wp-content/uploads/2023/05/mau-villa-dep-1.jpg"
+                alt="cc"
+                width={100}
+                height={100}
+                loading="lazy"
+              />
             </Box>
             <Box>
               <Box sx={{ fontSize: 18, pt: 3 }}>{cell.getValue()}</Box>
@@ -72,6 +117,18 @@ const ButlerBookingTable = (props: any) => {
     columnHelper.accessor('seller_id', {
       header: 'Người mô giới',
       size: 80,
+      Cell: ({ cell }: any) => {
+        const row = cell.row.original;
+        // updateButlerBookingZustand(cell.row.original);
+
+        return (
+          <Box>
+            <Box onClick={()=>updateButlerBookingZustand(cell.row.original)} >
+             <BasicMenu/>
+            </Box>
+          </Box>
+        );
+      },
     }),
     columnHelper.accessor('guest_name', {
       header: 'Tên khách',
@@ -120,15 +177,13 @@ const ButlerBookingTable = (props: any) => {
 
               <Box
                 sx={{ fontSize: 12, ml: 2, cursor: 'pointer' }}
-                onClick={() =>{
-                  updateButlerBookingZustand( cell.row.original)
+                onClick={() => {
+                  updateButlerBookingZustand(cell.row.original);
 
                   row?.is_customer_checkin === false
                     ? setOpenCheckinModal(!openCheckinModal)
-                    : setOpenCheckinModal(false)
-                }
-                 
-                }
+                    : setOpenCheckinModal(false);
+                }}
               >
                 {row?.is_customer_checkin === false ? (
                   <Chip label="Chưa nhận phòng" variant="soft" color="error" />
@@ -156,13 +211,12 @@ const ButlerBookingTable = (props: any) => {
               <Box
                 sx={{ fontSize: 12, ml: 2, cursor: 'pointer' }}
                 onClick={() => {
-                  updateButlerBookingZustand( cell.row.original)
-                  
+                  updateButlerBookingZustand(cell.row.original);
+
                   row?.is_customer_checkout === false
                     ? setOpenCheckoutModal(!openCheckoutModal)
-                    : setOpenCheckoutModal(false)
-                }
-                }
+                    : setOpenCheckoutModal(false);
+                }}
               >
                 {row?.is_customer_checkout === false ? (
                   <Chip label="Chưa trả phòng" variant="soft" color="error" />
@@ -209,40 +263,7 @@ const ButlerBookingTable = (props: any) => {
     muiSearchTextFieldProps: {
       placeholder: 'Tìm kiếm người dùng',
     },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Box
-        sx={{
-          display: 'flex',
-          gap: '16px',
-          padding: '8px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <Button
-          //  export all data that is currently in the table (ignore pagination, sorting, filtering, etc.)
-          onClick={handleExportData}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả dữ liệu
-        </Button>
-        <Button
-          disabled={table.getPrePaginationRowModel().rows?.length === 0}
-          //  export all rows, including from the next page, (still respects filtering and sorting)
-          onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả các dòng
-        </Button>
-        <Button
-          disabled={table.getRowModel().rows?.length === 0}
-          //  export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
-          onClick={() => handleExportRows(table.getRowModel().rows)}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả dữ liệu trong trang
-        </Button>
-      </Box>
-    ),
+    
   });
 
   useEffect(() => {}, [openModal, openActiveModal]);

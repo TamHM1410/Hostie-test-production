@@ -14,11 +14,17 @@ const getListGroupMessage=async (id:any,page:any)=>{
         page_size:10,
         page:page
     }})
+
+    console.log(res,'res')
     return res
 }
 
 const sendNewMessage =async (payload:any)=>{
-    const res =await goAxiosClient.post(goEndPoint.chat.sendMessage,payload ,)
+    const res =await goAxiosClient.post(goEndPoint.chat.sendMessage,payload ,{
+        headers:{
+            'Content-Type': 'multipart/form-data'
+        }
+    })
     return res
 }
 

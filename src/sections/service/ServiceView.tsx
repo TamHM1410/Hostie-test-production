@@ -250,8 +250,18 @@ export default function ServiceView() {
             fetchData(1, '');
             setIsLoading2(false)
             toast.success('Tạo nơi lưu trú thành công');
+
         } catch (error) {
-            console.error('Error submitting step 4:', error);
+            console.log(error);
+
+            if (error.status === 413) {
+                toast.error('Tệp hình quá nặng không thể upload lên server')
+
+            } else {
+
+                toast.error('Đã có lỗi xảy ra')
+            }
+
         }
         finally {
             setIsLoading2(false)

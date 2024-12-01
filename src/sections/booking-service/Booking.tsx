@@ -32,7 +32,7 @@ import { formattedAmount } from 'src/utils/format-time';
 export function formatCurrency(amount: number): string {
     return amount.toLocaleString('vi-VN') + ' VND';
 }
-const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
+const BookingDashboard = ({ selectedMonth, year, setSelectedMonth }: { selectedMonth: number; year: any, setSelectedMonth: any }) => {
     const {
         bookingData,
         totalPages,
@@ -47,12 +47,14 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         fetchResidenceInfor,
         fetchPolicy,
         fetchPriceQuotation,
-        priceQuotation
+        priceQuotation,
+        fetchImages
 
     } = useBooking() as any;
+    console.log(selectedMonth);
 
 
-    const [selectedMonth, setSelectedMonth] = useState(month);
+    // const [selectedMonth, setSelectedMonth] = useState(month);
     const [daysInMonth, setDaysInMonth] = useState<{ day: number; dayOfWeek: string }[]>([]);
     // Trạng thái mới để theo dõi khoảng chọn
 
@@ -97,13 +99,13 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
         const savedParams = localStorage.getItem('searchParams');
         if (savedParams) {
             const parsedParams = JSON.parse(savedParams);
-            console.log(parsedParams);
+
 
             // Destructure saved data
             const {
                 selectedProvince,
                 selectedAccommodationType,
-                dateRange,
+                startDate1, endDate1,
                 maxPrice, minPrice
             } = parsedParams;
 
@@ -114,11 +116,13 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                 selectedMonth,
                 selectedProvince,
                 selectedAccommodationType,
-                dateRange,
+                [startDate1, endDate1],
                 maxPrice,
                 minPrice,
             );
         } else {
+
+
             // If no saved data, fetch with default values
             fetchBookingData(currentPage, year, selectedMonth);
         }
@@ -255,7 +259,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                 <FormControl fullWidth>
                                     <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
                                         {Array.from({ length: 12 }, (_, i) => (
-                                            <MenuItem key={i + 1} value={`${i + 1}`}>
+                                            <MenuItem key={i + 1} value={i + 1}>
                                                 Tháng {i + 1}
                                             </MenuItem>
                                         ))}
@@ -288,7 +292,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                         className="villa-name-cell"
                                         role="button"
                                         tabIndex={0}
-                                        onClick={() => { fetchResidenceInfor(villa.id); fetchPolicy(villa.id) }}
+                                        onClick={() => { fetchResidenceInfor(villa.id); fetchPolicy(villa.id); fetchImages(villa.id) }}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' || e.key === ' ') {
                                                 fetchResidenceInfor(villa.id);

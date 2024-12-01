@@ -49,7 +49,7 @@ export default function Step4({
         <Box>
             <Typography variant="h6" sx={{ marginBottom: 2 }}>Thêm hình ảnh cho nơi lưu trú</Typography>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload tối thiểu 6 và tối đa 12 hình ảnh rõ nét.
+                *Yêu cầu upload tối thiểu 6 hình ảnh.
             </Typography>
             <Box
                 {...dropzoneProps()}

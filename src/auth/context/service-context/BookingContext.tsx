@@ -48,6 +48,8 @@ interface BookingContextProps {
     provinceList: any;
     fetchPolicy: (id: any) => void;
     policy: any;
+    fetchImages: (id: any) => void;
+    images: any;
 
 }
 
@@ -73,6 +75,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const userId = session?.user?.id;
     const [priceQuotation, setPriceQuotation] = useState()
     const [policy, setPolicy] = useState()
+    const [images, setImages] = useState()
 
     const fetchPolicy = async (id: any) => {
         setLoading(true)
@@ -83,6 +86,34 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 const data1 = response.data;
                 setPolicy(data1.data);
                 setLoading(false)
+            } else {
+                console.error('Failed to fetch residence data');
+            }
+        } catch (error) {
+            console.error('Error fetching residence data:', error);
+        }
+        finally {
+            setLoading(false)
+        }
+    };
+    const fetchImages = async (id: any) => {
+        setLoading(true)
+        try {
+            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}/images`, {
+                params: {
+                    page_size: 99,
+                    last_id: 0,
+                },
+            });
+
+            if (response.status === 200) {
+                const data1 = response.data;
+
+                if (data1.success) {
+                    const fetchedImages = data1.data.images.map((image: { image: string }) => image.image);
+                    setImages(fetchedImages);
+                }
+
             } else {
                 console.error('Failed to fetch residence data');
             }
@@ -144,6 +175,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         const formattedCheckinDate = dateRange?.[0] ? formatDate(new Date(dateRange[0])) : '';
         const formattedCheckoutDate = dateRange?.[1] ? formatDate(new Date(dateRange[1])) : '';
+        console.log(month);
+
 
         const formattedMonth = month.length === 1 ? `0${month}` : month;
         // Initialize the base query string
@@ -429,11 +462,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             fetchCalendarFilter,
             fetchProvince,
             provinceList,
-            fetchPolicy, policy
+            fetchPolicy, policy,
+            fetchImages, images
 
 
         }),
-        [bookingData, totalPages, currentPage, loading, errorr, customerList, residenceInfor, priceQuotation, provinceList, policy]
+        [bookingData, totalPages, images, currentPage, loading, errorr, customerList, residenceInfor, priceQuotation, provinceList, policy]
     );
 
     return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

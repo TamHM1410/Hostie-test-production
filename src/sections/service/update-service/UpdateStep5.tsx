@@ -29,7 +29,7 @@ export default function UpdateStep5({
     return (
         <Box>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload hình ảnh rõ nét, tối đa 50mb. Không sử dụng hình ảnh không rõ xác thực
+                *Yêu cầu upload tối thiểu 6 hình ảnh.
             </Typography>
             <Box
                 {...getRootProps()}

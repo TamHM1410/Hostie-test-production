@@ -54,16 +54,16 @@ export default function ButlerView() {
       {
         queryKey: ['butlerResidenceList'],
 
-        queryFn: () => {
-          const res = getButlerResidence();
+        queryFn: async () => {
+          const res =await getButlerResidence();
           return res;
         },
       },
       {
         queryKey: ['butlerBooking'],
 
-        queryFn: () => {
-          const res = getButlerBooking();
+        queryFn: async () => {
+          const res =await getButlerBooking();
           return res;
         },
       },
@@ -78,6 +78,8 @@ export default function ButlerView() {
   const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
   }, []);
+
+
 
   const handleAddResidence = async () => {
     try {

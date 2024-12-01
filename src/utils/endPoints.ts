@@ -95,6 +95,7 @@ const goEndPoint={
   all_residence:'/residences',
   butler_add_residence:'/v1/api/housekeepers/add-residence',
   addCharge:'/booking/additional_charge',
+  uploadFileCheckIn:'/booking/housekeeper_transaction',
 
   chat:{
     getListConversion:'/chats/groups',

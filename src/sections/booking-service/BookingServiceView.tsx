@@ -6,6 +6,7 @@ import ForumTypeFilter from "./ForumTypeFilter"
 import ForumTypeInFormation from "./ForumTypeInFormation"
 import BookingDashboard from "./Booking"
 import { useSettingsContext } from "src/components/settings"
+import { log } from "console"
 
 
 const ForumTypeView = () => {
@@ -16,6 +17,9 @@ const ForumTypeView = () => {
     const settings = useSettingsContext();
     const year = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
+    const [months, setMonths] = useState(currentMonth)
+    console.log(months);
+
     return (
 
         <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -39,9 +43,9 @@ const ForumTypeView = () => {
                         Tìm kiếm Nâng Cao
                     </Button>
                 </Box>
-                <ForumTypeFilter searchVisible={view} month={currentMonth} year={year} setClose={setView} />
+                <ForumTypeFilter setMonth={setMonths} searchVisible={view} month={months} year={year} setClose={setView} />
                 <ForumTypeInFormation />
-                <BookingDashboard year={year} month={currentMonth} />
+                <BookingDashboard year={year} selectedMonth={months} setSelectedMonth={setMonths} />
             </Box>
 
         </Container>

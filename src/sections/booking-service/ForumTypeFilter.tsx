@@ -10,20 +10,20 @@ import { useBooking } from "src/auth/context/service-context/BookingContext";
 const schema = yup.object().shape({
     selectedProvince: yup.string().required("Vui lòng chọn tỉnh."),
     selectedAccommodationType: yup.string().required("Vui lòng chọn loại chỗ ở."),
-    startDate: yup.date().nullable(),
-    endDate: yup.date()
+    startDate1: yup.date().nullable(),
+    endDate1: yup.date()
         .nullable()
-        .test("valid-range", "Ngày kết thúc không thể nhỏ hơn ngày bắt đầu!", (endDate, context) => {
-            const startDate = context.parent.startDate;
-            if (!startDate || !endDate) return true; // Allow null dates
-            return endDate >= startDate;
+        .test("valid-range", "Ngày kết thúc không thể nhỏ hơn ngày bắt đầu!", (endDate1, context) => {
+            const startDate1 = context.parent.startDate1;
+            if (!startDate1 || !endDate1) return true; // Allow null dates
+            return endDate1 >= startDate1;
         })
     ,
     maxPrice: yup.string().nullable().min(0, "Giá tối đa không được nhỏ hơn 0."),
     minPrice: yup.string().nullable().min(0, "Giá tối thiểu không được nhỏ hơn 0."),
 });
 
-const ForumTypeFilter = ({ searchVisible, month, year, setClose }: { searchVisible: boolean; month: any; year: any; setClose: any; }) => {
+const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth }: { setMonth: any, searchVisible: boolean; month: any; year: any; setClose: any; }) => {
     const { provinceList, fetchBookingData } = useBooking();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -40,22 +40,30 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose }: { searchVisib
         defaultValues: {
             selectedProvince: "",
             selectedAccommodationType: "",
-            startDate: null,
-            endDate: null,
+            startDate1: null,
+            endDate1: null,
             maxPrice: 0,
             minPrice: 0,
         },
     });
 
     const onSubmit = (data: any) => {
-        const { selectedProvince, selectedAccommodationType, startDate, endDate, maxPrice, minPrice } = data;
+        const { selectedProvince, selectedAccommodationType, startDate1, endDate1, maxPrice, minPrice } = data;
 
         // Format dates if selected
-        const formattedCheckinDate = startDate ? startDate.toLocaleDateString("en-GB") : "";
-        const formattedCheckoutDate = endDate ? endDate.toLocaleDateString("en-GB") : "";
-
+        if (startDate1) {
+            // Trích xuất tháng từ đối tượng Date
+            const month1 = startDate1.getMonth(); // Tháng được tính từ 0 (0 = Tháng 1, 11 = Tháng 12)
+            console.log(month1 + 1);
+            const formattedMonth = String(month1 + 1).padStart(2, '0'); // Thêm '0' nếu chỉ có một chữ số
+            console.log(formattedMonth); // In tháng dạng mm (vd: 01, 02, ... 12)
+            // Tạo một đối tượng Date mới và đặt tháng
+            const newDate = new Date();
+            setMonth(formattedMonth); // Đặt tháng theo giá trị đã lấy từ startDate1
+            console.log(`Tháng được set là: ${newDate.toLocaleDateString("en-GB")}`);
+        }
         // Fetch booking data
-        fetchBookingData(1, year, month, selectedProvince, selectedAccommodationType, [startDate, endDate], maxPrice, minPrice);
+        fetchBookingData(1, year, month, selectedProvince, selectedAccommodationType, [startDate1, endDate1], maxPrice, minPrice);
 
         // Store search parameters in localStorage
         localStorage.setItem("searchParams", JSON.stringify(data));
@@ -160,7 +168,7 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose }: { searchVisib
                             {/* Start Date */}
                             <Grid item xs={6}>
                                 <Controller
-                                    name="startDate"
+                                    name="startDate1"
                                     control={control}
                                     render={({ field }) => (
                                         <DatePicker
@@ -175,7 +183,7 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose }: { searchVisib
                             {/* End Date */}
                             <Grid item xs={6}>
                                 <Controller
-                                    name="endDate"
+                                    name="endDate1"
                                     control={control}
                                     render={({ field }) => (
                                         <DatePicker
@@ -188,8 +196,8 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose }: { searchVisib
                                 />
                             </Grid>
                         </Grid>
-                        {errors.startDate && <p style={{ color: "red", marginTop: "4px" }}>{errors.startDate.message}</p>}
-                        {errors.endDate && <p style={{ color: "red", marginTop: "4px" }}>{errors.endDate.message}</p>}
+                        {errors.startDate1 && <p style={{ color: "red", marginTop: "4px" }}>{errors.startDate1.message}</p>}
+                        {errors.endDate1 && <p style={{ color: "red", marginTop: "4px" }}>{errors.endDate1.message}</p>}
                     </Grid>
 
                     {/* Price Inputs */}

@@ -13,23 +13,6 @@ import HoldingFormDialog from './HoldingForm';
 import DatePickerForm from './BooingFormOnInFor';
 import { formattedAmount } from 'src/utils/format-time';
 
-const data = {
-    name: "Luxury Villa by the Sea",
-    phoneNumber: "0773828226",
-    address: {
-        address: "123 Ocean Drive, Beach City, BC 12345",
-    },
-    num_of_bedrooms: 3,
-    max_guests: 6,
-    images: [
-        "https://tuankietvilla.com/wp-content/uploads/2022/12/villa-la-gi-01.jpg",
-        "https://xaydungsaoviet.com.vn/wp-content/uploads/2023/04/biet-thu-dep.jpg",
-        "https://tuankietvilla.com/wp-content/uploads/2022/12/villa-la-gi-01.jpg",
-        "https://xaydungsaoviet.com.vn/wp-content/uploads/2023/04/biet-thu-dep.jpg",
-        "https://tuankietvilla.com/wp-content/uploads/2022/12/villa-la-gi-01.jpg",
-        "https://xaydungsaoviet.com.vn/wp-content/uploads/2023/04/biet-thu-dep.jpg",
-    ],
-};
 
 export default function ForumTypeInFormation() {
     const settings = {
@@ -41,7 +24,7 @@ export default function ForumTypeInFormation() {
         autoplay: true,
         autoplaySpeed: 3000,
     };
-    const { fetchResidenceInfor, residenceInfor, fetchPolicy, policy, customerList, priceQuotation, fetchPriceQuotation, handleBookingSubmit, handleHoldingSubmit } = useBooking()
+    const { fetchResidenceInfor, residenceInfor, fetchPolicy, policy, customerList, fetchImages, images, priceQuotation, fetchPriceQuotation, handleBookingSubmit, handleHoldingSubmit } = useBooking()
     const [actionType, setActionType] = useState<'book' | 'hold' | null>(null);
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openForm, setOpenForm] = useState(false);
@@ -73,8 +56,9 @@ export default function ForumTypeInFormation() {
         setOpenForm(false);
     };
     useEffect(() => {
-        fetchResidenceInfor(149)
-        fetchPolicy(188)
+        fetchResidenceInfor(219)
+        fetchPolicy(219)
+        fetchImages(219)
     }, [])
     const [copied, setCopied] = useState(false);
 
@@ -271,26 +255,20 @@ export default function ForumTypeInFormation() {
                     </Box>
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <Box
-                        width="100%"
-                        mt={2}
-                        overflow="hidden"
-                        borderRadius="8px"
-                        height='250px'
-                    >
+                    <Box width="100%" mt={2} overflow="hidden" borderRadius="8px" height="250px">
                         <Slider {...settings}>
                             <div>
                                 <Box display="flex">
-                                    {data.images.slice(0, 3).map((image, index) => (
+                                    {images?.slice(0, 3).map((image, index) => (
                                         <Box key={index} flex={1} px={1}>
                                             <img
                                                 src={image}
                                                 alt={`tag ${index + 1}`}
                                                 style={{
-                                                    objectFit: "cover",
-                                                    objectPosition: "center",
-                                                    width: "100%",
-                                                    height: '250px'
+                                                    objectFit: 'cover',
+                                                    objectPosition: 'center',
+                                                    width: '100%',
+                                                    height: '250px',
                                                 }}
                                             />
                                         </Box>
@@ -299,16 +277,16 @@ export default function ForumTypeInFormation() {
                             </div>
                             <div>
                                 <Box display="flex">
-                                    {data.images.slice(3, 6).map((image, index) => (
+                                    {images?.slice(3, 6).map((image, index) => (
                                         <Box key={index} flex={1} px={1}>
                                             <img
                                                 src={image}
                                                 alt={`tag ${index + 1}`}
                                                 style={{
-                                                    objectFit: "cover",
-                                                    objectPosition: "center",
-                                                    width: "100%",
-                                                    height: '250px'
+                                                    objectFit: 'cover',
+                                                    objectPosition: 'center',
+                                                    width: '100%',
+                                                    height: '250px',
                                                 }}
                                             />
                                         </Box>

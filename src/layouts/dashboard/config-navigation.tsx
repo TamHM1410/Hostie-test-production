@@ -153,6 +153,11 @@ export function useNavData() {
             path: '/dashboard/user/account',
             icon: ICONS.user,
           },
+          {
+            title: 'Tin nhắn',
+            path: paths.dashboard.chat,
+            icon: ICONS.chat,
+          },
         ],
       },
     ],

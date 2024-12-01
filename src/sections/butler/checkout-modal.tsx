@@ -15,9 +15,11 @@ import { Grid, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import toast from 'react-hot-toast';
 //  @component
-import { confirm_checkout,addCharge } from 'src/api/butler';
+import { confirm_checkout, addCharge } from 'src/api/butler';
 import { LoadingButton } from '@mui/lab';
 import { RHFTextField } from 'src/components/hook-form';
+import { useDropzone } from 'react-dropzone';
+import Image from 'next/image';
 
 interface Charge {
   amount: number;
@@ -31,11 +33,13 @@ interface CheckoutModalProps {
 }
 
 const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
+  const [files, setFiles] = useState<File[]>([]);
+  const [isLoadingFile, setLoadingFile] = useState(false);
   const { butler } = useButlerBooking();
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: (id: { id: any }) => confirm_checkout(id),
+    mutationFn: (id) => confirm_checkout(id),
     onSuccess: () => {
       setOpen(false);
       toast.success('Cập nhật thành công');
@@ -45,14 +49,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       toast.error('Đã có lỗi xảy ra');
     },
   });
-  console.log(butler?.id,'booking id')
+
   // Yup schema for validation
   const chargeSchema = Yup.object().shape({
     charges: Yup.array().of(
       Yup.object().shape({
-        amount: Yup.number()
-          .required('Số tiền là bắt buộc')
-          .min(1, 'Số tiền phải lớn hơn 0'),
+        amount: Yup.number().required('Số tiền là bắt buộc').min(1, 'Số tiền phải lớn hơn 0'),
         reason: Yup.string().required('Lý do là bắt buộc'),
         quantity: Yup.number()
           .min(1, 'Số lượng phải lớn hơn hoặc bằng 1')
@@ -67,8 +69,34 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       charges: [{ amount: 0, reason: '', quantity: 0 }],
     },
   });
+  const onDrop = async (acceptedFiles: File[]) => {
+    const formData = new FormData();
+    formData.append('file', acceptedFiles[0]);
+    formData.append('booking_id', butler.id);
 
-  const { handleSubmit, control, setValue, formState: { isSubmitting } } = methods;
+    setLoadingFile(true);
+    try {
+      // const res = await checkInUploadFile(formData);
+      setLoadingFile(false);
+      // if (res) {
+      //   setFiles(acceptedFiles);
+      // }
+    } catch (error) {
+      console.log(error, 'err');
+    }
+  };
+  const handleRemoveFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting },
+  } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'charges', // name should match the path in defaultValues
@@ -84,15 +112,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if(Array.isArray(data.charges)&&data.charges.length >0){
-        const payload={
-          charge:data.charges,
-          booking_id:butler?.id 
-        }
-        await addCharge(payload)
-
+      if (Array.isArray(data.charges) && data.charges.length > 0) {
+        const payload = {
+          charge: data.charges,
+          booking_id: butler?.id,
+        };
+        await addCharge(payload);
       }
-      mutate({ id: butler?.id });
+      mutate(butler?.id);
     } catch (error) {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
@@ -138,10 +165,21 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
                   </Button>
 
                   {fields.map((item, index) => (
-                    <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <RHFTextField name={`charges[${index}].amount`} label="Số tiền" type="number" />
+                    <Box
+                      key={item.id}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}
+                    >
+                      <RHFTextField
+                        name={`charges[${index}].amount`}
+                        label="Số tiền"
+                        type="number"
+                      />
                       <RHFTextField name={`charges[${index}].reason`} label="Lý do" />
-                      <RHFTextField name={`charges[${index}].quantity`} label="Số lượng" type="number" />
+                      <RHFTextField
+                        name={`charges[${index}].quantity`}
+                        label="Số lượng"
+                        type="number"
+                      />
                       <Button
                         variant="outlined"
                         color="error"
@@ -152,6 +190,63 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
                     </Box>
                   ))}
                 </Box>
+                <Box>
+                  <ul
+                    style={{
+                      listStyleType: 'none',
+                      padding: 0,
+                      position: 'relative',
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div
+                      {...getRootProps()}
+                      style={{ border: '2px dashed gray', padding: '20px', marginTop: '20px' }}
+                    >
+                      <input {...getInputProps()} />
+                      <Typography>Chọn ảnh từ máy</Typography>
+                    </div>
+                    {files.map((file, index) => (
+                      <li
+                        key={index}
+                        style={{
+                          position: 'relative',
+                          display: 'inline-block',
+                          marginRight: '10px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        <Box sx={{ width: 'full' }}>
+                          <Image
+                            src={URL.createObjectURL(file)}
+                            alt={`Uploaded file ${index + 1}`}
+                            width={200}
+                            height={250}
+                            style={{ borderRadius: '5px' }}
+                            onLoad={() => URL.revokeObjectURL(file)}
+                          />
+                        </Box>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          onClick={() => handleRemoveFile(index)}
+                          sx={{
+                            position: 'absolute',
+                            top: '5px',
+                            right: '5px',
+                            minWidth: '30px',
+                            minHeight: '30px',
+                            padding: '5px',
+                          }}
+                        >
+                          X
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </Box>
               </Grid>
 
               <Grid item xs={12}>
@@ -159,7 +254,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
                   <Button variant="outlined" onClick={() => setOpen(false)}>
                     Hủy
                   </Button>
-                  <LoadingButton variant="contained" color="primary" type="submit" loading={isSubmitting}>
+                  <LoadingButton
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    loading={isSubmitting}
+                  >
                     Xác nhận
                   </LoadingButton>
                 </Stack>

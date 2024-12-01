@@ -7,6 +7,7 @@ const registerButler = async (payload: any) => {
   return res;
 };
 const getButlerResidence = async () => {
+  
   const res = await goAxiosClient.get(goEndPoint.butler_residence);
 
   return res?.data?.residences;
@@ -23,9 +24,9 @@ const confirm_checkin = async (id: any) => {
   });
   return res;
 };
-const confirm_checkout = async (id: any) => {
+const confirm_checkout = async (booking_id: any) => {
   const res = await goAxiosClient.post(goEndPoint.update_checkout, {
-    id,
+    booking_id,
   });
   return res;
 };
@@ -38,6 +39,16 @@ const addCharge = async (payload: any) => {
   return res;
 };
 
+const  checkInUploadFile=async(payload:any)=>{
+  const res=await goAxiosClient.post(goEndPoint.uploadFileCheckIn,payload,{
+    headers:{
+        'Content-Type': 'multipart/form-data'
+    }
+  })
+  return res
+
+}
+
 export {
   getButlerResidence,
   registerButler,
@@ -46,4 +57,5 @@ export {
   confirm_checkout,
   butler_add_residence,
   addCharge,
+  checkInUploadFile
 };
