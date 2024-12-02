@@ -194,10 +194,10 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (selectedProvince) {
             apiQuery += `&province_id=${selectedProvince}`;
         }
-        if (maxPrice !== undefined && maxPrice !== null) {
+        if (maxPrice !== undefined && maxPrice === 0) {
             apiQuery += `&max_price=${maxPrice}`;
         }
-        if (minPrice !== undefined && minPrice !== null) {
+        if (minPrice !== undefined && minPrice === 0) {
             apiQuery += `&min_price=${minPrice}`;
         }
         try {
