@@ -258,11 +258,15 @@ const BookingDashboard = ({ selectedMonth, year, setSelectedMonth }: { selectedM
                             <th className="sticky-header">
                                 <FormControl fullWidth>
                                     <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-                                        {Array.from({ length: 12 }, (_, i) => (
-                                            <MenuItem key={i + 1} value={i + 1}>
-                                                Tháng {i + 1}
-                                            </MenuItem>
-                                        ))}
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const month = String(i + 1).padStart(2, '0'); // Thêm số 0 nếu nhỏ hơn 10
+                                            return (
+                                                <MenuItem key={month} value={month}>
+                                                    Tháng {month}
+                                                </MenuItem>
+                                            );
+                                        })}
+
                                     </Select>
                                 </FormControl>
                             </th>
@@ -279,7 +283,7 @@ const BookingDashboard = ({ selectedMonth, year, setSelectedMonth }: { selectedM
                         </tr>
                     </thead>
                     <tbody>
-                        {bookingData?.length === 0 || null ? (
+                        {!bookingData ? (
                             <tr>
                                 <td colSpan={daysInMonth.length + 1} style={{ textAlign: 'center' }}>
                                     Không có dữ liệu
