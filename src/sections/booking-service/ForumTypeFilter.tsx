@@ -8,8 +8,8 @@ import { useBooking } from "src/auth/context/service-context/BookingContext";
 
 // Validation Schema
 const schema = yup.object().shape({
-    selectedProvince: yup.string().required("Vui lòng chọn tỉnh."),
-    selectedAccommodationType: yup.string().required("Vui lòng chọn loại chỗ ở."),
+    selectedProvince: yup.string(),
+    selectedAccommodationType: yup.string(),
     startDate1: yup.date().nullable(),
     endDate1: yup.date()
         .nullable()
