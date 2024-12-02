@@ -59,7 +59,7 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth }: { s
             console.log(formattedMonth); // In tháng dạng mm (vd: 01, 02, ... 12)
             // Tạo một đối tượng Date mới và đặt tháng
             const newDate = new Date();
-            setMonth(formattedMonth); // Đặt tháng theo giá trị đã lấy từ startDate1
+           setMonth(month1 + 1); // Đặt tháng theo giá trị đã lấy từ startDate1
             console.log(`Tháng được set là: ${newDate.toLocaleDateString("en-GB")}`);
         }
         // Fetch booking data
