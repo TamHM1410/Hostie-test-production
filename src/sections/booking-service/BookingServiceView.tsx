@@ -17,7 +17,9 @@ const ForumTypeView = () => {
     const settings = useSettingsContext();
     const year = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
-    const [months, setMonths] = useState(currentMonth)
+    const current1 = String(currentMonth).padStart(0, 2)
+    const [months, setMonths] = useState(current1)
+
     console.log(months);
 
     return (
