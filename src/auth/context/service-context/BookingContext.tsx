@@ -177,8 +177,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const formattedCheckoutDate = dateRange?.[1] ? formatDate(new Date(dateRange[1])) : '';
         console.log(month);
 
-
-        const formattedMonth = month.length === 1 ? `0${month}` : month;
+   const formattedMonth = String(month).padStart(2, '0');
         // Initialize the base query string
         let apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
 
