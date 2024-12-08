@@ -3,7 +3,7 @@ import { Box, TextField, Typography, Button, Chip, Divider, DialogActions, Circu
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://34.81.244.146:5005/amenities/icon';
+const API_BASE_URL = 'https://core-api.thehostie.com/amenities/icon';
 
 export const fetchIcon = async () => {
     try {
@@ -38,7 +38,7 @@ export default function UpdateStep2({
     selectedAmenities,
     setSelectedAmenities,
     onSubmit,
-}: Step2Props |any) {
+}: Step2Props | any) {
     const [icons, setIcons] = useState<IconOption[]>([]);
     const [amenityName, setAmenityName] = useState<string>('');
     const [selectedIcon, setSelectedIcon] = useState<string>('');

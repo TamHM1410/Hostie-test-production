@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef,useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -19,10 +19,12 @@ import { icons } from 'src/utils/chatIcon';
 import { v4 as uuidv4 } from 'uuid';
 import { sendNewMessage } from 'src/api/conversations';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { useQueryClient } from '@tanstack/react-query';
 const CustomImage = Image.configure({
   HTMLAttributes: {
     style: `
@@ -49,17 +51,42 @@ const Tiptap = ({
   onChange,
   isUploadImage,
   setIsUploadImage,
+  group_id,
   id,
   setDetailMessage,
   detailMessage,
   messageRef,
   listNewMessageRef,
+  checkNewGroup,
 }: any) => {
   const { data: session } = useSession();
 
+  const router=useRouter()
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const [imagePreviews, setImagePreviews] = useState<string[]|any[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  const queryClient = useQueryClient();
+  const isExistingGroup=useMemo(()=>{
+    if(Array.isArray(checkNewGroup.users)&& checkNewGroup.users.length>0 &&id){
+      const  check =checkNewGroup.users.filter((item:any)=>{
+        return  item?.id===Number(id)
+      })
+      if(Array.isArray(check)&&check.length>0){
+        return true
+        
+      }
+    
+
+    }
+    return false
+
+  },[checkNewGroup])
+
+
+
+
 
   const {
     handleSubmit,
@@ -110,7 +137,7 @@ const Tiptap = ({
                 file_type: 'image',
               };
               if (typeof result === 'string') {
-                setImagePreviews((prev:any) => [...prev, rs]);
+                setImagePreviews((prev) => [...prev, rs]);
                 setIsUploadImage(true);
               }
             };
@@ -139,7 +166,7 @@ const Tiptap = ({
     handleCloseIconMenu();
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>,type:any) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: any) => {
     const files = event.target.files;
     if (files) {
       Array.from(files).forEach((file) => {
@@ -149,10 +176,10 @@ const Tiptap = ({
           const rs = {
             file_name: e.target?.result,
             file_type: type,
-            thumb_name:file.name
+            thumb_name: file.name,
           };
           if (typeof result === 'string') {
-            setImagePreviews((prev:any) => [...prev, rs]);
+            setImagePreviews((prev) => [...prev, rs]);
             setIsUploadImage(true);
           }
         };
@@ -181,34 +208,44 @@ const Tiptap = ({
       if (data.message !== undefined) {
         form.append('message', data?.message);
       }
+      if (id) {
+        form.append('receiver_id', id);
+      }
+      if (group_id) {
+        form.append('group_id', group_id);
+      }
 
-      form.append('group_id', id);
       form.append('uuid', uuid);
       for (const base64Image of imagePreviews) {
-      
-      
         const response = await fetch(base64Image);
         const blob = await response.blob();
-        const name_blob= base64Image?.file_type ==='image' ?`${uuid}-${Date.now()}.png` :`${uuid}-${Date.now()}.doc`
+        const name_blob =
+          base64Image?.file_type === 'image'
+            ? `${uuid}-${Date.now()}.png`
+            : `${uuid}-${Date.now()}.doc`;
         const file = new File([blob], name_blob, { type: blob.type });
         form.append('files', file);
       }
-      const payload = {
-        uuid: uuid,
-        group_id: id,
-        sender_id: session?.user?.id? +session?.user?.id :0,
-        sender_avatar: '',
-        receiver_id: null,
-        message: data?.message,
-        created_at: 'Đang gửi',
-        files: imagePreviews,
-      };
 
       if (Array.isArray(messageRef.current)) {
-        messageRef.current.push(payload);
-        listNewMessageRef.current.push(payload);
-        setDetailMessage([...messageRef.current]);
-        await sendNewMessage(form);
+        const payload = {
+          uuid: uuid,
+          group_id: group_id,
+          sender_id: +session?.user?.id,
+          sender_avatar: '',
+          receiver_id: id ? id : null,
+          message: data?.message,
+          created_at: 'Đang gửi',
+          files: imagePreviews,
+        };
+
+        const res = await sendNewMessage(form);
+        if (res) {
+          queryClient.invalidateQueries(['listConversation'] as any);
+          messageRef.current.push(payload);
+          listNewMessageRef.current.push(payload);
+          setDetailMessage([...messageRef.current]);
+        }
       }
 
       clearEditor();
@@ -218,7 +255,9 @@ const Tiptap = ({
     }
   };
 
-
+  if(isExistingGroup){
+    router.push(`/dashboard/chat/?group_id=${checkNewGroup?.id}`)
+  }
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: 2 }}>
       <Box sx={{ display: 'flex', width: '100%' }}>
@@ -303,7 +342,7 @@ const Tiptap = ({
                     accept="image/*"
                     style={{ display: 'none' }}
                     id="icon-button-file"
-                    onChange={(event)=>handleImageUpload(event,'image')}
+                    onChange={(event) => handleImageUpload(event, 'image')}
                     multiple
                   />
                   <label htmlFor="icon-button-file">
@@ -313,53 +352,72 @@ const Tiptap = ({
                   </label>
                 </Box>
               </Box>
-              {imagePreviews.map((image:any, index:any) => {
-                if(image?.file_type==='image'){
-                  return (<Box key={index} sx={{ position: 'relative' }}>
-                    <Box sx={{ padding: 0.5, backgroundColor: '#e0e0e0', borderRadius: 2 ,mx:1.2}}>
-                      <ImageL
-                        src={image?.file_name}
-                        alt={`preview-${index}`}
-                        width={80}
-                        height={80}
-                        style={{ objectFit: 'contain', margin: '1px' }}
-                        loading='lazy'
-                      />
+              {imagePreviews.map((image: any, index: any) => {
+                if (image?.file_type === 'image') {
+                  return (
+                    <Box key={index} sx={{ position: 'relative' }}>
+                      <Box
+                        sx={{ padding: 0.5, backgroundColor: '#e0e0e0', borderRadius: 2, mx: 1.2 }}
+                      >
+                        <ImageL
+                          src={image?.file_name}
+                          alt={`preview-${index}`}
+                          width={80}
+                          height={80}
+                          style={{ objectFit: 'contain', margin: '1px' }}
+                          loading="lazy"
+                        />
+                      </Box>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleRemove(index)}
+                        sx={{
+                          position: 'absolute',
+                          right: -2,
+                          top: -8,
+                          padding: 0,
+                        }}
+                      >
+                        <CancelIcon />
+                      </IconButton>
                     </Box>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleRemove(index)}
-                      sx={{
-                        position: 'absolute',
-                        right: -2,
-                        top: -8,
-                        padding: 0,
-                      }}
-                    >
-                      <CancelIcon />
-                    </IconButton>
-                  </Box>)
+                  );
                 }
-                if(image?.file_type==='doc'){
-                  return (<Box key={index} sx={{ position: 'relative' }}>
-                    <Box sx={{ padding: 0.5, backgroundColor: '#e0e0e0', borderRadius: 1
-                       ,mx:1.2,height:90 ,width:180 ,whiteSpace:'nowrap',overflow:'hidden'
-                       ,textOverflow:' ellipsis',display:'flex',alignItems:'center',fontSize:18}}>
-                      <InsertDriveFileIcon /> <span >{ image?.thumb_name}</span>
+                if (image?.file_type === 'doc') {
+                  return (
+                    <Box key={index} sx={{ position: 'relative' }}>
+                      <Box
+                        sx={{
+                          padding: 0.5,
+                          backgroundColor: '#e0e0e0',
+                          borderRadius: 1,
+                          mx: 1.2,
+                          height: 90,
+                          width: 180,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: ' ellipsis',
+                          display: 'flex',
+                          alignItems: 'center',
+                          fontSize: 18,
+                        }}
+                      >
+                        <InsertDriveFileIcon /> <span>{image?.thumb_name}</span>
+                      </Box>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleRemove(index)}
+                        sx={{
+                          position: 'absolute',
+                          right: -2,
+                          top: -8,
+                          padding: 0,
+                        }}
+                      >
+                        <CancelIcon />
+                      </IconButton>
                     </Box>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleRemove(index)}
-                      sx={{
-                        position: 'absolute',
-                        right: -2,
-                        top: -8,
-                        padding: 0,
-                      }}
-                    >
-                      <CancelIcon />
-                    </IconButton>
-                  </Box>)
+                  );
                 }
               })}
             </Box>
@@ -372,7 +430,7 @@ const Tiptap = ({
                 accept="image/*"
                 style={{ display: 'none' }}
                 id="icon-button-file"
-                onChange={(event)=>handleImageUpload(event,'image')}
+                onChange={(event) => handleImageUpload(event, 'image')}
                 multiple
               />
               <label htmlFor="icon-button-file" style={{ marginLeft: '8px' }}>
@@ -391,20 +449,19 @@ const Tiptap = ({
               </IconButton>
             </Box>
             <Box>
-            <input
+              <input
                 type="file"
                 accept=".pdf, .doc, .docx"
                 style={{ display: 'none' }}
                 id="uploadFileDoc"
-                onChange={(event)=>handleImageUpload(event,'doc')}
+                onChange={(event) => handleImageUpload(event, 'doc')}
                 multiple
               />
-            <label htmlFor="uploadFileDoc" style={{ marginLeft: '8px' }}>
-            <IconButton component="span">
-                <AttachFileIcon/>
-              </IconButton>
+              <label htmlFor="uploadFileDoc" style={{ marginLeft: '8px' }}>
+                <IconButton component="span">
+                  <AttachFileIcon />
+                </IconButton>
               </label>
-             
             </Box>
           </Box>
         </Box>

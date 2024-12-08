@@ -56,8 +56,8 @@ type OrderItemProps = {
   lastTimeline: boolean;
 };
 
-function OrderItem({ item, lastTimeline }: OrderItemProps) {
-  const { type, title, time } = item;
+function OrderItem({ item, lastTimeline }: OrderItemProps |any) {
+  const { type, title, time,label ,value} = item;
   return (
     <TimelineItem>
       <TimelineSeparator>
@@ -67,17 +67,17 @@ function OrderItem({ item, lastTimeline }: OrderItemProps) {
             (type === 'order2' && 'success') ||
             (type === 'order3' && 'info') ||
             (type === 'order4' && 'warning') ||
-            'error'
+            'success'
           }
         />
         {lastTimeline ? null : <TimelineConnector />}
       </TimelineSeparator>
 
       <TimelineContent>
-        <Typography variant="subtitle2">{title}</Typography>
+        <Typography variant="subtitle2">{!label ?title :label} đã được đặt</Typography>
 
         <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-          {fDateTime(time)}
+          {time ? fDateTime(time) :`Đã nhận : ${value} VND`}
         </Typography>
       </TimelineContent>
     </TimelineItem>

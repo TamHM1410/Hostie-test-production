@@ -34,7 +34,6 @@ export const useCurrentUser = create<any>((set) => ({
   currenUserSelected: userSelecteDefaultValue,
 
   updateUserSelected: (payload: UserManagement | any) => {
-    console.log('payload', payload);
     set(() => ({ currenUserSelected: payload }));
   },
 }));

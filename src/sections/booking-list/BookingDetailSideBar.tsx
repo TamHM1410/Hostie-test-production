@@ -3,7 +3,7 @@
 import { Drawer, Box, Typography, TextField, Button, Grid, Autocomplete } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
-
+import { differenceInMinutes, parseISO } from 'date-fns';
 interface BookingData {
     id: number;
     residence_id: number;
@@ -45,7 +45,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
     isEditing,
 }: BookingDetailSidebarProps) => {
     const [editableDetails, setEditableDetails] = useState<Partial<BookingData>>({});
-    const { customerList, fetchListCustomer } :any= useBooking();
+    const { customerList, fetchListCustomer }: any = useBooking();
 
     useEffect(() => {
         fetchListCustomer();
@@ -115,13 +115,13 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                             onChange={handleCustomerChange}
                             renderInput={(params) => {
                                 const selectedCustomer = customerList?.data?.find(
-                                    (customer :any) => customer?.id === editableDetails?.guest_id
+                                    (customer: any) => customer?.id === editableDetails?.guest_id
                                 );
                                 return <TextField {...params} label="Tên khách hàng" disabled={!isEditing} />;
                             }}
                             disabled={!isEditing}
                             value={
-                                customerList.data?.find((customer:any) => customer?.id == editableDetails?.guest_id) ||
+                                customerList.data?.find((customer: any) => customer?.id == editableDetails?.guest_id) ||
                                 null
                             }
                         />
@@ -150,13 +150,13 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Số tiền đã thanh toán"
+                            label="Số tiền cần thanh toán"
                             value={editableDetails?.paid_amount || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, paid_amount: Number(e.target.value) })
-                            }
+                            // onChange={(e) =>
+                            //     setEditableDetails({ ...editableDetails, paid_amount: Number(e.target.value) })
+                            // }
                             fullWidth
-                            disabled={!isEditing}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -213,10 +213,22 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                     <Grid item xs={12} sm={6}>
                         <TextField
                             label="Ngày hết hạn"
-                            value={editableDetails?.expire || ''}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, expire: e.target.value })}
+                            value={
+                                editableDetails?.expire
+                                    ? (() => {
+                                        const now = new Date();
+                                        const expireDate = parseISO(editableDetails.expire);
+                                        const minutesLeft = differenceInMinutes(expireDate, now);
+
+                                        if (minutesLeft > 0) {
+                                            return `${minutesLeft} phút còn lại`;
+                                        }
+                                        return 'Đã hết hạn';
+                                    })()
+                                    : ''
+                            }
                             fullWidth
-                            disabled={!isEditing}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -241,6 +253,24 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                         </Box>
                     )}
                 </Box>
+                {editableDetails?.housekeeper_transaction && (
+                    <Box mt={4} width="100%" textAlign="center">
+                        <Typography variant="h6" mb={2}>
+                            Hình ảnh giao dịch của quản gia
+                        </Typography>
+                        <Box
+                            component="img"
+                            src={editableDetails.housekeeper_transaction}
+                            alt={`Transaction ${editableDetails.housekeeper_transaction}`}
+                            sx={{
+                                maxWidth: '100%',
+                                height: 'auto',
+                                borderRadius: 4,
+                                boxShadow: 3,
+                            }}
+                        />
+                    </Box>
+                )}
             </Box>
         </Drawer>
     );

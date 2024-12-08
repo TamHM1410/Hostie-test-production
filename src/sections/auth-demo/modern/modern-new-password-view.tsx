@@ -37,12 +37,12 @@ export default function ModernNewPasswordView() {
 
   const NewPasswordSchema = Yup.object().shape({
     // code: Yup.string().min(6, 'Code must be at least 6 characters').required('Code is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+    email: Yup.string().required('Bạn chưa nhập email').email('Địa chỉ email chưa đúng định dạng'),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(6, 'Mật khẩu phải trên 6 ký tự')
+      .required('Bạn chưa nhập mật khẩu'),
     confirmPassword: Yup.string()
-      .required('Confirm password is required')
+      .required('Bạn chưa nhập mật khẩu')
       .oneOf([Yup.ref('password')], 'Passwords must match'),
   });
 
@@ -94,7 +94,7 @@ export default function ModernNewPasswordView() {
       <RHFTextField
         name="email"
         label="Email"
-        placeholder="Your email"
+        placeholder="Email của bạn"
         InputLabelProps={{ shrink: true }}
       />
 
@@ -115,7 +115,7 @@ export default function ModernNewPasswordView() {
 
       <RHFTextField
         name="confirmPassword"
-        label="Confirm New Password"
+        label="Xác nhận password mới"
         type={password.value ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -135,24 +135,24 @@ export default function ModernNewPasswordView() {
         variant="contained"
         loading={isSubmitting}
       >
-        Update Password
+        Cập nhật mật khẩu
       </LoadingButton>
 
-      <Typography variant="body2">
-        {`Don’t have a code? `}
+      {/* <Typography variant="body2">
+        {`Chưa có code `}
         <Link
           variant="subtitle2"
           sx={{
             cursor: 'pointer',
           }}
         >
-          Resend code
+          Gửi lại code
         </Link>
-      </Typography>
+      </Typography> */}
 
       <Link
         component={RouterLink}
-        href={paths.authDemo.modern.login}
+        href="/auth/jwt/login/"
         color="inherit"
         variant="subtitle2"
         sx={{
@@ -161,7 +161,7 @@ export default function ModernNewPasswordView() {
         }}
       >
         <Iconify icon="eva:arrow-ios-back-fill" width={16} />
-        Return to sign in
+       Trở về đăng nhập
       </Link>
     </Stack>
   );
@@ -171,12 +171,12 @@ export default function ModernNewPasswordView() {
       <SentIcon sx={{ height: 96 }} />
 
       <Stack spacing={1} sx={{ my: 5 }}>
-        <Typography variant="h3">Change your password!</Typography>
+        <Typography variant="h3">Thay đổi mật khẩu của bạn!</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          We&apos;ve sent a 6-digit confirmation email to your email.
+        Chúng tôi&apos;đã gửi email xác nhận gồm  chữ số đến email của bạn.
           <br />
-          Please enter the code in below box to verify your email.
+          Vui lòng nhập mã vào ô bên dưới để xác minh email của bạn.
         </Typography>
       </Stack>
     </>

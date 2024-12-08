@@ -16,7 +16,7 @@ interface InitialValues {
     phones: string;
 }
 
-const API_BASE_URL = 'http://34.81.244.146:5005/region';
+const API_BASE_URL = 'https://core-api.thehostie.com/region';
 
 // Fetch provinces
 const fetchProvinces = async () => {

@@ -31,6 +31,7 @@ import Scrollbar from 'src/components/scrollbar';
 import ListConversation from './List-conversation';
 import ChatSection from './Chat-section';
 import Tiptap from 'src/components/tiptap/tiptap';
+import CallModal from './CallModal';
 
 const notificationSound = typeof window !== 'undefined' ? new Audio('/assets/messnoti.mp3') : null;
 
@@ -69,6 +70,11 @@ const Chat = () => {
   const { data: session } = useSession() as any;
   const id = searchParam.get('id');
 
+  const group_id = searchParam.get('group_id');
+
+
+
+
   const messageEndRef = useRef<HTMLDivElement | null>(null);
 
   const nearestMessageEndRef = useRef<any>(null);
@@ -90,25 +96,30 @@ const Chat = () => {
       {
         queryKey: ['listConversation'],
         queryFn: async () => {
-          if(Array.isArray(listConver) && listConver.length>1){
-            setListConversation(listConver)
-            return listConver
-          }
+          // if(Array.isArray(listConver) && listConver.length>1){
+          //   setListConversation(listConver)
+          //   return listConver
+
+          // }
 
           const res = await getListConversation();
-          setListConversation(res.data?.result || []);
-          updateConversation(res.data?.result || []);
+          if(res){
+            setListConversation(res.data?.result || []);
+          }
+          
+
+          // updateConversation(res.data?.result || []);
           return res;
         },
       },
       {
-        queryKey: ['listMessage', id],
+        queryKey: ['listMessage',group_id],
         queryFn: async () => {
-          if (id) {
-            const localMessages = Object.entries(listMsg).find(
-              ([key, value]) => key === id && Array.isArray(value) && value.length > 10
-            );
-                    //  console.log(localMessages,'local nmess')  
+          if (group_id) {
+            // const localMessages = Object.entries(listMsg).find(
+            //   ([key, value]) => key ===group_id && Array.isArray(value) && value.length > 10
+            // );
+            //          console.log(localMessages,'local nmess')  
             // if (localMessages) {
             //   const [, value] = localMessages;
               
@@ -116,24 +127,23 @@ const Chat = () => {
             //   return value; // Trả về dữ liệu giả lập để đồng bộ
             // }
             
-            const res = await getListGroupMessage(id, page.current);
+            const res = await getListGroupMessage(group_id, page.current);
             const sortedMessages = Array.isArray(res.data?.result)
               ? res.data.result.sort((a: any, b: any) => a.id - b.id)
               : [];
 
             setDetailMessage(sortedMessages);
-            updateMsg(sortedMessages, id);
+            // updateMsg(sortedMessages,group_id);
+            console.log(sortedMessages,'sort')
             messageRef.current = sortedMessages;
             if (sortedMessages.length === 0) setHasMore(false);
             return res;
           }
         },
-        enabled: !!id,
+        enabled: !!group_id,
       },
     ],
   });
-
-  console.log('list msg',listMsg)
 
   const LoginSchema = Yup.object().shape({
     message: Yup.string().required('Message is required'),
@@ -145,6 +155,8 @@ const Chat = () => {
   });
 
   const { reset, handleSubmit } = methods;
+
+  console.log('list',listConversation[0]?.users)
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
@@ -282,7 +294,7 @@ const Chat = () => {
 
           {/* Messages */}
         
-          {id && detailMessage && Array.isArray(detailMessage) ? (
+          {(group_id|| id) && detailMessage && Array.isArray(detailMessage) ? (
             <Box className={classes.messagesWrapper}>
               <div
                 id="scrollableDiv"
@@ -298,24 +310,14 @@ const Chat = () => {
                   next={handleLoadMoreMessage}
                   hasMore={hasMore}
                   loader={
-                    <Typography sx={{ textAlign: 'center', py: 2 }}>⏳ Đang tải lên...</Typography>
+                    <Typography sx={{ textAlign: 'center', py: 2 }}>{messageRef.current.length >8 &&'⏳ Đang tải lên...'}</Typography>
                   }
                   style={{ display: 'flex', flexDirection: 'column-reverse' }}
                   inverse
                   scrollableTarget="scrollableDiv"
                 >
                   <List>
-                  {/* {
-  Object.values(listMsg).forEach((value: any, index) => {
-    const key = Object.keys(listMsg)[index];
-
-    if (key === id && value.length > 10) {
-      value.map((msg: any, msgIndex: number) => (
-        <ChatSection key={msgIndex} item={msg} index={msgIndex} />
-      ));
-    }
-  });
-} */}
+              
 
                     {detailMessage.map((item, index) => (
                       <ChatSection key={index} item={item} index={index} />
@@ -339,10 +341,12 @@ const Chat = () => {
           )}
 
           {/* Input Area */}
-          {id && (
+          {(group_id|| id) && (
             <Box className={classes.inputArea}>
               <FormProvider methods={methods} onSubmit={onSubmit}>
                 <Tiptap
+                checkNewGroup={(listConversation && listConversation.length>0) ?  listConversation[0] :[]}
+                 group_id={group_id}
                   id={id}
                   setDetailMessage={setDetailMessage}
                   messageRef={messageRef}
@@ -355,6 +359,7 @@ const Chat = () => {
           )}
         </Grid>
       </Grid>
+      <CallModal/>
     </div>
   );
 };

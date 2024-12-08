@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { butler_add_residence } from 'src/api/butler';
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { getButlerResidence, getButlerBooking } from 'src/api/butler';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -54,16 +54,16 @@ export default function ButlerView() {
       {
         queryKey: ['butlerResidenceList'],
 
-        queryFn: () => {
-          const res = getButlerResidence();
+        queryFn: async () => {
+          const res =await getButlerResidence();
           return res;
         },
       },
       {
         queryKey: ['butlerBooking'],
 
-        queryFn: () => {
-          const res = getButlerBooking();
+        queryFn: async () => {
+          const res =await getButlerBooking();
           return res;
         },
       },
@@ -79,6 +79,9 @@ export default function ButlerView() {
     setCurrentTab(newValue);
   }, []);
 
+  console.log(result.data,'res')
+
+
   const handleAddResidence = async () => {
     try {
       const payload = {
@@ -87,14 +90,14 @@ export default function ButlerView() {
 
       await butler_add_residence(payload);
       setHousekeeperRegistrationCode('');
-      toast.success('Đăng ký thành công! Xin chờ chủ nhà xét duyệt')
+      toast.success('Đăng ký thành công! Xin chờ chủ nhà xét duyệt');
     } catch (error) {
       toast.error('Đã xảy ra lỗi');
     }
   };
 
   if (result.pending) {
-    return <SplashScreen />;
+    return <LoadingScreen />;
   }
   return (
     <Box>

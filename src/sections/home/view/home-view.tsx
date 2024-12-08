@@ -9,6 +9,8 @@ import MainLayout from 'src/layouts/main';
 // components
 import ScrollProgress from 'src/components/scroll-progress';
 //
+import PricingView from 'src/sections/pricing/view';
+
 import HomeHero from '../home-hero';
 import HomeMinimal from '../home-minimal';
 import HomePricing from '../home-pricing';
@@ -77,7 +79,7 @@ export default function HomeView() {
 
         <HomeColorPresets />
 
-
+        <PricingView/>
 
  
 

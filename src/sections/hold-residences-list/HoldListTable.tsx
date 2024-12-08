@@ -10,6 +10,8 @@ import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useHoldListContext } from 'src/auth/context/hold-list-context/HoldListContext';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
+import { BookingFormDialog } from './BookingFormHold';
+
 
 interface HoldData {
     id: number;
@@ -19,6 +21,7 @@ interface HoldData {
     checkout: string;
     is_host_accept: boolean;
     status: number;
+    residence_id: number;
 }
 
 interface HoldListTableProps {
@@ -26,10 +29,14 @@ interface HoldListTableProps {
 }
 
 const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
-    const { fetchDataDetail, detail, cancelHold } = useHoldListContext();
-    const { customerList, fetchListCustomer, handleBookingSubmit } = useBooking() as any;
+    const { fetchDataDetail, detail, cancelHold, fetchData } = useHoldListContext();
+    const { customerList, fetchListCustomer, handleBookingSubmit, priceQuotation, fetchPriceQuotation } = useBooking() as any;
     const [isBookingForm, setIsBookingForm] = useState(false);
     const [isCancelHold, setIsCancelHold] = useState(false);
+    const [startDate, setStartDate] = useState()
+    const [endDate, setEndDate] = useState()
+
+
 
     useEffect(() => {
         fetchListCustomer();
@@ -54,6 +61,12 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
             header: 'Mã Giữ Chỗ',
             size: 100,
             Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
+        },
+        {
+            accessorKey: 'expire',
+            header: 'Thời gian giữ',
+            size: 200,
+            Cell: ({ cell }: any) => <Typography >{cell.getValue()} Phút</Typography>,
         },
         {
             accessorKey: 'residence_name',
@@ -88,9 +101,13 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                     {row.original.status === 2 && (
                         <>
                             <Tooltip title="Đặt nơi lưu trú">
-                                <IconButton color="success" aria-label="book" onClick={() => {
+                                <IconButton color="success" aria-label="book" onClick={async () => {
+                                    setStartDate(row.original.checkin)
+                                    setEndDate(row.original.checkout)
+                                    await fetchDataDetail(row.original.id);
+                                    await fetchPriceQuotation(row.original.checkin, row.original.checkout, row.original.residence_id)
+
                                     setIsBookingForm(true);
-                                    fetchDataDetail(row.original.id);
                                 }}>
                                     <CheckCircleIcon />
                                 </IconButton>
@@ -99,6 +116,7 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                                 <IconButton color="error" aria-label="cancel" onClick={() => {
                                     setIsCancelHold(true);
                                     fetchDataDetail(row.original.id);
+
                                 }}>
                                     <CancelIcon />
                                 </IconButton>
@@ -136,129 +154,22 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                 enableSorting
                 enableTopToolbar
                 localization={MRT_Localization_VI}
+                muiSearchTextFieldProps={{
+                    placeholder: 'Tìm kiếm tên khách hàng',
+
+                }}
             />
-            {isBookingForm && (
-                <Dialog open={isBookingForm} onClose={() => setIsBookingForm(false)}>
-                    <DialogTitle>Đặt Chỗ Cho {detail?.residence_name}</DialogTitle>
-                    <DialogContent>
-                        <Formik
-                            initialValues={{
-                                guest_id: '',
-                                guest_count: 1,
-                                start_date: detail?.checkin,
-                                end_date: detail?.checkout,
-                                residence_id: detail?.residence_id || '',
-                                paid_amount: 500,
-                                hold_id: detail?.id,
-                                note: '',
-                            }}
-                            validationSchema={Yup.object({
-                                guest_id: Yup.string().required('Tên khách hàng là bắt buộc.'),
-                                guest_count: Yup.number()
-                                    .min(1, 'Số lượng khách phải lớn hơn 0.')
-                                    .required('Số lượng khách là bắt buộc.'),
-                                paid_amount: Yup.number()
-                                    .min(500, 'Số tiền đã thanh toán không hợp lệ.')
-                                    .required('Số tiền đã thanh toán là bắt buộc.'),
-                                note: Yup.string().optional(),
-                            })}
-                            onSubmit={(values, { setSubmitting, setFieldError }) => {
-                                try {
-                                    handleBookingSubmit(values);
-                                    setIsBookingForm(false); // Close the dialog after successful submission
-                                } catch (error) {
-                                    setFieldError('guest_id', 'Có lỗi xảy ra khi đặt chỗ. Vui lòng thử lại.');
-                                } finally {
-                                    setSubmitting(false);
-                                }
-                            }}
-                        >
-                            {({ handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
-                                <Form>
-                                    <Autocomplete
-                                        options={customerList?.data || []}
-                                        getOptionLabel={(option: any) => option.name}
-                                        onChange={(event, newValue) => {
-                                            setFieldValue("guest_id", newValue ? newValue.id : '');
-                                        }}
-                                        sx={{ marginTop: '10px' }}
-                                        renderOption={(props, option) => (
-                                            <li {...props} key={option.id}>
-                                                {option.name}
-                                            </li>
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Tên Khách Hàng"
-                                                error={touched.guest_id && Boolean(errors.guest_id)}
-                                                helperText={touched.guest_id && errors.guest_id}
-                                            />
-                                        )}
-                                    />
-                                    <TextField
-                                        label="Số Lượng Khách"
-                                        type="number"
-                                        name="guest_count"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.guest_count && Boolean(errors.guest_count)}
-                                        helperText={touched.guest_count && errors.guest_count}
-                                    />
+            <BookingFormDialog
+                fetchPriceQuotation={fetchPriceQuotation}
+                isOpen={isBookingForm}
+                onClose={() => setIsBookingForm(false)}
+                customerList={customerList}
+                priceQuotation={priceQuotation}
+                detail={detail}
+                handleBookingSubmit={handleBookingSubmit}
+                fetchData={fetchData}
+            />
 
-                                    <TextField
-                                        label="Số Tiền Cần Thanh Toán"
-                                        type="number"
-                                        name="paid_amount"
-                                        inputProps={{ min: 500, max: 5000 }}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.paid_amount}
-                                        fullWidth
-                                        margin="dense"
-                                        error={touched.paid_amount && Boolean(errors.paid_amount)}
-                                        helperText={touched.paid_amount && errors.paid_amount ? errors.paid_amount : `Số tiền đã nhập: ${values.paid_amount} / 5000`}
-                                    />
-                                    <TextField
-                                        label="Ngày Bắt Đầu"
-                                        value={detail?.checkin}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-                                    <TextField
-                                        label="Ngày Kết Thúc"
-                                        value={detail?.checkout}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-                                    <TextField
-                                        label="Ghi Chú"
-                                        name="note"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-                                    <DialogActions>
-                                        <Button onClick={() => setIsBookingForm(false)}>Hủy</Button>
-                                        <Button type="submit" color="primary">Đặt</Button>
-                                    </DialogActions>
-                                </Form>
-                            )}
-
-                        </Formik>
-                    </DialogContent>
-
-                </Dialog>
-            )}
             {isCancelHold && (
                 <Dialog open={isCancelHold} onClose={() => setIsCancelHold(false)}>
                     <DialogTitle>Xác Nhận Hủy Giữ Chỗ</DialogTitle>
@@ -266,7 +177,7 @@ const HoldListTable: React.FC<HoldListTableProps> = ({ rows }) => {
                         <Typography>Bạn có chắc chắn muốn hủy giữ chỗ này không?</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setIsCancelHold(false)}>Hủy</Button>
+                        <Button onClick={() => setIsCancelHold(false)} color='primary'>Hủy</Button>
                         <Button onClick={handleCancelHold} color="error">Xác Nhận</Button>
                     </DialogActions>
                 </Dialog>

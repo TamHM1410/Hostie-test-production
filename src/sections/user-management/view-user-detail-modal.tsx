@@ -16,7 +16,7 @@ const UserDetailModal = (props: any) => {
   return (
     <>
       <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2 }}>
-        <VisibilityIcon /> View{' '}
+        <VisibilityIcon /> Xem
       </Button>
       <Modal
         open={open}

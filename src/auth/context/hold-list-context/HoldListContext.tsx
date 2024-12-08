@@ -13,6 +13,7 @@ interface HoldListContextProps {
     setPage: (page: number) => void;
     isLoading: boolean;
     fetchDataDetail: any;
+    fetchData: () => void;
     detail: any
     cancelHold: (holdId: number, checkin: string, checkout: string) => Promise<void>;
 }
@@ -21,7 +22,7 @@ const HoldListContext = createContext<HoldListContextProps | undefined>(undefine
 
 const ROWS_PER_PAGE = 1000000;
 
-const baseUrl = 'http://34.81.244.146:5005'
+const baseUrl = 'https://core-api.thehostie.com'
 
 
 export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -30,26 +31,22 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [detail, setDetail] = useState();
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const response = await axiosClient.get(`${baseUrl}/booking/hold`, {
-                    params: { page, page_size: ROWS_PER_PAGE },
 
-                });
-                setRows(response.data.data.result);
-                setTotalRecords(response.data.data.pagination.total_pages);
-            } catch (error) {
-                console.error('Error fetching booking data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [page]);
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axiosClient.get(`${baseUrl}/booking/hold`, {
+                params: { page, page_size: ROWS_PER_PAGE },
 
-
+            });
+            setRows(response.data.data.result);
+            setTotalRecords(response.data.data.pagination.total_pages);
+        } catch (error) {
+            console.error('Error fetching booking data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     const fetchDataDetail = async (id: any) => {
         setIsLoading(true);
         try {
@@ -61,9 +58,7 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             setIsLoading(false);
         }
     };
-
     const cancelHold = async (holdId: number, checkin: string, checkout: string) => {
-
         try {
             setIsLoading(true)
             await axiosClient.post(`${baseUrl}/booking/hold/cancel`, {
@@ -72,21 +67,7 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 checkout,
             });
             toast.success('Hủy dữ chỗ thành công');
-            const fetchData = async () => {
-                setIsLoading(true);
-                try {
-                    const response = await axiosClient.get(`${baseUrl}/booking/hold`, {
-                        params: { page, page_size: ROWS_PER_PAGE },
 
-                    });
-                    setRows(response.data.data.result);
-                    setTotalRecords(response.data.data.pagination.total_pages);
-                } catch (error) {
-                    console.error('Error fetching booking data:', error);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
             fetchData();
             setIsLoading(false)
         } catch (error) {
@@ -96,10 +77,15 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             setIsLoading(false);
         }
     };
+
     const value = useMemo(
-        () => ({ rows, totalRecords, page, setPage, isLoading, detail, fetchDataDetail, cancelHold }),
+        () => ({ rows, totalRecords, page, setPage, isLoading, detail, fetchDataDetail, cancelHold, fetchData }),
         [rows, totalRecords, page, isLoading, detail]
     );
+
+    useEffect(() => {
+        fetchData();
+    }, [page]);
 
     return (
         <HoldListContext.Provider value={value}>

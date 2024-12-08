@@ -24,6 +24,7 @@ import {
     Tabs,
     Tab,
     Box,
+    Chip,
 } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
@@ -38,8 +39,13 @@ import UpdateStep0 from './update-service/UpdateStep0';
 import UpdateStep1 from './update-service/UpdateStep1';
 import UpdateStep2 from './update-service/UpdateStep2';
 import UpdateStep5 from './update-service/UpdateStep5';
+import { useResidenceBlockContext } from 'src/auth/context/manage-block-residence-context/ManageBlockResidenceContext';
+import { BookIcon, MenuIcon } from 'lucide-react';
+import UpdateStep4 from './update-service/UpdateStep4';
+import { formatDate } from 'src/utils/format-time';
+import UpdatePolicy from './update-service/UpdateStep3';
 
-const baseURL = 'http://34.81.244.146:5005';
+const baseURL = 'https://core-api.thehostie.com';
 
 interface Service {
     residence_id: number;
@@ -62,6 +68,7 @@ export default function ServiceCardList({
     fetchData,
 }: ServiceCardListProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [prices, setPrices] = React.useState()
     // delete state
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const [selectedName, setSelectedName] = React.useState<string>('');
@@ -149,7 +156,6 @@ export default function ServiceCardList({
             setSelectedAmenities(response.data.data.amenities);
         } catch (error) {
             console.error('Error fetching residence data:', error);
-            toast.error('Lỗi khi lấy thông tin lưu trú.');
         }
     };
     // image data of residence
@@ -173,11 +179,30 @@ export default function ServiceCardList({
             console.error('Error fetching images:', error);
         }
     };
+    const fetchPrices = async () => {
+        try {
+            const response = await axiosClient.get(`${baseURL}/residences/${selectedId}/prices`, {});
+            setPrices(response.data.data)
+        } catch (error) {
+            console.error('Error fetching residence data:', error);
+        }
+    };
+    const [policy, setPolicy] = React.useState()
+    const fetchPolicy = async () => {
+        try {
+            const response = await axiosClient.get(`${baseURL}/residences/${selectedId}/policy`, {});
+            setPolicy(response.data.data.files.map((image: { image: string }) => image.file_url))
+        } catch (error) {
+            console.error('Error fetching residence data:', error);
+        }
+    };
     const handleEditClick = () => {
         setOpenEditDialog(true);
         setAnchorEl(null);
         fetchDataDetail();
+        fetchPrices();
         fetchImages();
+        fetchPolicy()
     };
 
     // submit step
@@ -188,18 +213,16 @@ export default function ServiceCardList({
             id: residenceData.residence_id,
             num_bath_room: data.bathrooms,
             num_bed_room: data.bedrooms,
-            num_of_beds: data.capacity,
+            num_of_beds: data.numOfBeds,
             max_guests: data.capacity,
+            standard_num_guests: data.capacityStander,
+            residence_description: data.description,
+            extra_guest_fee: data.surcharge,
             type: parseInt(data.serviceType),
         };
 
         try {
-            const response = await axios.post(`${baseURL}/residences`, payload, {
-                headers: {
-                    Authorization:
-                        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJob3N0IiwidXNlcl9pZCI6Mywic2NvcGUiOiJST0xFX1VTRVIiLCJpc3MiOiJob3N0aWUuc2l0ZSIsImV4cCI6MTc2MDQwNjg4MCwiaWF0IjoxNzI4ODcwODgwLCJqdGkiOiI1MjVlZjFkZi03YzU2LTQ4MWUtYTY1My0yNDIwMGEyNDY1ZDMiLCJlbWFpbCI6Imhvc3RAZXhhbXBsZS5jb20ifQ.ClnTV7UjufJg8d2QeJi71RNfVgayqcj6GhRNR9kVladynkm2k36Qr_pATDa3u0w1EHU2DlNaMLK8y-T9Huewvw',
-                },
-            });
+            const response = await axiosClient.post(`${baseURL}/residences`, payload);
             toast.success('Cập nhật thông tin cơ bản của lưu trú thành công');
             fetchDataDetail();
         } catch (error) {
@@ -246,26 +269,108 @@ export default function ServiceCardList({
             toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
         }
     };
+    const handleStep4Submit = async (data: any) => {
+        console.log(typeof data.weekendSurcharge);
+        const payload = {
+            step: 4,
+            id: parseInt(residenceData.residence_id),
+            price_default: data.default_price,
+            price_weekend: data.weekend_price.map((entry: any) => ({
+                day: entry.weeknd_day, // Assuming weekendFee represents the day or type of weekend
+                price: parseFloat(entry.price),
+            })),
+            price_special: [
+                {
+                    date: '20-10-2024', // Assuming this is the holiday date
+                    price: 43,
+                },
+            ],
+            price_season: data.season_price.map((entry: any) => ({
+                start_date: formatDate(entry.start_date), // Adjusted to use entry data
+                end_date: formatDate(entry.end_date), // Adjusted to use entry data
+                price: parseFloat(entry.price),
+            })),
+        };
+
+        try {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
+
+            });
+            toast.success("Cập nhật giá thành công")
+        } catch (error) {
+            console.error('Error submitting step 3:', error);
+            toast.error('Cập nhật giá thất bại vui lòng thử lại sau.')
+        }
+    };
     const handleStep5Submit = async (data: any) => {
         const formData = new FormData();
         formData.append('step', '5');
         formData.append('id', residenceData.residence_id);
-        images.forEach((file) => {
-            formData.append('files', file);
-        });
-        if (images.length > 6) {
+
+        const convertIfUrl = async (image: string | File) => {
+            if (typeof image === 'string' && image.startsWith('https')) {
+                const response = await fetch(image);
+                const blob = await response.blob();
+                const filename = image.split('/').pop() || 'image.jpg';
+                return new File([blob], filename, { type: blob.type });
+            }
+            return image; // Nếu là File thì trả về chính nó
+        };
+
+        const imagePromises = images.map((image) => convertIfUrl(image));
+        const processedImages = await Promise.all(imagePromises);
+
+        if (processedImages.length > 6) {
             toast.error('Bạn chỉ có thể đăng tối đa 6 bức hình');
             return;
         }
+
+        processedImages.forEach((file) => formData.append('files', file));
+
         try {
-            const response = await axiosClient.post(`${baseURL}/residences`, formData, {});
-            fetchImages();
-            toast.success('Cập nhật hình ảnh của lưu trú thành công');
+            const response = await axiosClient.post(`${baseURL}/residences`, formData);
+            if (response) {
+                fetchImages();
+                toast.success('Cập nhật hình ảnh của lưu trú thành công');
+            }
         } catch (error) {
-            console.error('Error submitting step 4:', error);
-            toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
+            console.error('Error submitting step 5:', error);
+            toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại dữ liệu.');
         }
     };
+
+
+
+    const policyTemplate = `
+🏨 Chính Sách Khách Sạn Paradise
+
+⏰ Thời gian nhận phòng và trả phòng
+- Nhận phòng: sau 14:00
+- Trả phòng: trước 12:00
+`;
+
+    const handleSavePolicy = async (files: File[]) => {
+
+        const formData = new FormData();
+        formData.append('policy', policyTemplate);
+        formData.append('residence_id', residenceData.residence_id);
+        files.forEach((file) => {
+            formData.append('files', file);
+        });
+        try {
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences/policy', formData, {
+
+            });
+            toast.success('Cập nhật hình ảnh chính sách thành công')
+
+        } catch (error) {
+            toast.error('Đã có lỗi khi cập nhật hình ảnh chính sách')
+        }
+
+
+    };
+
+
     return (
         <>
             <Grid container spacing={3}>
@@ -310,6 +415,13 @@ export default function ServiceCardList({
                                     <Typography variant="body2" color="text.secondary">
                                         Loại lưu trú: {data.residence_type}
                                     </Typography>
+                                    {data?.status === 1 && (
+                                        <Chip
+                                            label="Chưa hoàn thành"
+                                            color="warning"
+                                            sx={{ marginTop: 1 }}
+                                        />
+                                    )}
                                 </CardContent>
                                 <CardActions>
                                     <IconButton
@@ -331,6 +443,7 @@ export default function ServiceCardList({
                                             },
                                         }}
                                     >
+                                        {/* Xem chi tiết lưu trú: luôn hiển thị */}
                                         <Link
                                             href={`/dashboard/service/detail/${selectedId}`}
                                             style={{ textDecoration: 'none', color: 'inherit' }}
@@ -342,6 +455,8 @@ export default function ServiceCardList({
                                                 <ListItemText primary="Xem chi tiết lưu trú" />
                                             </MenuItem>
                                         </Link>
+
+
                                         <MenuItem onClick={handleEditClick}>
                                             <ListItemIcon>
                                                 <EditIcon fontSize="small" />
@@ -354,8 +469,23 @@ export default function ServiceCardList({
                                             </ListItemIcon>
                                             <ListItemText primary="Xóa lưu trú" />
                                         </MenuItem>
+                                        <Link
+                                            href={`/dashboard/service/manage-block-residences/${selectedId}`}
+                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                        >
+                                            <MenuItem>
+                                                <ListItemIcon>
+                                                    <MenuIcon fontSize="small" />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Quản lí khóa nơi lưu trú" />
+                                            </MenuItem>
+                                        </Link>
+
+
+
                                     </Menu>
                                 </CardActions>
+
                             </div>
                         </Card>
                     </Grid>
@@ -384,6 +514,7 @@ export default function ServiceCardList({
                             <Tab label=" Địa chỉ lưu trú" />
                             <Tab label=" Tiện ích lưu trú" />
                             <Tab label=" Giá nơi lưu trú" />
+                            <Tab label=" Chính sách nơi lưu trú" />
                             <Tab label=" Hình ảnh lưu trú" />
                         </Tabs>
 
@@ -394,12 +525,13 @@ export default function ServiceCardList({
                                 initialValues={{
                                     serviceName: residenceData.residence_name,
                                     serviceType: residenceData.residence_type_id,
-                                    email: residenceData.residence_email,
-                                    website: residenceData.residence_website,
                                     bedrooms: residenceData.num_of_bedrooms,
                                     bathrooms: residenceData.num_of_bathrooms,
                                     capacity: residenceData.max_guests,
                                     description: residenceData.residence_description,
+                                    surcharge: residenceData.extra_guest_fee,
+                                    capacityStander: residenceData.standard_num_guests,
+                                    numOfBeds: residenceData.num_of_beds
                                 }}
                             />
                         )}
@@ -423,8 +555,9 @@ export default function ServiceCardList({
                                 selectedAmenities={selectedAmenities}
                             />
                         )}
-                        {activeStep === 3 && <div>Form for Step 4</div>}
-                        {activeStep === 4 && (
+                        {activeStep === 3 && (<UpdateStep4 onSubmit={handleStep4Submit} dataPrices={prices} />)}
+                        {activeStep === 4 && (<UpdatePolicy dataFiles={policy} onSave={handleSavePolicy} />)}
+                        {activeStep === 5 && (
                             <UpdateStep5
                                 onSubmit={handleStep5Submit}
                                 images={images}

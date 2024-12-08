@@ -103,6 +103,8 @@ export const paths = {
     hold_residence: `${ROOTS.DASHBOARD}/hold-residences-list`,
     manage_booking_residence: `${ROOTS.DASHBOARD}/manage-booking-residences`,
     manage_customer: `${ROOTS.DASHBOARD}/manage-customer`,
+    report_list: `${ROOTS.DASHBOARD}/report-list`,
+    manage_block_residence: `${ROOTS.DASHBOARD}/manage-block-residences`,
     manage_hold_residence: `${ROOTS.DASHBOARD}/manage-hold-residences`,
     amenity: `${ROOTS.DASHBOARD}/amenity`,
     residence: {

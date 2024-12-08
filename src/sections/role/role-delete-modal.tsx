@@ -53,7 +53,7 @@ const DeleteRoleModal = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2,width:130  }}>
+      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2,width:130 ,color:'red' }}>
         <DeleteOutlineIcon /> Xóa
       </Button>
       <Modal

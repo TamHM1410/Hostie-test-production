@@ -43,3 +43,9 @@ export const formatDateToDDMMYYYY = (date: string) => {
 
   return `${day}-${month}-${year}`;
 };
+export const formattedAmount = (amount: any): any => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(amount);
+};

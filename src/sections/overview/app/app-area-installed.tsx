@@ -46,7 +46,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }: 
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState('2019');
+  const [seriesData, setSeriesData] = useState('2024');
 
   const chartOptions = useChart({
     colors: colors.map((colr) => colr[1]),
@@ -102,7 +102,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }: 
           }
         />
 
-        {series.map((item) => (
+        {Array.isArray(series) &&series.length>0 &&series.map((item) => (
           <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
             {item.year === seriesData && (
               <Chart dir="ltr" type="line" series={item.data} options={chartOptions} height={364} />
@@ -112,7 +112,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }: 
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 140 }}>
-        {series.map((option) => (
+        {Array.isArray(series) &&series.length>0 &&series.map((option) => (
           <MenuItem
             key={option.year}
             selected={option.year === seriesData}

@@ -88,6 +88,8 @@ export const authOptions: NextAuthOptions = {
         token: jwtToken.token,
         status: jwtToken.status,
         urlAvatar: jwtToken.urlAvatar,
+        name: jwtToken.username,
+
       };
       return session;
     },

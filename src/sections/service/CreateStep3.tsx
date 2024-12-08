@@ -11,64 +11,67 @@ import {
   DialogActions,
   Button,
   IconButton,
+  InputAdornment,
 } from '@mui/material';
-import { DatePicker } from '@mui/lab';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { DatePicker } from '@mui/x-date-pickers';
 
-// Define validation schema using Yup
 const validationSchema = Yup.object().shape({
   defaultPrice: Yup.number()
     .required('Giá mặc định là bắt buộc')
-    .positive('Giá phải là số dương')
-    .max(10000, 'Giá mặc định không được vượt quá 10,000'),
-  weekendEntries: Yup.array().of(
-    Yup.object().shape({
-      weekendFee: Yup.number().required('Vui lòng chọn ngày cuối tuần'),
-      weekendSurcharge: Yup.number()
-        .nullable()
-        .positive('Phát sinh phải là số dương')
-        .max(200, 'Phát sinh không được vượt quá 200'),
-    })
-  ),
+    .positive('Giá phải là số dương'),
+  weekendEntries: Yup.array()
+    .of(
+      Yup.object().shape({
+        weekendFee: Yup.number().required('Vui lòng chọn ngày cuối tuần'),
+        weekendSurcharge: Yup.number()
+          .nullable()
+          .positive('Giá mới phải là số dương'),
+      })
+    )
+    .max(2, 'Không thể thêm quá 2 mục giá cuối tuần'),
   seasonEntries: Yup.array().of(
     Yup.object().shape({
-      seasonFrom: Yup.date().nullable().required('Ngày bắt đầu là bắt buộc'),
+      seasonFrom: Yup.date()
+        .nullable()
+        .required('Ngày bắt đầu là bắt buộc'),
       seasonTo: Yup.date()
         .nullable()
         .required('Ngày kết thúc là bắt buộc')
-        .min(Yup.ref('seasonFrom'), 'Ngày kết thúc phải lớn hơn ngày bắt đầu')
+        .min(
+          Yup.ref('seasonFrom'),
+          'Ngày kết thúc phải lớn hơn ngày bắt đầu'
+        )
         .max(
           new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-          'Ngày kết thúc không được lớn hơn 1 năm kể từ ngày hiện tại'
+          'Ngày kết thúc không được vượt quá 1 năm kể từ ngày hiện tại'
         ),
       seasonSurcharge: Yup.number()
         .nullable()
-        .positive('Phát sinh phải là số dương')
-        .max(500, 'Phát sinh không được vượt quá 500'),
-      seasonDescription: Yup.string().required('Mô tả là bắt buộc'), // Add description validation
+        .positive('Giá mới phải là số dương'),
+      seasonDescription: Yup.string().required('Mô tả là bắt buộc'),
     })
   ),
 });
 
-// Define the structure for each entry
 interface SeasonEntry {
-  seasonFrom: any | null ;
-  seasonTo: any | null ;
-  seasonSurcharge?: number ;
-  seasonDescription: string ; // Add description field to SeasonEntry
+  seasonFrom: Date | null;
+  seasonTo: Date | null;
+  seasonSurcharge?: number;
+  seasonDescription: string;
 }
 
 interface WeekendEntry {
   weekendFee: number;
-  weekendSurcharge?: number ;
+  weekendSurcharge?: number;
 }
 
 interface FormData {
-  defaultPrice: number ;
+  defaultPrice: number;
   weekendEntries: WeekendEntry[];
   seasonEntries: SeasonEntry[];
 }
@@ -86,83 +89,86 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
     handleSubmit,
     setValue,
     watch,
-    formState: { errors  },
+    formState: { errors },
   } = useForm<FormData>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(validationSchema),
     defaultValues: {
-      weekendEntries: [],
-      seasonEntries: [],
-      defaultPrice: 0,
+      defaultPrice: 1000,
+      weekendEntries: [{ weekendFee: 6, weekendSurcharge: 100 }],
+      seasonEntries: [
+        {
+          seasonFrom: new Date(2024, 10, 20),
+          seasonTo: new Date(2024, 10, 21),
+          seasonSurcharge: 100,
+          seasonDescription: 'Ngày Lễ 20/11',
+        },
+      ],
     },
   });
 
   const weekendEntries = watch('weekendEntries');
   const seasonEntries = watch('seasonEntries');
-
-  const selectedWeekends = new Set(weekendEntries.map((entry: any) => entry.weekendFee));
+  const selectedWeekends = new Set(weekendEntries.map((entry) => entry.weekendFee));
 
   useEffect(() => {
     const storedData = localStorage.getItem('step3Data');
-
     if (storedData) {
       const parsedData: FormData = JSON.parse(storedData);
       const formattedData: FormData = {
         ...parsedData,
-        seasonEntries: parsedData.seasonEntries.map((entry: SeasonEntry) => ({
+        seasonEntries: parsedData.seasonEntries.map((entry) => ({
           ...entry,
           seasonFrom: entry.seasonFrom ? new Date(entry.seasonFrom) : null,
           seasonTo: entry.seasonTo ? new Date(entry.seasonTo) : null,
         })),
       };
-
       Object.entries(formattedData).forEach(([key, value]) =>
         setValue(key as keyof FormData, value)
       );
     }
   }, [setValue]);
 
-  const onFormSubmit = (data: FormData) => {
+  const handleFormSubmit = (data: FormData) => {
     localStorage.setItem('step3Data', JSON.stringify(data));
-    console.log(data);
-    onSubmit(data); // Call onSubmit to move to the next step
+    onSubmit(data);
   };
 
-  // Functions for managing weekend entries
   const addWeekendEntry = () => {
     if (weekendEntries.length < 2) {
-      // Allow max 2 weekend entries
-      setValue('weekendEntries', [...weekendEntries, { weekendFee: 0 }]);
+      setValue('weekendEntries', [...weekendEntries, { weekendFee: 0, weekendSurcharge: 0 }]);
     }
   };
 
   const removeWeekendEntry = (index: number) => {
-    const updatedEntries = weekendEntries.filter((_, i: any) => i !== index);
-    setValue('weekendEntries', updatedEntries);
+    setValue(
+      'weekendEntries',
+      weekendEntries.filter((_, i) => i !== index)
+    );
   };
 
-  // Functions for managing season entries
   const addSeasonEntry = () => {
     if (seasonEntries.length < 5) {
-      // Allow max 5 season entries
       setValue('seasonEntries', [
         ...seasonEntries,
-        { seasonFrom: null, seasonTo: null, seasonSurcharge: undefined, seasonDescription: '' },
+        { seasonFrom: null, seasonTo: null, seasonSurcharge: 0, seasonDescription: '' },
       ]);
     }
   };
 
   const removeSeasonEntry = (index: number) => {
-    const updatedEntries = seasonEntries.filter((_, i: any) => i !== index);
-    setValue('seasonEntries', updatedEntries);
+    setValue(
+      'seasonEntries',
+      seasonEntries.filter((_, i) => i !== index)
+    );
   };
 
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit(onFormSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       noValidate
       autoComplete="off"
-      sx={{ maxWidth: 450, mx: 'auto', p: 2 }}
+      sx={{ maxWidth: 600, mx: 'auto', p: 2 }}
     >
       <Typography variant="h6" gutterBottom>
         Giá theo từng thời điểm của nơi lưu trú
@@ -177,41 +183,29 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
         error={!!errors.defaultPrice}
         helperText={errors.defaultPrice?.message}
         margin="normal"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+        }}
       />
 
-      <Divider sx={{ marginBottom: 3, marginTop: 3 }} />
-
       {/* Weekend Entries */}
+      <Divider sx={{ my: 3 }} />
       <Typography variant="h6" gutterBottom>
         Giá cuối tuần
       </Typography>
-      {weekendEntries.map((entry: any, index: any) => (
-        <Box
-          key={index}
-          sx={{ width: '1/2', display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}
-        >
-          <FormControl
-            fullWidth
-            margin="normal"
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 2,
-            }}
-          >
+      {weekendEntries.map((entry, index) => (
+        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <FormControl fullWidth>
             <InputLabel>Ngày cuối tuần</InputLabel>
             <Select
               label="Ngày cuối tuần"
               value={entry.weekendFee || ''}
               onChange={(e) => {
-                const newWeekendEntries = [...weekendEntries];
-                newWeekendEntries[index].weekendFee = Number(e.target.value);
-                setValue('weekendEntries', newWeekendEntries);
+                const updatedEntries = [...weekendEntries];
+                updatedEntries[index].weekendFee = Number(e.target.value);
+                setValue('weekendEntries', updatedEntries);
               }}
               error={!!errors?.weekendEntries?.[index]?.weekendFee}
-              fullWidth // Make Select take full width
             >
               <MenuItem value={6} disabled={selectedWeekends.has(6)}>
                 Thứ 6
@@ -220,20 +214,17 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
                 Thứ 7
               </MenuItem>
             </Select>
-            {errors?.weekendEntries?.[index]?.weekendFee && (
-              <Typography variant="caption" color="error">
-                {errors?.weekendEntries?.[index]?.weekendFee?.message}
-              </Typography>
-            )}
           </FormControl>
-
           <TextField
-            label="Giá"
+            label="Giá mới"
             variant="outlined"
             type="number"
             {...register(`weekendEntries.${index}.weekendSurcharge`)}
             error={!!errors?.weekendEntries?.[index]?.weekendSurcharge}
             helperText={errors?.weekendEntries?.[index]?.weekendSurcharge?.message}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+            }}
           />
           <IconButton onClick={() => removeWeekendEntry(index)} color="error">
             <RemoveIcon />
@@ -244,16 +235,23 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
         <AddIcon />
       </IconButton>
 
-      <Divider sx={{ marginBottom: 3, marginTop: 3 }} />
-
       {/* Season Entries */}
+      <Divider sx={{ my: 3 }} />
       <Typography variant="h6" gutterBottom>
         Giá theo mùa
       </Typography>
-      {seasonEntries.map((entry: any, index: any) => (
+      {seasonEntries.map((entry, index) => (
         <Box
           key={index}
-          sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2, marginTop: 4 }}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            border: '1px solid #e0e0e0',
+            borderRadius: 2,
+            p: 2,
+            mb: 3,
+          }}
         >
           <Controller
             control={control}
@@ -262,19 +260,17 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
               <DatePicker
                 {...field}
                 label="Ngày bắt đầu"
-            
-                renderInput={(params: any) => (
+                renderInput={(params) => (
                   <TextField
                     {...params}
                     fullWidth
                     error={!!errors.seasonEntries?.[index]?.seasonFrom}
-                    helperText={errors.seasonEntries?.[index]?.seasonFrom?.message}
+                    helperText={errors.seasonEntries?.[index]?.seasonFrom?.message || ''}
                   />
                 )}
-                onChange={(date: any) => field.onChange(date)}
+                onChange={(date) => field.onChange(date)}
               />
             )}
-            
           />
           <Controller
             control={control}
@@ -283,42 +279,36 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
               <DatePicker
                 {...field}
                 label="Ngày kết thúc"
-                // slotProps={{
-                //     textField: {
-                //       fullWidth: true,
-                //       error: !!errors.seasonEntries?.[index]?.seasonTo,
-                //       helperText:  typeof errors.seasonEntries?.[index]?.seasonFrom?.message === 'string'
-                //       ? errors.seasonEntries?.[index]?.seasonFrom?.message
-                //       : ''
-                //     },
-                //   }}
-                renderInput={(params: any) => (
+                renderInput={(params) => (
                   <TextField
                     {...params}
                     fullWidth
                     error={!!errors.seasonEntries?.[index]?.seasonTo}
-                    helperText={errors.seasonEntries?.[index]?.seasonTo?.message}
+                    helperText={errors.seasonEntries?.[index]?.seasonTo?.message || ''}
                   />
                 )}
-                onChange={(date: any) => field.onChange(date)}
+                onChange={(date) => field.onChange(date)}
               />
             )}
           />
           <TextField
-            label="Giá"
+            label="Giá mới"
             variant="outlined"
             type="number"
             {...register(`seasonEntries.${index}.seasonSurcharge`)}
             error={!!errors.seasonEntries?.[index]?.seasonSurcharge}
             helperText={errors.seasonEntries?.[index]?.seasonSurcharge?.message}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+            }}
           />
           <TextField
             label="Mô tả"
             variant="outlined"
+            fullWidth
             {...register(`seasonEntries.${index}.seasonDescription`)}
             error={!!errors.seasonEntries?.[index]?.seasonDescription}
             helperText={errors.seasonEntries?.[index]?.seasonDescription?.message}
-            fullWidth
           />
           <IconButton onClick={() => removeSeasonEntry(index)} color="error">
             <RemoveIcon />
@@ -329,9 +319,10 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
         <AddIcon />
       </IconButton>
 
-      <DialogActions sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-        <Button onClick={previousStep} disabled={currentStep === 0}>
-          Trở lại
+      {/* Actions */}
+      <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button onClick={previousStep} variant="outlined">
+          Quay lại
         </Button>
         <Button type="submit" variant="contained" color="primary">
           Tiếp theo

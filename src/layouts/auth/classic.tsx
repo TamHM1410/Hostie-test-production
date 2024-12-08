@@ -1,3 +1,5 @@
+'use client'
+
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -26,24 +28,7 @@ const METHODS = [
     path: paths.auth.jwt.login,
     icon: '/assets/icons/auth/ic_jwt.svg',
   },
-  // {
-  //   id: 'firebase',
-  //   label: 'Firebase',
-  //   path: paths.auth.firebase.login,
-  //   icon: '/assets/icons/auth/ic_firebase.svg',
-  // },
-  // {
-  //   id: 'amplify',
-  //   label: 'Amplify',
-  //   path: paths.auth.amplify.login,
-  //   icon: '/assets/icons/auth/ic_amplify.svg',
-  // },
-  // {
-  //   id: 'auth0',
-  //   label: 'Auth0',
-  //   path: paths.auth.auth0.login,
-  //   icon: '/assets/icons/auth/ic_auth0.svg',
-  // },
+
 ];
 
 type Props = {
@@ -74,10 +59,14 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       sx={{
         width: 1,
         mx: 'auto',
-        maxWidth: 480,
+        maxWidth: {
+          md:480,
+          xs:'100%'
+        },
+        
         px: { xs: 2, md: 8 },
-        pt: { xs: 15, md: 20 },
-        pb: { xs: 15, md: 0 },
+        pt: { xs: 0, md: 20 },
+        pb: { xs: 0, md: 0 },
       }}
     >
       {children}
@@ -87,7 +76,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   const renderSection = (
     <Stack
       flexGrow={1}
-      spacing={10}
+      spacing={8}
       alignItems="center"
       justifyContent="center"
       sx={{
@@ -143,7 +132,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   return (
     <Stack
       component="main"
-      direction="row"
+      direction={mdUp ? "row" :"column"}
       sx={{
         minHeight: '100vh',
       }}

@@ -62,6 +62,7 @@ export default function NavMobile({ offsetTop, data }: NavProps) {
             {data.map((link) => (
               <NavList key={link.title} item={link} />
             ))}
+            
           </List>
         </Scrollbar>
       </Drawer>

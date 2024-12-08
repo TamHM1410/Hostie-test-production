@@ -55,7 +55,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
       },
     },
     colors,
-    labels: series.map((i) => i.label),
+    labels: series.map((i) => i.label)|| "Tong",
     stroke: { colors: [theme.palette.background.paper] },
     legend: {
       offsetY: 0,
@@ -86,6 +86,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
                 return fNumber(sum);
               },
             },
+            
           },
         },
       },

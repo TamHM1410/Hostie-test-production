@@ -42,7 +42,7 @@ const DeleteResidenceTypeModal = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2, width: 130 }}>
+      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2, width: 130,color:'red' }}>
         <DeleteOutlineIcon /> Xóa
       </Button>
       <Modal
@@ -58,7 +58,7 @@ const DeleteResidenceTypeModal = (props: any) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: 500,
-            height: 230,
+            height: 'auto',
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,

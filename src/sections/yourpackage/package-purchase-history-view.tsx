@@ -1,79 +1,68 @@
 //  @hook
-import { useState } from 'react';
-import { UserManagement } from 'src/types/users';
-import { useCurrentRole } from 'src/zustand/store'
-
-
 
 /// @mui
 
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_Row,
   createMRTColumnHelper,
 } from 'material-react-table';
 
-import { Box, Button, Chip} from '@mui/material'
+import { Chip } from '@mui/material';
 
 /// @another
-import { mkConfig} from 'export-to-csv';
 
 // import RoleActionMenu from './role-action-menu';
-const columnHelper = createMRTColumnHelper<UserManagement | any>();
+const columnHelper = createMRTColumnHelper<any>();
 
-const statusOption = ['Rejected','Pending', 'Accepted' ];
+const statusOption = ['Thất bại ',  'Thành công'];
 
 const PurchaseHistory = (props: any) => {
   const { data = [] } = props;
-  const [open, setOpen] = useState<boolean>(false);
-  const { updateRoleZustand } = useCurrentRole();
 
   const columns = [
-    columnHelper.accessor('name', {
+    columnHelper.accessor('packageName', {
       header: ' Tên gói',
       size: 220,
     }),
 
-    columnHelper.accessor('description', {
-      header: 'Mô tả',
+    columnHelper.accessor('createdAt', {
+      header: 'Ngày mua',
       size: 220,
-      Cell: ({ cell }:any) => <span>{cell.getValue() == null ? 'none' : cell.getValue()}</span>,
+      Cell: ({ cell }: any) => <span>{cell.getValue() == null ? 'none' : cell.getValue().slice(0,10) }</span>,
     }),
-    columnHelper.accessor('description', {
-        header: 'Ngày mua',
-        size: 220,
-        Cell: ({ cell }:any) => <span>{cell.getValue() == null ? 'none' : cell.getValue()}</span>,
-      }),
-      columnHelper.accessor('description', {
-        header: 'Giá tiền',
-        size: 220,
-        Cell: ({ cell }:any) => <span>{cell.getValue() == null ? 'none' : cell.getValue()}</span>,
-      }),
-
-    columnHelper.accessor('status', {
-      header: 'Trạng thái',
-      size: 210,
-      Cell: ({ cell }:any) => (
-        <span> 
-             {cell.getValue() ===0 && <Chip label={statusOption[0]}variant='soft' color="error" />}
-            {cell.getValue() === 1 && <Chip label={statusOption[1]} variant='soft'color="warning" />}
-            {cell.getValue() === 2 && <Chip label={statusOption[2]} variant='soft' color="success" />}
-        
+    columnHelper.accessor('expireAt', {
+      header: 'Ngày hết hạn',
+      size: 220,
+      Cell: ({ cell }: any) => <span>{cell.getValue() == null ? 'none' : cell.getValue().slice(0,10)}</span>,
+    }),
+    columnHelper.accessor('packagePrice', {
+      header: 'Giá tiền',
+      size: 220,
+      Cell: ({ cell }: any) => (
+        <span>
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(cell.getValue())}
         </span>
       ),
     }),
 
-    
+    columnHelper.accessor('status', {
+      header: 'Trạng thái giao dịch',
+      size: 210,
+      Cell: ({ cell }: any) => (
+        <span>
+          {cell.getValue() === 0 ? (
+            <Chip label={statusOption[0]} variant="soft" color="error" />
+          ) : (
+            <Chip label={statusOption[1]} variant="soft" color="success" />
+          )}
+        </span>
+      ),
+    }),
   ];
-
-  const csvConfig = mkConfig({
-    fieldSeparator: ',',
-    decimalSeparator: '.',
-    useKeysAsHeaders: true,
-  });
-
-
 
   const table = useMaterialReactTable({
     columns,
@@ -82,14 +71,9 @@ const PurchaseHistory = (props: any) => {
     columnFilterDisplayMode: 'popover',
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
-    
   });
 
-  return (
-   
-      <MaterialReactTable table={table}  />
-    
-  );
+  return <MaterialReactTable table={table} />;
 };
 
 export default PurchaseHistory;

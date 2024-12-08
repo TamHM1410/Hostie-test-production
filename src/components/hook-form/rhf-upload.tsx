@@ -5,6 +5,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 
 /// api
 import { updateAvatar } from 'src/api/users';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 //
@@ -23,12 +24,15 @@ interface Props extends Omit<UploadProps, 'file'> {
 export function RHFUploadAvatar({ name, ...other }: Props) {
   const { control } = useFormContext();
   const {data:session}=useSession()
+  const queryClient = useQueryClient();
+
   
-  const uploadAvatar=(payload:any)=>{
+  const uploadAvatar=async (payload:any)=>{
     const file=new FormData()
     file.append('file',payload)
     file.append('userId',session?.user.id ?? '')
-    updateAvatar(file)
+   await updateAvatar(file)
+   queryClient.invalidateQueries(['userTest'] as any)
   }
 
 

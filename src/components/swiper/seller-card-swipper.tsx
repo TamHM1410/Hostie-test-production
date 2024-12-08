@@ -13,23 +13,17 @@ import { EffectCreative ,EffectCards} from 'swiper/modules';
 import { findAllPackage } from 'src/api/pagekages';
 // @component
 import PricingCard from 'src/sections/pricing/pricing-card';
+import { useSession } from 'next-auth/react';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 import './swiper-card.css';
-import { width } from '@mui/system';
 
 export default function SellerPackageCard() {
-  const [listPackage, setListPackage] = useState<any>([
-    {
-      subscription: '',
-      price: 0,
-      caption: '',
-      lists: [''],
-      labelAction: '',
-    },
-  ]);
+
+  const {data:session}=useSession()
+
 
   const { data = [], isLoading } = useQuery({
     queryKey: ['packageList'],
@@ -39,13 +33,7 @@ export default function SellerPackageCard() {
     },
   });
 
-  const card = {
-    subscription: 'basic',
-    price: 2000,
-    caption: '6g chill',
-    lists: ['jdosjdos', 'vltk'],
-    labelAction: 'choose',
-  };
+ 
 
   const listPack = useMemo(() => {
     if (data && Array.isArray(data)) {
@@ -70,7 +58,7 @@ export default function SellerPackageCard() {
           {listPack&&Array.isArray(listPack)&&listPack.length>0 && listPack.map((item:any,index:any)=>{
             return <>
              <SwiperSlide className="    " >
-            <PricingCard card={item} index={index} style={{ backgroundColor: '#CAF4FF' ,width:'100%'}} packageId={item?.id}/>
+            <PricingCard card={item} index={index} style={{ backgroundColor: 'rgb(192 221 255)' ,width:'100%'}} packageId={item?.id} type="normal"/>
           </SwiperSlide>
             
             

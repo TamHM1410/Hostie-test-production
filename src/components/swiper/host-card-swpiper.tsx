@@ -68,7 +68,7 @@ export default function HostPackageCard() {
           {listPack&&Array.isArray(listPack)&&listPack.length>0 && listPack.map((item:any,index:any)=>{
             return <>
              <SwiperSlide className="    " >
-            <PricingCard card={item} index={index} style={{ backgroundColor: '#CAF4FF' ,width:'100%' }} packageId={item?.id}/>
+            <PricingCard card={item} index={index} style={{ backgroundColor: 'rgb(192 221 255)' ,width:'100%' }} packageId={item?.id} type="normal"/>
           </SwiperSlide>
             
             

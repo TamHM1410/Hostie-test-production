@@ -27,15 +27,20 @@ interface Props extends CardProps {
   list: ItemProps[];
 }
 
-export default function AppTopAuthors({ title, subheader, list, ...other }: Props) {
+export default function AppTopAuthors({ title, subheader, list, ...other }: Props|any) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Stack spacing={3} sx={{ p: 3 }}>
-        {orderBy(list, ['totalFavorites'], ['desc']).map((author, index) => (
-          <AuthorItem key={author.id} author={author} index={index} />
-        ))}
+        {
+          list.map((item:any,index:number)=>{
+            return             <AuthorItem key={index} url={item?.url_avatar ? item?.url_avatar :item?.ava} username={item?.username ? item?.username :item?.name} total_value={item?.total_value ?  item?.total_value: 'ADMIN'} type={other.type ? other.type:'normal'}/>
+
+
+          })
+        }
+       
       </Stack>
     </Card>
   );
@@ -48,13 +53,13 @@ type AuthorItemProps = {
   index: number;
 };
 
-function AuthorItem({ author, index }: AuthorItemProps) {
+function AuthorItem({ author, index ,url,username,total_value,type}: AuthorItemProps|any) {
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
-      <Avatar alt={author.name} src={author.avatarUrl} />
+      <Avatar alt={username} src={url} />
 
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="subtitle2">{author.name}</Typography>
+        <Typography variant="subtitle2">{username}</Typography>
 
         <Typography
           variant="caption"
@@ -66,7 +71,12 @@ function AuthorItem({ author, index }: AuthorItemProps) {
           }}
         >
           <Iconify icon="solar:heart-bold" width={14} sx={{ mr: 0.5 }} />
-          {fShortenNumber(author.totalFavorites)}
+          {/* {fShortenNumber(author.totalFavorites)} */} { total_value && type!=='admin'&&  <Box sx={{gap:2}}>Tổng tiền booking từ seller này: 
+            <span style={{fontSize:15,fontWeight:700}}>{total_value} vnd</span> </Box>}
+            {
+              type==="admin" &&<Box sx={{gap:2}}>
+            <span style={{fontSize:15,fontWeight:700}}>{total_value} </span> </Box>
+            }
         </Typography>
       </Box>
 

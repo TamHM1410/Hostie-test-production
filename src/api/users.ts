@@ -1,4 +1,4 @@
-import { Role, SignIn, SignUp, UserInfor,UserManagement  } from 'src/types/users';
+import { Role, SignIn, SignUp, UserInfor, UserManagement } from 'src/types/users';
 import axiosClient from 'src/utils/axiosClient';
 import { endPoint } from 'src/utils/endPoints';
 
@@ -7,51 +7,63 @@ interface UserInfoResponse {
 }
 
 /// authentication
-const registerApi = async (payload: SignUp) => {
-  return await axiosClient.post(endPoint.user.signUp, payload);
+const registerApi = async (payload: any) => {
+  return await axiosClient.post(endPoint.user.signUp, payload, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 const loginApi = async (payload: SignIn | any): Promise<UserInfoResponse | any> => {
   return await axiosClient.post(endPoint.user.signIn, payload);
 };
 
-const refreshToken=async(token:any)=>{
-  return  await axiosClient.post(endPoint.user.refresh,token)
-}
+const refreshToken = async (token: any) => {
+  return await axiosClient.post(endPoint.user.refresh, token);
+};
 
 /// user api
-const getUserInfor = async (): Promise<UserInfoResponse|any> => {
+const getUserInfor = async (): Promise<UserInfoResponse | any> => {
   return await axiosClient.get(endPoint.user.info);
 };
 
 const updateUserById = async (payload: UserInfor): Promise<UserInfoResponse> => {
   return await axiosClient.put(endPoint.user.update, payload);
 };
-const sendForgotPassword=async(payload:any)=>{
-  return await axiosClient.post(endPoint.user.forgot,payload)
-}
-
-const resetPassword=async(payload:any)=>{
-  return await axiosClient.post(endPoint.user.reset,payload)
-}
-
-const updateAvatar=async(file:any)=>{
-  const res =await axiosClient.post(endPoint.user.avatar,file)
-  return res
-
-}
-
-///// admin user management
-const getAllUserApi = async () => {
-  return await axiosClient.get(endPoint.admin.getAllUser);
+const sendForgotPassword = async (payload: any) => {
+  return await axiosClient.post(endPoint.user.forgot, payload);
 };
 
-const updateUserActive=async (id:any,isActive:any)=>{
-  console.log(endPoint.admin.updateActiveById(id,isActive),'url')
-  const res =await axiosClient.put(endPoint.admin.updateActiveById(id,isActive))
-  return res
+const resetPassword = async (payload: any) => {
+  return await axiosClient.post(endPoint.user.reset, payload);
+};
 
-}
+const updateAvatar = async (file: any) => {
+  const res = await axiosClient.post(endPoint.user.avatar, file);
+  return res;
+};
+
+const getUserRole = async (): Promise<UserInfoResponse> => {
+  return await axiosClient.get(endPoint.user.role);
+};
+const confirmVerifyEmail = async (token: any) => {
+  const res = await axiosClient.post(endPoint.user.confirmVerification, {
+    token: token,
+  });
+  return res;
+};
+
+///// admin user management
+const getAllUserApi = async ({ limit = 1000, search = '' }) => {
+  return await axiosClient.get(`${endPoint.admin.getAllUser}?size=${limit}&search=${search}&sortOrder=dsc`);
+};
+
+const updateUserActive = async (id: any, isActive: any) => {
+  console.log(endPoint.admin.updateActiveById(id, isActive), 'url');
+  const res = await axiosClient.put(endPoint.admin.updateActiveById(id, isActive));
+  return res;
+};
 
 const adminUpdateUserById = async (payload: UserManagement): Promise<UserInfoResponse> => {
   return await axiosClient.put(endPoint.user.getUserById(payload.id), payload);
@@ -73,15 +85,19 @@ const deleteRoleApi = async (id: any): Promise<UserInfoResponse> => {
   return await axiosClient.delete(endPoint.admin.deleteRole(id));
 };
 
-const updatedRoleApi = async ({id,payload}:{ id: any; payload: any }): Promise<UserInfoResponse> => {
+const updatedRoleApi = async ({
+  id,
+  payload,
+}: {
+  id: any;
+  payload: any;
+}): Promise<UserInfoResponse> => {
   return await axiosClient.put(endPoint.admin.deleteRole(id), payload);
 };
 
-
-
-
 export {
-
+  confirmVerifyEmail,
+  getUserRole,
   registerApi,
   loginApi,
   refreshToken,
@@ -96,5 +112,5 @@ export {
   sendForgotPassword,
   resetPassword,
   updateAvatar,
-  updateUserActive
+  updateUserActive,
 };

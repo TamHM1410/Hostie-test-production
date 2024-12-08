@@ -25,10 +25,9 @@ import CheckoutSummary from './checkout-summary';
 import CheckoutCartProductList from './checkout-cart-product-list';
 import { useCheckoutContext } from './context';
 
-
 // ----------------------------------------------------------------------
 
-export default function CheckoutCart() {
+export default function CheckoutCart({ discount, data, step }: any) {
   const checkout = useCheckoutContext();
 
   const empty = !checkout.items.length;
@@ -37,30 +36,17 @@ export default function CheckoutCart() {
 
   const router = useRouter();
 
-  const { updatePackageZustand } = useCurrentPackage();
-
   const id = searchParam.get('packageId');
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['package'],
-    queryFn: () => {
-      const rs = findPackageById(id);
-      updatePackageZustand(rs);
-      return rs;
-    },
-  });
-
+  
+  console.log('packageId',id)
   const handleNextStep = () => {
-    router.push('/pricing/checkout/?step=1');
+    router.push(`/pricing/checkout/?step=1&packageId=${id}`);
   };
 
   if (!id) {
     router.push('/pricing');
   }
-  if (isLoading) {
-    return <SplashScreen />;
-  }
-  
+
   return (
     <Grid container spacing={3}>
       <Grid xs={12} md={8}>
@@ -94,21 +80,25 @@ export default function CheckoutCart() {
           )}
         </Card>
 
-        <Button
-          component={RouterLink}
-          href={paths.product.root}
-          color="inherit"
-          startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-        >
-          Chọn gói khác
-        </Button>
+        {step && Number(step) > 0 && (
+          <Button
+            component={RouterLink}
+            href={paths.product.root}
+            color="inherit"
+            startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
+          >
+            Trở về 
+          </Button>
+        )}
       </Grid>
 
       <Grid xs={12} md={4}>
         <CheckoutSummary
           total={data?.price}
-          discount={checkout.discount}
-          subTotal={data?.price}
+          discount={discount}
+          subTotal={
+            data?.upgradeCost === 0 || !data?.upgradeCost ? data?.originalPrice : data?.upgradeCost
+          }
           onApplyDiscount={checkout.onApplyDiscount}
         />
 
@@ -117,7 +107,7 @@ export default function CheckoutCart() {
           size="large"
           type="submit"
           variant="contained"
-          disabled={data ?false:true}
+          disabled={data ? false : true}
           onClick={handleNextStep}
         >
           Thanh toán

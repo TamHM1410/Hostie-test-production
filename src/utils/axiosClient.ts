@@ -1,9 +1,8 @@
+'use client';
 import axios, { AxiosResponse } from 'axios';
-import { getSession, signOut,signIn } from 'next-auth/react';
+import { getSession, signOut, signIn } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { javaUrl } from './endPoints';
-
-
 
 interface Response {
   result: any;
@@ -37,7 +36,7 @@ const axiosClient = axios.create({
 
 // Add a request interceptor
 axiosClient.interceptors.request.use(async (request) => {
-  const session:any = await getSession();
+  const session: any = await getSession();
   if (session) {
     request.headers.Authorization = `Bearer ${session?.user?.token}`;
   }
@@ -60,9 +59,9 @@ const handleError = (error: { response: { data: any } }) => {
 
 const refreshToken = async (token: string) => {
   try {
-
-    const response = await axios.post('http://34.81.244.146:8080/v1/api/auth/refresh-token', { token });
-
+    const response = await axios.post('http://34.81.244.146:8080/v1/api/auth/refresh-token', {
+      token,
+    });
     return response?.data.result?.token;
   } catch (error) {
     console.error('Error refreshing token', error);
@@ -70,43 +69,32 @@ const refreshToken = async (token: string) => {
   }
 };
 
-
 axiosClient.interceptors.response.use(
   (response) => {
-    const res =handleResponse(response)
-    return res ;
+    const res = handleResponse(response);
+    return res;
   },
   async (error) => {
-    const  session :any  = await getSession();
-    
+    const session: any = await getSession();
 
-    if (!session) {
-      redirect('/auth/jwt/login');
-   
-    }
-    
-    if (error.response?.status === 401 &&  session) {
+    if (error.response?.status === 401 && session) {
       const token = session?.user.token;
       const refreshedSession = await refreshToken(token);
-     
-       
-      try {
-        if(refreshedSession){
-          await signIn("credentials", {token: refreshedSession })      }
-        
 
-              } catch (refreshError) {
+      try {
+        if (refreshedSession) {
+          await signIn('credentials', { token: refreshedSession });
+        }
+      } catch (refreshError) {
         processQueue(refreshError, null);
         console.error('Failed to refresh token', refreshError);
 
-      
         await signOut();
         redirect('/auth/jwt/login');
-        
-      } 
+      }
     }
 
-    return Promise.reject(handleError(error));
+    return Promise.reject(error.response.data.message);
   }
 );
 

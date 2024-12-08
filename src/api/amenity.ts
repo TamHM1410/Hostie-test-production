@@ -7,7 +7,11 @@ const finAllAmenity = async () => {
 
 
 const updateAmenityApi=async({id,payload}:{ id: any; payload: any })=>{
-    return  await axiosClient.put(endPoint.admin.amenity.byId(id),payload)
+    return  await axiosClient.put(endPoint.admin.amenity.byId(id),payload,{
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
 
 }
 const deleteAmentityApi=async(id:any)=>{

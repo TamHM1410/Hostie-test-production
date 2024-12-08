@@ -2,8 +2,10 @@
 
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useDropzone } from 'react-dropzone';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
@@ -14,6 +16,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -29,13 +33,14 @@ import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { Button } from '@mui/material';
 
-import { SignUp, social_urls } from 'src/types/users';
+import { SignUp, socialUrls } from 'src/types/users';
 import { registerApi } from 'src/api/users';
 
 /// toast
 import toast from 'react-hot-toast';
 import RegisterTab from './register-tab';
 import ButlerForm from './butler-form';
+import RegisterPrivacy from './register-privacy';
 
 // ----------------------------------------------------------------------
 
@@ -43,14 +48,13 @@ export default function JwtRegisterView() {
   const router = useRouter();
 
   // const [errorMsg, setErrorMsg] = useState('');
-  const [listSocial, setListUrl] = useState<social_urls[] | any[]>([
-    {
-      url: '',
-      social_name: '',
-    },
-  ]);
+  const [listSocial, setListUrl] = useState<socialUrls[] | any[]>([]);
+
+  const [isChecked, setIsChecked] = useState(false); // Chú ý 'setIsChecked' thay vì 'setIschecked'
 
   const [currentTab, setCurrentTab] = useState('user');
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const searchParams = useSearchParams();
 
@@ -58,31 +62,105 @@ export default function JwtRegisterView() {
 
   const password = useBoolean();
 
-  const RegisterSchema = Yup.object().shape({
-    username: Yup.string().required(' Nhập tên đăng nhập'),
-    reference_code: Yup.string().required('First name required'),
-    email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
-    password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'mật khẩu ít nhất 8 ký tự'),
-    retype_password: Yup.string()
-      .required('Mật khẩu là bắt buộc')
-      .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
-    social_urls: Yup.array()
-      .of(
-        Yup.object().shape({
-          url: Yup.string().required('URL is required'),
-          social_name: Yup.string().required('Social name is required'),
-        })
-      )
-      .min(1, 'At least one social URL is required'),
-  });
+  const RegisterSchema = Yup.object()
+    .shape({
+      username: Yup.string().required('Nhập tên đăng nhập'),
+      referenceCode: Yup.string().notRequired(),
+      email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
+      password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'Mật khẩu ít nhất 8 ký tự'),
+      retype_password: Yup.string()
+        .required('Mật khẩu là bắt buộc')
+        .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
+      socialUrls: Yup.array()
+        .of(
+          Yup.object().shape({
+            url: Yup.string().notRequired(),
+            social_name: Yup.string().notRequired(),
+          })
+        )
+        .notRequired(),
+      isChecked: Yup.boolean()
+        .oneOf([true], 'Bạn cần đồng ý với điều khoản')
+        .required('Bạn cần đồng ý với điều khoản'),
+      profile_images: Yup.array()
+        .min(3, 'Chỉ được tải lên tối đa 3 ảnh')
+        .max(3, 'Chỉ được tải lên tối đa 3 ảnh'),
+    })
+    .test(
+      'at-least-one',
+      'Phải có ít nhất một trong referenceCode   hoặc socialUrls',
+      function (value) {
+        // Nếu không có giá trị, coi như không hợp lệ
+        if (!value) return false;
 
-  const defaultValues: SignUp = {
+        const { referenceCode, socialUrls } = value;
+
+        // Kiểm tra từng điều kiện
+        const hasReferenceCode = referenceCode && referenceCode.trim() !== '';
+        const hasSocialUrls =
+          Array.isArray(socialUrls) &&
+          socialUrls.some((social) => social.url?.trim() || social.social_name?.trim());
+
+        return hasReferenceCode || hasSocialUrls;
+      }
+    );
+
+  const defaultValues: any = {
     username: '',
     retype_password: '',
     email: '',
     password: '',
-    social_urls: listSocial,
-    reference_code: '',
+    socialUrls: listSocial,
+    referenceCode: '',
+    isChecked: isChecked,
+    profile_images: [],
+  };
+  // Dropzone configuration
+  const onDrop = (acceptedFiles: File[]) => {
+    if (uploadedFiles.length + acceptedFiles.length > 3) {
+      toast.error('Chỉ được tải lên tối đa 3 ảnh');
+      return;
+    }
+    // Limit to 3 images
+    const newFiles = acceptedFiles.slice(0, 3 - uploadedFiles.length);
+
+    // Generate previews
+    const newPreviews = newFiles.map((file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      return new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+      });
+    });
+
+    Promise.all(newPreviews).then((previews) => {
+      setPreviewImages((prev) => [...prev, ...previews]);
+    });
+
+    // Update uploaded files
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+    setValue('profile_images', [...uploadedFiles, ...newFiles]);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/gif': ['.gif'],
+    },
+    maxSize: 5 * 1024 * 1024, // 5MB max file size
+    multiple: true,
+    maxFiles: 3,
+  });
+
+  const handleRemoveImage = (index: number) => {
+    const newPreviewImages = previewImages.filter((_, i) => i !== index);
+    const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index);
+
+    setPreviewImages(newPreviewImages);
+    setUploadedFiles(newUploadedFiles);
+    setValue('profile_images', newUploadedFiles);
   };
 
   const methods = useForm({
@@ -96,10 +174,12 @@ export default function JwtRegisterView() {
     formState: { isSubmitting },
     setValue,
   } = methods;
+
   const handleRemoveSocial = (index: any) => {
     const newList = listSocial.filter((_, i) => i !== index);
     setListUrl(newList);
   };
+
   const handleAddNewSocial = () => {
     setListUrl((prevList) => [
       ...prevList,
@@ -117,19 +197,54 @@ export default function JwtRegisterView() {
       updatedList[index] = { ...updatedList[index], social_name: newSocialName }; // Update the specific item
       return updatedList; // Return the updated list
     });
-    setValue(`social_urls[${index}].social_name` as any, event.target.value);
+    setValue(`socialUrls[${index}].social_name` as any, event.target.value);
   };
 
   const onSubmit = handleSubmit(async (data: any) => {
+    console.log(data, 'dta');
+    const formData = new FormData();
     try {
-      console.log(data, 'ta');
-      await registerApi(data);
-      toast.success('Đăng ký thành công');
+      delete data['isChecked'];
+      if (data?.referenceCode === '') {
+        delete data['referenceCode  '];
+      }
+      if (Array.isArray(data?.socialUrls) && data?.socialUrls.length === 0) {
+        delete data['socialUrls'];
+      }
+      Object.keys(data).forEach((key, value) => {
+        if (key === 'profile_images' && data.profile_images && data.profile_images.length > 0) {
+          // formData.append(key,JSON.stringify( data[key]));
+          data.profile_images.forEach((file: File, index: number) => {
+            formData.append(`imageFiles[]`, file);
+          });
+        }
 
-      router.push('/auth/jwt/login');
+        if (key === 'socialUrls' && Array.isArray(data[key])) {
+          data[key].forEach((item, index) => {
+            formData.append(`socialUrls[${index}].url`, item?.url);
+            formData.append(`socialUrls[${index}].socialName`, item?.social_name);
+          });
+          delete data['socialUrls'];
+        }
+
+        if (data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+
+      // Append profile images
+
+      setIsChecked(false);
+
+      // console.log(formData,'form data')
+
+      const res = await registerApi(formData);
+      if (res) {
+        toast.success('Đăng ký thành công');
+        router.push('/auth/jwt/login');
+      }
     } catch (error) {
-      toast.error('Đăng ký thất bại');
-      reset();
+      toast.error(error);
     }
   });
   const renderHead = (
@@ -156,14 +271,9 @@ export default function JwtRegisterView() {
         textAlign: 'center',
       }}
     >
-      {'By signing up, I agree to '}
-      <Link underline="always" color="text.primary">
-        Terms of Service
-      </Link>
-      {' and '}
-      <Link underline="always" color="text.primary">
-        Privacy Policy
-      </Link>
+      {'The hostie since 2024'}
+     
+
       .
     </Typography>
   );
@@ -171,9 +281,10 @@ export default function JwtRegisterView() {
   const renderForm = (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={2.5}>
+       
         <RHFTextField name="email" label="Địa chỉ email* " />
         <RHFTextField name="username" label="Tên đăng nhập*" />
-        <RHFTextField name="reference_code" label="Mã giới thiệu* " />
+        <RHFTextField name="referenceCode " label="Mã giới thiệu " />
 
         <RHFTextField
           name="password"
@@ -205,6 +316,57 @@ export default function JwtRegisterView() {
           }}
         />
 
+<Box
+          {...getRootProps()}
+          sx={{
+            border: '2px dashed grey',
+            borderColor: isDragActive ? 'primary.main' : 'grey.500',
+            borderRadius: 2,
+            p: 2,
+            textAlign: 'center',
+            cursor: 'pointer',
+            transition: 'border-color 0.3s ease',
+          }}
+        >
+          <input {...getInputProps()} />
+          {previewImages.length < 3 ? (
+            <Typography variant="body2" color="text.secondary">
+              {isDragActive
+                ? 'Thả hình ảnh ở đây'
+                : `Vui lòng cung cấp hình ảnh  để giúp quản trị viên dễ dàng duyệt tài khoản của bạn (${previewImages.length}/3)`}
+            </Typography>
+          ) : null}
+
+          {/* Image previews */}
+          <Grid container spacing={1} sx={{ mt: 1 }}>
+            {previewImages.map((preview, index) => (
+              <Grid item xs={4} key={index} sx={{ position: 'relative' }}>
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  style={{
+                    width: '100%',
+                    height: 100,
+                    objectFit: 'cover',
+                    borderRadius: 8,
+                  }}
+                />
+                <IconButton
+                  onClick={() => handleRemoveImage(index)}
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    color: 'error.main',
+                  }}
+                >
+                  <DeleteOutlineIcon />
+                </IconButton>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
         {listSocial &&
           listSocial.map((item: any, index: any) => (
             <Stack
@@ -219,15 +381,15 @@ export default function JwtRegisterView() {
                 value={item.social_name === '' ? 'Mạng xã hội' : 'facebook'}
                 label="social"
                 onChange={(event) => handleChange(event, index)}
-                name={`social_urls[${index}].social_name`}
+                name={`socialUrls[${index}].social_name`}
                 sx={{ minWidth: 100 }}
               >
                 <MenuItem value="facebook">Facebook</MenuItem>
                 <MenuItem value="linkin">Linkin</MenuItem>
                 <MenuItem value="twitter">Twitter</MenuItem>
               </Select>
-              <RHFTextField name={`social_urls[${index}].url`} label="Địa chỉ" />
-              {listSocial.length > 1 && (
+              <RHFTextField name={`socialUrls[${index}].url`} label="Địa chỉ" />
+              {listSocial.length > 0 && (
                 <span
                   style={{ display: 'flex', alignItems: 'center' }}
                   onClick={() => handleRemoveSocial(index)}
@@ -238,8 +400,19 @@ export default function JwtRegisterView() {
             </Stack>
           ))}
         <Stack direction={{ xs: 'column', sm: 'row', display: 'row-reverse' }} spacing={2}>
-          <Button onClick={handleAddNewSocial}>Add Social</Button>
+          <Button onClick={handleAddNewSocial}>Thêm địa chỉ mạng xã hội</Button>
         </Stack>
+        <RegisterPrivacy
+          isChecked={isChecked}
+          setIsChecked={setIsChecked}
+          reset={reset}
+          methods={methods}
+        />
+        {methods.formState.errors.isChecked && (
+          <Typography color="error" variant="body2">
+            {methods.formState.errors.isChecked.message}
+          </Typography>
+        )}
 
         <LoadingButton
           fullWidth

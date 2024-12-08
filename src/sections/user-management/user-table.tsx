@@ -18,6 +18,9 @@ import { useCurrentUser } from 'src/zustand/store';
 import UserDetailModal from './view-user-detail-modal';
 import useUpdateActiveModal from '../hooks/useUpdateActiveModal';
 
+import ViewEvidenceModal from './view-evidence';
+
+
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 const columnHelper = createMRTColumnHelper<UserManagement | any>();
@@ -25,6 +28,9 @@ const statusOption = ['Rejected', 'Pending', 'Accepted'];
 
 const UserTable = (props: any) => {
   const { data = [] } = props;
+
+
+  console.log('data',data)
 
   const { currenUserSelected, updateUserSelected } = useCurrentUser();
 
@@ -42,7 +48,7 @@ const UserTable = (props: any) => {
     columnHelper.accessor('username', {
       header: ' Tài khoản ',
 
-      size: 250,
+      size: 350,
       Cell: ({ row }: any) => {
         const username = row.getValue('username');
         const email = row?.original.email;
@@ -77,13 +83,14 @@ const UserTable = (props: any) => {
         </span>
       ),
     }),
-    columnHelper.accessor('status', {
-      header: 'Trạng thái tài khoản',
+    columnHelper.accessor('userSignupImages', {
+      header: 'Ảnh minh  chứng ',
       Cell: ({ cell }: any) => (
         <span>
-          {cell?.getValue() === 0 && <Chip label={statusOption[0]} color="error" variant='soft' />}
+          <ViewEvidenceModal images={cell?.getValue()}/>
+          {/* {cell?.getValue() === 0 && <Chip label={statusOption[0]} color="error" variant='soft' />}
           {cell?.getValue() === 1 && <Chip label={statusOption[1]} color="warning" variant='soft'/>}
-          {cell?.getValue() === 2 && <Chip label={statusOption[2]} color="success" variant='soft'/>}
+          {cell?.getValue() === 2 && <Chip label={statusOption[2]} color="success" variant='soft'/>} */}
         </span>
       ),
     }),

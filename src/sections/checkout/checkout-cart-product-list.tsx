@@ -13,10 +13,10 @@ import CheckoutCartProduct from './checkout-cart-product';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'product', label: 'Package' },
-  { id: 'price', label: 'Price' },
+  { id: 'product', label: 'Gói' },
+  { id: 'price', label: 'Giá' },
 
-  { id: 'duration',label:'Duration' },
+  { id: 'duration',label:'Thời gian' },
   { id: '' },
 
 ];
@@ -40,6 +40,7 @@ export default function CheckoutCartProductList({
   onDecreaseQuantity,
 }: Props) {
   console.log(products,'product')
+ 
   return (
     <TableContainer sx={{ overflow: 'unset' }}>
       <Scrollbar>

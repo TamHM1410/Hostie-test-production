@@ -14,8 +14,8 @@ import {
   createMRTColumnHelper,
 } from 'material-react-table';
 
-import { Box, Button, Chip} from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Box, Button, Chip,MenuItem} from '@mui/material';
+
 
 
 ///@another
@@ -24,7 +24,7 @@ import { mkConfig, generateCsv, download } from 'export-to-csv';
 import RoleActionMenu from './role-action-menu';
 const columnHelper = createMRTColumnHelper<UserManagement | any>();
 
-const statusOption = ['Rejected','Pending', 'Accepted' ];
+const statusOption = ['Từ chối','Đang xử lý', 'Chấp thuận' ];
 
 const RoleTable = (props: any) => {
   const { data = [] } = props;

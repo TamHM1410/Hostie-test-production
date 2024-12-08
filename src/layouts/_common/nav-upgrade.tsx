@@ -16,9 +16,7 @@ import Label from 'src/components/label';
 // ----------------------------------------------------------------------
 
 export default function NavUpgrade() {
-  const { user } = useMockedUser();
 
-  const { t } = useLocales();
 
   return (
     <Stack
@@ -47,19 +45,7 @@ export default function NavUpgrade() {
           </Label>
         </Box> */}
 
-        {/* <Stack spacing={0.5} sx={{ mt: 1.5, mb: 2 }}>
-          <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
-          </Typography>
-
-          <Typography variant="body2" noWrap sx={{ color: 'text.disabled' }}>
-            {user?.email}
-          </Typography>
-        </Stack> */}
-
-        <Button variant="contained" href={'http://localhost:8081/pricing/'} target="_blank" rel="noopener">
-          {t('upgrade_to_pro')}
-        </Button>
+      
       </Stack>
     </Stack>
   );
