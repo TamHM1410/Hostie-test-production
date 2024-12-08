@@ -14,7 +14,7 @@ const SuggestPackage = ({ data }: any) => {
       <Box sx={{ pb: 5, px: 8 }}>
         <Typography variant="h4"> Gói có thể nâng cấp</Typography>
       </Box>
-      <Box sx={{ px: 5 }}>
+      <Box sx={{ px: 5,py:10 }}>
         <Swiper
           spaceBetween={30}
           navigation={true} // Kích hoạt Navigation

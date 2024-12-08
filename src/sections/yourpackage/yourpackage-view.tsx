@@ -11,7 +11,7 @@ import { Box, Grid } from '@mui/material';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import { SplashScreen, LoadingScreen } from 'src/components/loading-screen';
 // import { getAllRolesApi } from 'src/api/users';
-import { getCurrenPackage, getSuggestPackage,user_getPackage_history } from 'src/api/pagekages';
+import { getCurrenPackage, getSuggestPackage, user_getPackage_history } from 'src/api/pagekages';
 import PurchaseHistory from './package-purchase-history-view';
 
 import CurrentPackage from './current-package';
@@ -37,12 +37,12 @@ export default function YourPackageView() {
         },
       },
       {
-        queryKey:['ppackageHistory'],
-        queryFn:async ()=>{
-          const rs =await user_getPackage_history()
-          return rs
-        }
-      }
+        queryKey: ['ppackageHistory'],
+        queryFn: async () => {
+          const rs = await user_getPackage_history();
+          return rs;
+        },
+      },
     ],
     combine: (results) => {
       return {
@@ -53,10 +53,9 @@ export default function YourPackageView() {
   });
 
   if (results.pending) return <LoadingScreen />;
-  console.log('result',results.data[2])
+  console.log('result', results.data[2]);
   return (
     <Box>
-    
       <Box sx={{ px: 5 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -74,7 +73,12 @@ export default function YourPackageView() {
                   Array.isArray(results.data) &&
                   results.data.length > 0 &&
                   results.data[0]?.packageInfo && (
-                    <CurrentPackage card={results.data[0]?.packageInfo} />
+                    <CurrentPackage
+                      card={results.data[0]?.packageInfo}
+                      expireAt={results.data[0]?.expireAt}
+                      startAt={results.data[0]?.startAt}
+                      daysLeft={results.data[0]?.daysLeft}
+                    />
                   )}
               </Box>
             </Box>
@@ -99,8 +103,7 @@ export default function YourPackageView() {
         }}
       />
       <Box sx={{ py: 5, px: 5 }}>
-        
-        <PurchaseHistory  data={results.data[2]}/>
+        <PurchaseHistory data={results.data[2]} />
       </Box>
     </Box>
   );
