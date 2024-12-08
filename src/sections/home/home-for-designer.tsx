@@ -27,7 +27,7 @@ export default function HomeForDesigner() {
     <Box sx={{ textAlign: { xs: 'center', md: 'unset' }, mt: { xs: 10, md: 20 } }}>
       <m.div variants={varFade().inUp}>
         <Typography component="div" variant="overline" sx={{ color: 'text.disabled' }}>
-          Booking esily
+        Dành riêng cho Host  và Seller 
         </Typography>
       </m.div>
 
@@ -56,7 +56,7 @@ export default function HomeForDesigner() {
           rel="noopener"
           href={'http://localhost:8081/pricing/'}
         >
-          Explore now
+           Bắt đầu ngay
         </Button>
       </m.div>
     </Box>

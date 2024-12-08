@@ -7,6 +7,7 @@ const registerButler = async (payload: any) => {
   return res;
 };
 const getButlerResidence = async () => {
+  
   const res = await goAxiosClient.get(goEndPoint.butler_residence);
 
   return res?.data?.residences;

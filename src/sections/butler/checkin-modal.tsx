@@ -34,7 +34,7 @@ const CheckinModal = (props: any) => {
     },
     onSuccess: () => {
       setOpen(false);
-      toast.success('Update success');
+      toast.success('Cập nhật thành công');
       queryClient.invalidateQueries(['butlerBooking'] as any);
     },
     onError: () => {
@@ -66,10 +66,10 @@ const CheckinModal = (props: any) => {
 
   const onSubmit = async () => {
     try {
-      const formData = new FormData();
-      formData.append('booking_id', butler?.id);
-      files.forEach((file) => formData.append('File', file));
-      await checkInUploadFile(formData)
+      // const formData = new FormData();
+      // formData.append('booking_id', butler?.id);
+      // files.forEach((file) => formData.append('File', file));
+      // await checkInUploadFile(formData)
       mutate(butler?.id);
       setFiles([])
     } catch (error) {

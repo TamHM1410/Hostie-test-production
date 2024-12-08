@@ -74,31 +74,27 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
   // Create image previews when files change
   useEffect(() => {
     // Revoke previous previews to free up memory
-    previews.forEach(preview => URL.revokeObjectURL(preview));
-    
+    previews.forEach((preview) => URL.revokeObjectURL(preview));
+
     // Create new previews
-    const newPreviews = files.map(file => URL.createObjectURL(file));
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
     setPreviews(newPreviews);
 
     // Cleanup function to revoke object URLs
     return () => {
-      newPreviews.forEach(preview => URL.revokeObjectURL(preview));
+      newPreviews.forEach((preview) => URL.revokeObjectURL(preview));
     };
   }, [files]);
 
   const onDrop = async (acceptedFiles: File[]) => {
-    const formData = new FormData();
-    formData.append('file', acceptedFiles[0]);
-    formData.append('booking_id', butler.id);
-
     setLoadingFile(true);
     try {
       // Check file type and size
       const maxSize = 5 * 1024 * 1024; // 5MB
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
-      const validFiles = acceptedFiles.filter(file => 
-        allowedTypes.includes(file.type) && file.size <= maxSize
+      const validFiles = acceptedFiles.filter(
+        (file) => allowedTypes.includes(file.type) && file.size <= maxSize
       );
 
       if (validFiles.length === 0) {
@@ -108,7 +104,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       }
 
       // Update files state
-      setFiles(prevFiles => [...prevFiles, ...validFiles]);
+      setFiles((prevFiles) => [...prevFiles, ...validFiles]);
 
       // Commented out API call for file upload
       // const res = await checkInUploadFile(formData);
@@ -127,14 +123,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
     });
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ 
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
-      'image/gif': ['.gif']
+      'image/gif': ['.gif'],
     },
-    maxSize: 5 * 1024 * 1024 // 5MB
+    maxSize: 5 * 1024 * 1024, // 5MB
   });
 
   const {
@@ -157,14 +153,19 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const formData = new FormData();
       if (Array.isArray(data.charges) && data.charges.length > 0) {
-        const payload = {
-          charge: data.charges,
-          booking_id: butler?.id,
-        };
-        await addCharge(payload);
+        formData.append('file', files[0]);
+        formData.append('booking_id', butler?.id);
+        data.charges.forEach((item: any) => {
+          formData.append('charges[]', item);
+        });
+
+        const res = await addCharge(formData);
+        if (res) {
+          mutate(butler?.id);
+        }
       }
-      mutate(butler?.id);
     } catch (error) {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
@@ -242,12 +243,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
                   <Box>
                     <div
                       {...getRootProps()}
-                      style={{ 
-                        border: '2px dashed gray', 
-                        padding: '20px', 
+                      style={{
+                        border: '2px dashed gray',
+                        padding: '20px',
                         marginTop: '20px',
                         textAlign: 'center',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       <input {...getInputProps()} />
@@ -255,22 +256,22 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
                     </div>
 
                     {files.length > 0 && (
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          flexWrap: 'wrap', 
-                          gap: 2, 
-                          mt: 2, 
-                          justifyContent: 'center' 
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 2,
+                          mt: 2,
+                          justifyContent: 'center',
                         }}
                       >
                         {files.map((file, index) => (
-                          <Box 
-                            key={file.name} 
-                            sx={{ 
-                              position: 'relative', 
-                              width: 200, 
-                              height: 250 
+                          <Box
+                            key={file.name}
+                            sx={{
+                              position: 'relative',
+                              width: 200,
+                              height: 250,
                             }}
                           >
                             <Image
