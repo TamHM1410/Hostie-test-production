@@ -24,9 +24,9 @@ const confirm_checkin = async (id: any) => {
   });
   return res;
 };
-const confirm_checkout = async (booking_id: any) => {
+const confirm_checkout = async (id: any) => {
   const res = await goAxiosClient.post(goEndPoint.update_checkout, {
-    booking_id,
+  id,
   });
   return res;
 };
