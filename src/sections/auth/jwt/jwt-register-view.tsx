@@ -86,24 +86,24 @@ export default function JwtRegisterView() {
         .min(3, 'Chỉ được tải lên tối đa 3 ảnh')
         .max(3, 'Chỉ được tải lên tối đa 3 ảnh'),
     })
-    .test(
-      'at-least-one',
-      'Phải có ít nhất một trong referenceCode   hoặc socialUrls',
-      function (value) {
-        // Nếu không có giá trị, coi như không hợp lệ
-        if (!value) return false;
+    // .test(
+    //   'at-least-one',
+    //   'Phải có ít nhất một trong referenceCode   hoặc socialUrls',
+    //   function (value) {
+    //     // Nếu không có giá trị, coi như không hợp lệ
+    //     if (!value) return false;
 
-        const { referenceCode, socialUrls } = value;
+    //     const { referenceCode, socialUrls } = value;
 
-        // Kiểm tra từng điều kiện
-        const hasReferenceCode = referenceCode && referenceCode.trim() !== '';
-        const hasSocialUrls =
-          Array.isArray(socialUrls) &&
-          socialUrls.some((social) => social.url?.trim() || social.social_name?.trim());
+    //     // Kiểm tra từng điều kiện
+    //     const hasReferenceCode = referenceCode && referenceCode.trim() !== '';
+    //     const hasSocialUrls =
+    //       Array.isArray(socialUrls) &&
+    //       socialUrls.some((social) => social.url?.trim() || social.social_name?.trim());
 
-        return hasReferenceCode || hasSocialUrls;
-      }
-    );
+    //     return hasReferenceCode || hasSocialUrls;
+    //   }
+    // )
 
   const defaultValues: any = {
     username: '',
@@ -333,7 +333,7 @@ export default function JwtRegisterView() {
             <Typography variant="body2" color="text.secondary">
               {isDragActive
                 ? 'Thả hình ảnh ở đây'
-                : `Vui lòng cung cấp hình ảnh  để giúp quản trị viên dễ dàng duyệt tài khoản của bạn (${previewImages.length}/3)`}
+                : `Vui lòng cung cấp các hình ảnh liên quan đến chủ nhà hoặc môi giới để đăng tỉ lệ được xét duyệt (${previewImages.length}/3)`}
             </Typography>
           ) : null}
 
