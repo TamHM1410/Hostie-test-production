@@ -243,7 +243,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                     ),
             },
             {
-                accessorKey: 'is_customer_out',
+                accessorKey: 'is_customer_checkout',
                 header: 'Trả nơi lưu trú ',
                 size: 100,
                 Cell: ({ row, cell }: any) =>

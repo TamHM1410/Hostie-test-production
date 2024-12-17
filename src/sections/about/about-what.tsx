@@ -20,8 +20,8 @@ import { MotionViewport, varFade } from 'src/components/animate';
 // ----------------------------------------------------------------------
 
 export const SKILLS = [...Array(3)].map((_, index) => ({
-  label: ['Development', 'Design', 'Marketing'][index],
-  value: [20, 40, 60][index],
+  label: ['Phát triển ứng dụng', 'Thiết kế', 'Marketing'][index],
+  value: [90, 60, 40][index],
 }));
 
 // ----------------------------------------------------------------------
@@ -86,10 +86,9 @@ export default function AboutWhat() {
                 color: theme.palette.mode === 'light' ? 'text.secondary' : 'common.white',
               }}
             >
-              Our theme is the most advanced and user-friendly theme you will find on the market, we
-              have documentation and video to help set your site really easily, pre-installed demos
-              you can import in one click and everything from the theme options to page content can
-              be edited from the front-end. This is the theme you are looking for.
+             Hostie là một startup trẻ trung và đầy nhiệt huyết, được xây dựng bởi đội ngũ tài năng, đam mê, và sáng tạo. 
+             Chúng tôi không ngừng khám phá những ý tưởng mới, vượt qua thử thách, 
+             và nỗ lực mang lại những giải pháp đột phá, tạo giá trị bền vững cho cộng đồng và khách hàng.
             </Typography>
           </m.div>
 

@@ -103,7 +103,7 @@ export default function JwtRegisterView() {
 
     //     return hasReferenceCode || hasSocialUrls;
     //   }
-    // )
+    // );
 
   const defaultValues: any = {
     username: '',
@@ -189,6 +189,7 @@ export default function JwtRegisterView() {
       },
     ]);
   };
+  console.log(methods.formState.errors,'errror');
 
   const handleChange = (event: SelectChangeEvent, index: number) => {
     const newSocialName = event.target.value; // Get the new social name from the event
@@ -206,7 +207,7 @@ export default function JwtRegisterView() {
     try {
       delete data['isChecked'];
       if (data?.referenceCode === '') {
-        delete data['referenceCode  '];
+        delete data['referenceCode'];
       }
       if (Array.isArray(data?.socialUrls) && data?.socialUrls.length === 0) {
         delete data['socialUrls'];
@@ -234,15 +235,16 @@ export default function JwtRegisterView() {
 
       // Append profile images
 
-      setIsChecked(false);
-
-      // console.log(formData,'form data')
-
       const res = await registerApi(formData);
+
       if (res) {
         toast.success('Đăng ký thành công');
         router.push('/auth/jwt/login');
+
+        setIsChecked(false);
       }
+
+      // console.log(formData,'form data')
     } catch (error) {
       toast.error(error);
     }
@@ -271,17 +273,13 @@ export default function JwtRegisterView() {
         textAlign: 'center',
       }}
     >
-      {'The hostie since 2024'}
-     
-
-      .
+      {'The hostie since 2024'}.
     </Typography>
   );
 
   const renderForm = (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={2.5}>
-       
         <RHFTextField name="email" label="Địa chỉ email* " />
         <RHFTextField name="username" label="Tên đăng nhập*" />
         <RHFTextField name="referenceCode " label="Mã giới thiệu " />
@@ -316,7 +314,7 @@ export default function JwtRegisterView() {
           }}
         />
 
-<Box
+        <Box
           {...getRootProps()}
           sx={{
             border: '2px dashed grey',

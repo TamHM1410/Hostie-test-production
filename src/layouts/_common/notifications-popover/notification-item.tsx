@@ -32,7 +32,7 @@ function getVietnameseText(eventCode: any): any {
     case 'HOST_RECEIVED':
       return 'Chủ nơi lưu trú đã nhận được tiền đơn của bạn đã hoàn tất';
     case 'HOST_DONT_RECEIVED':
-      return 'Chủ nơi lưu trú đã nhận được tiền đơn của bạn đã hoàn tất';
+      return 'Chủ nơi lưu trú chưa nhận được tiền của bạn.';
     case 'HOLD_CREATED':
       return 'Bạn có đơn giữ nơi lưu trú mới';
     case 'HOST_ACCEPTED_HOLD':
@@ -183,7 +183,16 @@ export default function NotificationItem({ notification }: NotificationItemProps
     </Stack>
   );
 
-
+  //  case 'BOOKING_UPDATED':
+  //   return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : friendAction;
+  //       case 'HOLD_CREATED':
+  //   return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : acceptOrCancelHold;
+  //       case 'HOST_ACCEPTED_BOOKING':
+  //   return notification.entity_details.is_seller_transfer === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : paymentAction;
+  //       case 'SELLER_TRANSFERRED':
+  //   return notification.entity_details.is_host_receive === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : confirm;
+  //       case 'HOST_ACCEPTED_HOLD':
+  //   return bookNow;
 
   const renderAction = () => {
     switch (notification.event_code) {
@@ -195,15 +204,15 @@ export default function NotificationItem({ notification }: NotificationItemProps
         return `Đơn của bạn đã bị từ chối với lí do : ${notification?.entity_details?.reason_reject}`;
       case 'BOOKING_CREATED':
       case 'BOOKING_UPDATED':
-        return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : friendAction;
+        return <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography>
       case 'HOLD_CREATED':
-        return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : acceptOrCancelHold;
+        return <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography>
       case 'HOST_ACCEPTED_BOOKING':
-        return notification.entity_details.is_seller_transfer === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : paymentAction;
+        return <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography>
       case 'SELLER_TRANSFERRED':
-        return notification.entity_details.is_host_receive === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : confirm;
+        return <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography>
       case 'HOST_ACCEPTED_HOLD':
-        return bookNow;
+        return <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography>;
       default:
         return null;
     }

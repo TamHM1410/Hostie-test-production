@@ -22,9 +22,9 @@ export const navConfig = [
   },
   
   {
-    title: 'Câu hỏi thường gặp',
+    title: 'Về chúng tôi',
     icon: <Iconify icon="solar:notebook-bold-duotone" />,
-    path: paths.faqs,
+    path: paths.about,
   },
 ];
 

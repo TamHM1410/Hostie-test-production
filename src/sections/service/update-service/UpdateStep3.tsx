@@ -6,39 +6,35 @@ import {
     Paper,
     Divider,
     DialogActions,
-    Snackbar,
     IconButton,
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import DeleteIcon from '@mui/icons-material/Delete';
+import toast from 'react-hot-toast';
 
 interface PolicyProps {
     onSave: (files: File[]) => void;
-    dataFiles: any
+    dataFiles: any;
+    setDeletePolicy: (deletedIds: string[]) => void;
 }
 
-const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([dataFiles]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles, setDeletePolicy }) => {
+    const [uploadedFiles, setUploadedFiles] = useState<any>(dataFiles || []);
 
     // Handle file drop
-    const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-        // Nếu người dùng tải lên nhiều hơn 1 file
+    const onDrop = (acceptedFiles: File[], fileRejections: any[]) => {
         if (uploadedFiles.length + acceptedFiles.length > 1) {
-            setErrorSnackbarOpen(true); // Hiển thị thông báo lỗi
+            toast.error('Chỉ được tải lên một hình ảnh!');
             return;
         }
 
-        // Nếu có tệp không hợp lệ
         if (fileRejections.length > 0) {
-            setErrorSnackbarOpen(true); // Hiển thị thông báo lỗi
+            toast.error('Tệp không hợp lệ. Vui lòng tải lên tệp có định dạng .jpg, .jpeg, hoặc .png!');
             return;
         }
 
-        // Thêm tệp hợp lệ vào danh sách
         setUploadedFiles([...uploadedFiles, ...acceptedFiles]);
-        setSnackbarOpen(true); // Hiển thị thông báo thành công
+        toast.success('Tải lên thành công!');
     };
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -47,21 +43,27 @@ const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
             'image/jpeg': ['.jpg', '.jpeg'],
             'image/png': ['.png'],
             'image/gif': ['.gif'],
-        }, // Chỉ chấp nhận các loại hình ảnh được liệt kê
+        },
     });
 
     // Handle delete file
-    const handleDeleteFile = () => {
-        setUploadedFiles([]); // Xóa tất cả tệp đã tải
+    const handleDeleteFile = (fileId: string) => {
+        setUploadedFiles(uploadedFiles?.filter((file: any) => file.id !== fileId));
+        setDeletePolicy(fileId);
+        toast.success('Đã xóa tệp!');
     };
 
     // Handle save
     const handleSave = () => {
         onSave(uploadedFiles);
+        toast.success('Đã cập nhật thành công!');
     };
 
     return (
         <Box>
+            {/* Toast container for displaying notifications */}
+
+
             <Typography variant="body2" color="textSecondary">
                 *Chỉ chấp nhận tải lên một hình ảnh.
             </Typography>
@@ -83,8 +85,7 @@ const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
                     (Chỉ chấp nhận một hình ảnh)
                 </Typography>
             </Box>
-
-            {uploadedFiles.length > 0 && (
+            {uploadedFiles?.length > 0 && (
                 <Box mt={2}>
                     <Typography variant="subtitle1">Ảnh đã tải lên:</Typography>
                     <Box
@@ -97,13 +98,15 @@ const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
                             position: 'relative',
                         }}
                     >
-                        {uploadedFiles.map((file, index) => {
-
-                            const fileUrl = file instanceof File ? URL.createObjectURL(file) : file
+                        {(() => {
+                            const firstFile = uploadedFiles[0];
+                            const fileUrl =
+                                firstFile instanceof File
+                                    ? URL.createObjectURL(firstFile)
+                                    : firstFile?.file_url;
 
                             return (
                                 <Paper
-                                    key={index}
                                     sx={{
                                         padding: 1,
                                         border: '1px solid #ddd',
@@ -115,11 +118,16 @@ const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
                                 >
                                     <img
                                         src={fileUrl}
-                                        alt={`${index}`}
-                                        style={{ maxWidth: '100%', maxHeight: 150, objectFit: 'cover', borderRadius: 8 }}
+                                        alt="Uploaded"
+                                        style={{
+                                            maxWidth: '100%',
+                                            maxHeight: 150,
+                                            objectFit: 'cover',
+                                            borderRadius: 8,
+                                        }}
                                     />
                                     <IconButton
-                                        onClick={handleDeleteFile}
+                                        onClick={() => handleDeleteFile(firstFile.id)} // Pass the file ID
                                         size="small"
                                         sx={{
                                             position: 'absolute',
@@ -132,39 +140,18 @@ const UpdatePolicy: React.FC<PolicyProps> = ({ onSave, dataFiles }) => {
                                     </IconButton>
                                 </Paper>
                             );
-                        })}
+                        })()}
                     </Box>
                 </Box>
-
             )}
 
-
-
-            <Snackbar
-                open={errorSnackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setErrorSnackbarOpen(false)}
-                message="Chỉ được tải lên một hình ảnh!"
-            />
-            <Snackbar
-                open={errorSnackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setErrorSnackbarOpen(false)}
-                message={
-                    uploadedFiles.length >= 1
-                        ? "Chỉ được tải lên một hình ảnh!"
-                        : "Tệp không hợp lệ. Vui lòng tải lên tệp có định dạng .jpg, .jpeg, hoặc .png!"
-                }
-            />
-
             <Divider sx={{ marginTop: 3 }} />
-            <DialogActions >
-
+            <DialogActions>
                 <Button
                     onClick={handleSave}
                     variant="contained"
                     color="primary"
-                    disabled={uploadedFiles.length === 0}
+                    disabled={uploadedFiles?.length === 0}
                 >
                     Cập nhật
                 </Button>

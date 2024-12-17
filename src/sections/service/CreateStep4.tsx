@@ -1,55 +1,59 @@
 import React from 'react';
-import { Box, Typography, Snackbar, Paper, Divider, DialogActions, Button, IconButton } from '@mui/material';
+import { Box, Typography, Paper, Divider, DialogActions, Button, IconButton } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import DeleteIcon from '@mui/icons-material/Delete';
+import toast from 'react-hot-toast';
+
 
 interface Step4Props {
     images: File[];
     setImages: (files: File[]) => void;
-    snackbarOpen: boolean;
-    setSnackbarOpen: (open: boolean) => void;
-    previousStep: () => void; // Function to go back to the previous step
+    previousStep: () => void;
     currentStep: number;
-    onSubmit: () => void; // Updated onSubmit type
+    onSubmit: () => void;
 }
 
 export default function Step4({
     images,
     setImages,
-    snackbarOpen,
-    setSnackbarOpen,
     previousStep,
     currentStep,
     onSubmit,
 }: Step4Props) {
-    // Define minimum and maximum upload limits
     const minImages = 6;
-    const maxImages = 12;
+    const maxTotalSizeMB = 50;
 
-    // Function to handle file drop
+    // Calculate the total size of uploaded images
+    const totalSizeMB = images.reduce((sum, file) => sum + file.size / (1024 * 1024), 0);
+
     const onDrop = (acceptedFiles: File[]) => {
-        if (images.length + acceptedFiles.length <= maxImages) {
-            setImages([...images, ...acceptedFiles]);
-            setSnackbarOpen(true); // Show snackbar for success
+        const newFilesSizeMB = acceptedFiles.reduce((sum, file) => sum + file.size / (1024 * 1024), 0);
+        if (totalSizeMB + newFilesSizeMB > maxTotalSizeMB) {
+            toast.error('Tổng dung lượng vượt quá 50 MB!', { position: 'top-right' });
         } else {
-            setSnackbarOpen(true); // Show snackbar for exceeding limit
+            setImages([...images, ...acceptedFiles]);
+            toast.success('Hình ảnh đã được tải lên!', { position: 'top-right' });
         }
     };
+
     const handleDeleteImage = (indexToDelete: number) => {
         const updatedImages = images.filter((_, index) => index !== indexToDelete);
-        setImages(updatedImages); // Cập nhật danh sách hình ảnh
+        setImages(updatedImages);
+
     };
+
     const { getRootProps: dropzoneProps, getInputProps: inputProps } = useDropzone({
         onDrop,
         accept: 'image/*' as any,
-        maxFiles: maxImages - images.length,
     });
 
     return (
         <Box>
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>Thêm hình ảnh cho nơi lưu trú</Typography>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Thêm hình ảnh cho nơi lưu trú
+            </Typography>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload tối thiểu 6 hình ảnh.
+                *Yêu cầu upload tối thiểu 6 hình ảnh và tổng dung lượng không vượt quá 50 MB.
             </Typography>
             <Box
                 {...dropzoneProps()}
@@ -60,26 +64,23 @@ export default function Step4({
                     textAlign: 'center',
                     cursor: 'pointer',
                     marginTop: 2,
-                    backgroundColor: images.length >= maxImages ? '#f0f0f0' : 'transparent',
                 }}
             >
                 <input {...inputProps()} />
-                <Typography variant="body1">
-                    Kéo và thả hình ảnh ở đây, hoặc nhấn để chọn tập tin
-                </Typography>
+                <Typography variant="body1">Kéo và thả hình ảnh ở đây, hoặc nhấn để chọn tập tin</Typography>
                 <Typography variant="body2" color="textSecondary">
                     (Chỉ chấp nhận hình ảnh)
                 </Typography>
-                {images.length >= maxImages && (
+                {totalSizeMB > maxTotalSizeMB && (
                     <Typography variant="body2" color="error">
-                        Đã đạt giới hạn tải lên hình ảnh!
+                        Tổng dung lượng vượt quá 50 MB!
                     </Typography>
                 )}
             </Box>
             <Box mt={2}>
                 <Typography variant="subtitle1">Hình ảnh đã được tải lên:</Typography>
                 <Box display="flex" flexWrap="wrap" gap={1}>
-                    {images.map((file, index) => (
+                    {images?.map((file, index) => (
                         <Paper
                             key={index}
                             sx={{
@@ -113,16 +114,7 @@ export default function Step4({
                 </Box>
             </Box>
 
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
-                message={
-                    images.length < maxImages
-                        ? "Hình ảnh đã được tải lên!"
-                        : "Đã đạt giới hạn tải lên hình ảnh!"
-                }
-            />
+
             <Divider sx={{ marginTop: 3 }} />
             <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Button onClick={previousStep} disabled={currentStep === 0}>
@@ -132,7 +124,7 @@ export default function Step4({
                     onClick={onSubmit}
                     variant="contained"
                     color="primary"
-                    disabled={images.length < minImages} // Disable button if less than 6 images
+                    disabled={images?.length < minImages || totalSizeMB > maxTotalSizeMB}
                 >
                     Hoàn tất
                 </Button>

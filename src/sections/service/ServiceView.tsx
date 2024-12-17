@@ -88,6 +88,7 @@ export default function ServiceView() {
     const [currentStep, setCurrentStep] = React.useState(0);
     // Dialog handlers
     const handleOpen = () => setOpen(true);
+
     const handleClose = () => {
         setOpen(false);
         setCurrentStep(0);
@@ -322,6 +323,7 @@ export default function ServiceView() {
                         currentStep={currentStep}
                         previousStep={previousStep}
                     />
+
                 );
 
             case 2:

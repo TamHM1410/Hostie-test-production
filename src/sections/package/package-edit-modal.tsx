@@ -111,8 +111,9 @@ const EditPackage = (props: any) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 800,
-            height: 550,
+            width: 'auto',
+            height: 'auto',
+            minWidth:{xs:300, md:500,lg:800},
             bgcolor: 'background.paper',
             borderRadius:2,
             boxShadow: 24,
@@ -162,7 +163,7 @@ const EditPackage = (props: any) => {
                     Hủy
                   </Button>
                   <LoadingButton variant="contained" type="submit" loading={isSubmitting}>
-                    Lưu & Thay đổi
+                    Lưu 
                   </LoadingButton>
                 </Stack>
               </Card>

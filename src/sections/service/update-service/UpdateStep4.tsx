@@ -83,6 +83,34 @@ interface Step3Props {
 }
 
 export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
+
+
+
+    const defaultValues: FormData = {
+        default_price: 1000,
+        weekend_price: [{ weeknd_day: 6, price: 100 }],
+        season_price: [
+            {
+                start_date: new Date(2024, 10, 20),
+                end_date: new Date(2024, 10, 21),
+                price: 100,
+                description: 'Ngày Lễ 20/11',
+            },
+        ],
+    };
+
+    // Chuẩn bị giá trị khởi tạo dựa trên dataPrices hoặc defaultValues
+    const initialValues =
+    {
+        ...dataPrices,
+        season_price: dataPrices?.season_price?.map((entry) => ({
+            ...entry,
+            start_date: entry.start_date ? new Date(entry.start_date) : null,
+            end_date: entry.end_date ? new Date(entry.end_date) : null,
+        })),
+    }
+
+
     const {
         control,
         register,
@@ -92,41 +120,30 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
         formState: { errors },
     } = useForm<FormData>({
         resolver: yupResolver(validationSchema),
-        defaultValues: {
-            default_price: 1000,
-            weekend_price: [{ weeknd_day: 6, price: 100 }],
-            season_price: [
-                {
-                    start_date: new Date(2024, 10, 20),
-                    end_date: new Date(2024, 10, 21),
-                    price: 100,
-                    description: 'Ngày Lễ 20/11',
-                },
-            ],
-        },
+        defaultValues: dataPrices.default_price === 0 ? defaultValues : initialValues
     });
 
     const weekend_price = watch('weekend_price');
     const season_price = watch('season_price');
-    const selectedWeekends = new Set(weekend_price.map((entry) => entry.weeknd_day));
+    const selectedWeekends = new Set(weekend_price?.map((entry) => entry.weeknd_day));
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (dataPrices) {
+    //     if (dataPrices) {
 
-            const formattedData: FormData = {
-                ...dataPrices,
-                season_price: dataPrices?.season_price.map((entry) => ({
-                    ...entry,
-                    start_date: entry.start_date ? new Date(entry.start_date) : null,
-                    end_date: entry.end_date ? new Date(entry.end_date) : null,
-                })),
-            };
-            Object.entries(formattedData).forEach(([key, value]) =>
-                setValue(key as keyof FormData, value)
-            );
-        }
-    }, [setValue]);
+    //         const formattedData: FormData = {
+    //             ...dataPrices,
+    //             season_price: dataPrices?.season_price?.map((entry) => ({
+    //                 ...entry,
+    //                 start_date: entry.start_date ? new Date(entry.start_date) : null,
+    //                 end_date: entry.end_date ? new Date(entry.end_date) : null,
+    //             })),
+    //         };
+    //         Object.entries(formattedData).forEach(([key, value]) =>
+    //             setValue(key as keyof FormData, value)
+    //         );
+    //     }
+    // }, [setValue]);
 
     const handleFormSubmit = (data: FormData) => {
         localStorage.setItem('step3Data', JSON.stringify(data));
@@ -134,7 +151,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
     };
 
     const addWeekendEntry = () => {
-        if (weekend_price.length < 2) {
+        if (weekend_price?.length < 2) {
             setValue('weekend_price', [...weekend_price, { weeknd_day: 0, price: 0 }]);
         }
     };
@@ -147,7 +164,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
     };
 
     const addSeasonEntry = () => {
-        if (season_price.length < 5) {
+        if (season_price?.length < 5) {
             setValue('season_price', [
                 ...season_price,
                 { start_date: null, end_date: null, price: 0, description: '' },
@@ -189,7 +206,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
             <Typography variant="h6" gutterBottom>
                 Giá cuối tuần
             </Typography>
-            {weekend_price.map((entry, index) => (
+            {weekend_price?.map((entry, index) => (
                 <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <FormControl fullWidth>
                         <InputLabel>Ngày cuối tuần</InputLabel>
@@ -236,7 +253,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
             <Typography variant="h6" gutterBottom>
                 Giá theo mùa
             </Typography>
-            {season_price.map((entry, index) => (
+            {season_price?.map((entry, index) => (
                 <Box
                     key={index}
                     sx={{

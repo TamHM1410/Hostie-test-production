@@ -15,7 +15,7 @@ import FaqsCategory from '../faqs-category';
 export default function FaqsView() {
   return (
     <>
-      <FaqsHero />
+      {/* <FaqsHero /> */}
 
       <Container
         sx={{

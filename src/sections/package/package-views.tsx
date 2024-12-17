@@ -10,7 +10,7 @@ import { getAllRolesApi } from 'src/api/users';
 import { useSession } from 'next-auth/react';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
+import { LoadingScreen} from 'src/components/loading-screen';
 import PackageTable from './package-table';
 import { findAllPackage } from 'src/api/pagekages';
 import AddNewPackage from './package-addnew-modal';
@@ -26,7 +26,7 @@ export default function PackageView() {
   if (isLoading) {
     return (
       <>
-        <SplashScreen />
+        <LoadingScreen/>
       </>
     );
   }

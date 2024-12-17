@@ -10,7 +10,7 @@ import {getAllRolesApi} from 'src/api/users';
 import { useSession } from 'next-auth/react';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
+import { SplashScreen ,LoadingScreen} from 'src/components/loading-screen';
 import AmenityTable from './amenity-table';
 import { finAllAmenity } from 'src/api/amenity';
 import AddNewModal from './add-new-modal';
@@ -20,12 +20,13 @@ export default function AmenityView() {
     queryKey: ['amenityList'],
 
     queryFn: () =>  finAllAmenity(),
+    
   });
 
   if (isLoading) {
     return (
       <>
-        <SplashScreen />
+        <LoadingScreen/>
       </>
     );
   }

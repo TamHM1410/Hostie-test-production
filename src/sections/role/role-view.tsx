@@ -9,7 +9,7 @@ import { Box } from '@mui/material';
 
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
+import { SplashScreen ,LoadingScreen} from 'src/components/loading-screen';
 import { getAllRolesApi } from 'src/api/users';
 
 import RoleTable from './role-table';
@@ -25,7 +25,7 @@ export default function RoleView() {
   });
 
   if (isLoading) {
-    return <SplashScreen />;
+    return <LoadingScreen />;
   }
 
   return (

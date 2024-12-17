@@ -91,8 +91,10 @@ const AddNewPAac = (props: any) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 800,
-            height: 430,
+            width: 'auto',
+            height: 'auto',
+            minWidth:{xs:300, md:500,lg:800},
+
             bgcolor: 'background.paper',
             borderRadius:2,
             boxShadow: 24,

@@ -28,7 +28,6 @@ const getUserInfor = async (): Promise<UserInfoResponse | any> => {
   return await axiosClient.get(endPoint.user.info);
 };
 
-
 const updateUserById = async (payload: UserInfor): Promise<UserInfoResponse> => {
   return await axiosClient.put(endPoint.user.update, payload);
 };
@@ -99,8 +98,6 @@ const updatedRoleApi = async ({
 export {
   confirmVerifyEmail,
   getUserRole,
- 
-
   registerApi,
   loginApi,
   refreshToken,

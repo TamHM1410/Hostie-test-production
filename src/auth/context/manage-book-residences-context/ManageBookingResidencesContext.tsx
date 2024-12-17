@@ -44,8 +44,11 @@ interface BookingContextType {
     cancelBooking: (holdId: number, checkin: string, checkout: string, rejectionReason: string) => Promise<void>;
     confirmReceiveMoney: (holdId: number, checkin: string, checkout: string) => Promise<void>;
     fetchBookingLogs: (id: any) => void;
+    confirmNotReceiveMoney: (holdId: number, checkin: string, checkout: string) => Promise<void>
     logs: any;
     bankList: any;
+    fetchPriceQuotation: (checkin: string, checkout: string, id: number, booking_id?: any) => void;
+    priceQuotation: any
 }
 
 // Create the context with a default value
@@ -77,6 +80,8 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
     const ROWS_PER_PAGE = 9999;
     const { data: session } = useSession()
     const [logs, setLogs] = useState()
+
+    const [priceQuotation, setPriceQuotation] = useState()
     // Function to fetch booking data
     const fetchData = async () => {
         setIsLoading(true);
@@ -110,7 +115,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             setIsLoading(false);
         }
     };
-
     const fetchBookingLogs = async (id: any) => {
         setIsLoading(true);
         try {
@@ -125,8 +129,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             setIsLoading(false);
         }
     };
-
-
     // Function Confirm booking
     const confirmBooking = async (
         holdId: number,
@@ -195,6 +197,54 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             setIsLoading(false);
         }
     };
+    const confirmNotReceiveMoney = async (holdId: number, checkin: string, checkout: string) => {
+        try {
+            setIsLoading(true);
+            await axiosClient.post(`${baseURl}/booking/receive`, {
+                id: holdId,
+                is_received: false,
+                checkin,
+                checkout,
+            });
+            toast.success('Xác nhận chưa nhận tiền thành công');
+
+            fetchData();
+        } catch (error) {
+            console.error('Error canceling hold:', error);
+            toast.error('Xác nhận chưa nhận tiền thất bại, vui lòng thử lại.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchPriceQuotation = async (checkin: string, checkout: string, id: number, booking_id?: any) => {
+        setIsLoading(true);
+
+
+        try {
+            const response = await axiosClient.post(
+                `${baseURl}/booking/price_quotation`,
+                {
+                    residence_ids: [parseInt(id)],
+                    checkin,
+                    checkout,
+                    for_host: true,
+                    booking_id
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error('Unable to fetch price quotation');
+            }
+            const newData = response.data?.data?.find((d: any) => d.residence_id === id)
+            setPriceQuotation(newData);
+        } catch (err: any) {
+            console.log(err);
+
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Fetch data when page changes
     useEffect(() => {
@@ -215,9 +265,12 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             confirmReceiveMoney,
             bankList,
             fetchBookingLogs,
-            logs
+            logs,
+            confirmNotReceiveMoney
+            , priceQuotation,
+            fetchPriceQuotation
         }),
-        [rows, totalRecords, page, isLoading, bankList, logs]
+        [rows, totalRecords, page, isLoading, bankList, logs, priceQuotation]
     );
 
     return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

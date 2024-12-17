@@ -27,7 +27,7 @@ export default function HomeForDesigner() {
     <Box sx={{ textAlign: { xs: 'center', md: 'unset' }, mt: { xs: 10, md: 20 } }}>
       <m.div variants={varFade().inUp}>
         <Typography component="div" variant="overline" sx={{ color: 'text.disabled' }}>
-        Dành riêng cho Host  và Seller 
+        Dễ dàng đăng ký
         </Typography>
       </m.div>
 
@@ -42,7 +42,7 @@ export default function HomeForDesigner() {
             ),
           }}
         >
-         Dành riêng cho Host  và Seller 
+         Dành riêng cho chủ nhà  và người bán
         </Typography>
       </m.div>
 
@@ -56,7 +56,7 @@ export default function HomeForDesigner() {
           rel="noopener"
           href={'http://localhost:8081/pricing/'}
         >
-           Bắt đầu ngay
+          Khám phá ngay
         </Button>
       </m.div>
     </Box>

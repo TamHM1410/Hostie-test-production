@@ -26,6 +26,7 @@ import { useSession } from 'next-auth/react';
 import HoldingFormDialog from './HoldingForm';
 import BookingFormDialog from './BookingDialogForm';
 import { formattedAmount } from 'src/utils/format-time';
+import toast from 'react-hot-toast';
 
 
 
@@ -145,12 +146,33 @@ const BookingDashboard = ({ selectedMonth, year, setSelectedMonth, setYears }: {
     }, [selectedMonth, year]);
 
     const handleCellClick = (
+
         villaName: string,
         day: number,
         residence_id: string,
-        event: React.MouseEvent<HTMLTableCellElement>
+        event: React.MouseEvent<HTMLTableCellElement>,
+        disable?: boolean, holdStatus?: number, isBook?: boolean,
     ) => {
         event.preventDefault(); // Prevent default right-click menu on right-click
+        if (disable === true) {
+            // Case 1: Cell is disabled
+            toast.error('Ngày này đã bị khóa nên không thể đặt được')
+            return;
+        }
+
+        if (holdStatus === 1) {
+            // Case 2: Cell is in hold status
+            toast.error("Ngày này đã được giữ vui lòng chọn ngày khác");
+            // Add hold status logic here
+            return;
+        }
+
+        if (isBook === true) {
+            // Case 3: Cell is already booked
+            toast.error("Căn này đã được đặt vui lòng chọn ngày khác");
+            // Add booking logic here
+            return;
+        }
 
         if (event.button === 0) {
             // Left-click (Select/Extend Selection)
@@ -347,13 +369,15 @@ const BookingDashboard = ({ selectedMonth, year, setSelectedMonth, setYears }: {
                                     // Determine if the cell should have a light blue background
                                     const isBooked = bookingInfo && bookingInfo.is_booked === true;
 
+
+
                                     return (
                                         <td
                                             key={day.day}
                                             className={`day-cell clickable ${isHostAccepted ? 'host-accepted' : ''} ${isBooked ? 'booked' : ''
                                                 }`}
                                             style={{ backgroundColor: bookingInfo?.background_color || 'inherit' }}
-                                            onClick={(e) => handleCellClick(villa.name, day.day, villa.id, e)}
+                                            onClick={(e) => handleCellClick(villa.name, day.day, villa.id, e, bookingInfo.disabled, bookingInfo.hold_status, bookingInfo.is_booked)}
                                             onContextMenu={(e) => handleCellClick(villa.name, day.day, villa.id, e)}
                                         >
                                             {isCellSelected(villa.name, day.day) && (

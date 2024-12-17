@@ -95,16 +95,15 @@ interface HoldData {
 
 const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) => {
     const [openDialog, setOpenDialog] = React.useState(false);
-    const [actionType, setActionType] = React.useState<'accept' | 'cancel' | 'confirmPayment'>(
+    const [actionType, setActionType] = React.useState<'accept' | 'cancel' | 'confirmPayment' | 'notPayment'>(
         'accept'
     );
     const [selectedRowId, setSelectedRowId] = React.useState<number | null>(null);
-    const { confirmBooking, cancelBooking, confirmReceiveMoney, bankList, fetchBookingLogs, logs } =
+    const { confirmBooking, cancelBooking, confirmReceiveMoney, bankList, fetchBookingLogs, logs, confirmNotReceiveMoney, fetchPriceQuotation, priceQuotation } =
         useManageBookingResidencesContext();
 
 
-    const { fetchPriceQuotation,
-        priceQuotation } = useBooking();
+
     const { detail, fetchDataDetail } = useBookingListContext();
     const [openSidebar, setOpenSidebar] = React.useState(false);
     const [isEdit, setIsEdit] = React.useState(false);
@@ -120,7 +119,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         setOpenSidebar(true);
         setIsEdit(false);
     };
-    const handleActionClick = async (type: 'accept' | 'cancel' | 'confirmPayment', rowId: number) => {
+    const handleActionClick = async (type: 'accept' | 'cancel' | 'confirmPayment' | 'notPayment', rowId: number) => {
         setActionType(type);
         setSelectedRowId(rowId);
 
@@ -128,7 +127,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         if (!row) return;
 
         if (type === 'accept') {
-            await fetchPriceQuotation(row.checkin, row.checkout, row.residence_id); // Fetch giá trị commission trước
+            await fetchPriceQuotation(row.checkin, row.checkout, row.residence_id, row.id); // Fetch giá trị commission trước
         }
 
         setOpenDialog(true); // Mở form sau khi fetch xong
@@ -167,6 +166,8 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
             await cancelBooking(row.id, formattedCheckin, formattedCheckout, values?.rejectionReason);
         } else if (actionType === 'confirmPayment') {
             await confirmReceiveMoney(row.id, formattedCheckin, formattedCheckout);
+        } else if (actionType === 'notPayment') {
+            await confirmNotReceiveMoney(row.id, formattedCheckin, formattedCheckout);
         }
         setOpenDialog(false);
     };
@@ -222,7 +223,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                 ),
         },
         {
-            accessorKey: 'is_customer_out',
+            accessorKey: 'is_customer_checkout',
             header: 'Trả nơi lưu trú ',
             size: 100,
             Cell: ({ row, cell }: any) =>
@@ -313,6 +314,14 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                                             onClick={() => handleActionClick('confirmPayment', row.original.id)}
                                         >
                                             <CheckCircleIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Xác nhận chưa  nhận tiền">
+                                        <IconButton
+                                            color="error"
+                                            onClick={() => handleActionClick('notPayment', row.original.id)}
+                                        >
+                                            <CancelIcon />
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title="Xem chi tiết ">
@@ -461,6 +470,14 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                         </Formik>
                     )}
                     {actionType === 'confirmPayment' && (
+                        <DialogActions>
+                            <Button onClick={handleDialogClose} color='primary'>Hủy</Button>
+                            <Button onClick={() => handleConfirmAction()} color="success" autoFocus>
+                                Xác Nhận
+                            </Button>
+                        </DialogActions>
+                    )}
+                    {actionType === 'notPayment' && (
                         <DialogActions>
                             <Button onClick={handleDialogClose} color='primary'>Hủy</Button>
                             <Button onClick={() => handleConfirmAction()} color="success" autoFocus>

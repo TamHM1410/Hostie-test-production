@@ -42,8 +42,7 @@ export default function AboutTeam() {
     <Container component={MotionViewport} sx={{ textAlign: 'center', py: { xs: 10, md: 15 } }}>
       <m.div variants={varFade().inDown}>
         <Typography variant="overline" sx={{ color: 'text.disabled' }}>
-          Dream team
-        </Typography>
+        Đội ngũ chung tôi        </Typography>
       </m.div>
 
       <m.div variants={varFade().inUp}>
@@ -61,7 +60,7 @@ export default function AboutTeam() {
           }}
         > 
          Hosite cung cấp cho bạn các giải pháp  quản lí căn hộ hiệu quả nhất
-         ,với đội ngũ có nhiều năm kinh nghiệm luôn sẵn sàng hỗ trợ bạn mọi lúc.
+         ,với đội ngũ đầy nhiệt huyết luôn sẵn sàng hỗ trợ bạn mọi lúc.
         
         </Typography>
       </m.div>
@@ -103,15 +102,7 @@ export default function AboutTeam() {
         </CarouselArrows>
       </Box>
 
-      <Button
-        size="large"
-        color="inherit"
-        variant="outlined"
-        endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={24} />}
-        sx={{ mx: 'auto' }}
-      >
-        All Members
-      </Button>
+    
     </Container>
   );
 }
@@ -143,19 +134,7 @@ function MemberCard({ member }: MemberCardProps) {
       </Box>
 
       <Stack direction="row" alignItems="center" justifyContent="center" sx={{ p: 2 }}>
-        {_socials.map((social) => (
-          <IconButton
-            key={social.name}
-            sx={{
-              color: social.color,
-              '&:hover': {
-                bgcolor: alpha(social.color, 0.08),
-              },
-            }}
-          >
-            <Iconify icon={social.icon} />
-          </IconButton>
-        ))}
+       
       </Stack>
     </Card>
   );

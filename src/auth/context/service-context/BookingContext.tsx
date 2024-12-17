@@ -266,11 +266,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const response = await axiosClient.post(
                 `${API_BASE_URL}/booking/price_quotation`,
                 {
-                    for_host: true,
                     residence_ids: [parseInt(id)],
                     checkin,
                     checkout,
-                    guest_count
                 }
             );
 
@@ -353,8 +351,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 // Additional logic can be added here if needed
             } catch (error) {
-                if (error.error_code) {
-                    const errorCode = error.error_code;
+                if (error?.error_code) {
+                    const errorCode = error?.error_code;
 
                     switch (errorCode) {
                         case "OVERLAP_BLOCK_RESIDENCE":
@@ -406,8 +404,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             } catch (error) {
                 console.error('Error:', error);
 
-                if (error.error_code) {
-                    const errorCode = error.error_code;
+                if (error?.error_code) {
+                    const errorCode = error?.error_code;
 
                     switch (errorCode) {
                         case "OVERLAP_BLOCK_RESIDENCE":

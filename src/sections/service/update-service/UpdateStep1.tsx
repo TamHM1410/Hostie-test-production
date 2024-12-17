@@ -162,7 +162,7 @@ export default function UpdateStep1({ onSubmit, initialValues }: Step1Props) {
                     </MenuItem>
                     {provinces.map((option) => (
                         <MenuItem key={option.code} value={option.code}>
-                            {option.name}
+                            {option.full_name}
                         </MenuItem>
                     ))}
                 </TextField>
@@ -185,7 +185,7 @@ export default function UpdateStep1({ onSubmit, initialValues }: Step1Props) {
                     </MenuItem>
                     {districts.map((option) => (
                         <MenuItem key={option.code} value={option.code}>
-                            {option.name}
+                            {option.full_name}
                         </MenuItem>
                     ))}
                 </TextField>
@@ -208,7 +208,7 @@ export default function UpdateStep1({ onSubmit, initialValues }: Step1Props) {
                     </MenuItem>
                     {wards.map((option) => (
                         <MenuItem key={option.code} value={option.code}>
-                            {option.name}
+                            {option.full_name}
                         </MenuItem>
                     ))}
                 </TextField>

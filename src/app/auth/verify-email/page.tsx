@@ -1,4 +1,5 @@
 // sections
+'use client'
 import { ModernNewPasswordView ,ModernNewVerifyEmail} from 'src/sections/auth-demo/modern';
 
 // ----------------------------------------------------------------------

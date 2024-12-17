@@ -79,7 +79,6 @@ export default function ButlerView() {
     setCurrentTab(newValue);
   }, []);
 
-  console.log(result.data,'res')
 
 
   const handleAddResidence = async () => {

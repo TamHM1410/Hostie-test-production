@@ -4,7 +4,7 @@ import { AboutView } from 'src/sections/about/view';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'About us',
+  title: 'Về chúng tôi',
 };
 
 export default function AboutPage() {

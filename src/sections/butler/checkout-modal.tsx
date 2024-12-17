@@ -162,10 +162,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
         });
 
         const res = await addCharge(formData);
-       
       }
-       mutate(butler?.id);
-
+      mutate(butler?.id);
     } catch (error) {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }

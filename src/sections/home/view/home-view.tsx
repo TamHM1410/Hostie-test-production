@@ -1,5 +1,8 @@
 'use client';
 
+import dynamic from 'next/dynamic'
+
+
 import { useScroll } from 'framer-motion';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -11,16 +14,20 @@ import ScrollProgress from 'src/components/scroll-progress';
 //
 import PricingView from 'src/sections/pricing/view';
 
-import HomeHero from '../home-hero';
 import HomeMinimal from '../home-minimal';
-import HomePricing from '../home-pricing';
-import HomeDarkMode from '../home-dark-mode';
-import HomeLookingFor from '../home-looking-for';
-import HomeForDesigner from '../home-for-designer';
-import HomeColorPresets from '../home-color-presets';
 import HomeAdvertisement from '../home-advertisement';
-import HomeCleanInterfaces from '../home-clean-interfaces';
-import HomeHugePackElements from '../home-hugepack-elements';
+
+
+ 
+const HomeForDesigner = dynamic(() => import('../home-for-designer'), {
+  ssr: false,
+})
+
+
+
+const FaqView=dynamic(() => import('../../faqs/view/faqs-view'), {
+  ssr: true,
+})
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +64,6 @@ export default function HomeView() {
     <MainLayout>
       <ScrollProgress scrollYProgress={scrollYProgress} />
 
-      {/* <HomeHero /> */}
 
       <Box
         sx={{
@@ -73,20 +79,27 @@ export default function HomeView() {
           <HomeForDesigner />
           <StyledPolygon anchor="bottom" />
         </Box>
-        
         <HomeMinimal />
+
+        <HomeMinimal />
+
 
     
 
-        <HomeColorPresets />
 
         <PricingView/>
 
- 
+
 
   
 
         <HomeAdvertisement />
+
+        <FaqView/>
+
+        {/* <ContactView/> */}
+
+
       </Box>
     </MainLayout>
   );

@@ -31,19 +31,18 @@ import { useDefaultAvatar } from 'src/hooks/use-avatar';
 
 //
 import { HEADER } from '../config-layout';
-import { navConfig ,navMobileConfig} from './config-navigation';
+import { navConfig, navMobileConfig } from './config-navigation';
 import NavMobile from './nav/mobile';
 
 import NavDesktop from './nav/desktop';
 //
 import { HeaderShadow, LoginButton } from '../_common';
 
-
 export function PositionedMenu() {
   const router = useRouter();
 
-  const {data:session}=useSession()
-  const{ defaultAvatar}=useDefaultAvatar()
+  const { data: session } = useSession();
+  const { defaultAvatar } = useDefaultAvatar();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -61,7 +60,17 @@ export function PositionedMenu() {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
-        <Image style={{borderRadius:30}} src={session?.user.urlAvatar!==undefined && session?.user.urlAvatar!=='null' ? session?.user?.urlAvatar :"https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg"} alt="ava" width={40} height={40} />
+        <Image
+          style={{ borderRadius: 30 }}
+          src={
+            session?.user.urlAvatar !== undefined && session?.user.urlAvatar !== 'null'
+              ? session?.user?.urlAvatar
+              : 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg'
+          }
+          alt="ava"
+          width={40}
+          height={40}
+        />
       </Button>
       <Menu
         id="demo-positioned-menu"
@@ -78,9 +87,10 @@ export function PositionedMenu() {
           horizontal: 'left',
         }}
       >
-      
         <MenuItem onClick={() => router.push('/dashboard')}>Dashboard</MenuItem>
-        <MenuItem onClick={()=> router.push('/dashboard/user/account/')}>Tài khoản của tôi</MenuItem>
+        <MenuItem onClick={() => router.push('/dashboard/user/account/')}>
+          Tài khoản của tôi
+        </MenuItem>
         <MenuItem onClick={() => signOut()}>Đăng xuất</MenuItem>
       </Menu>
     </div>
@@ -166,7 +176,7 @@ export default function Header() {
             /> */}
 
             {!mdUp && !session && <NavMobile offsetTop={offsetTop} data={navMobileConfig} />}
-            {!mdUp && session && <Button>Đăng xuất</Button>}
+            {!mdUp && session && <Button  onClick={() => signOut()}>Đăng xuất</Button>}
           </Stack>
         </Container>
       </Toolbar>

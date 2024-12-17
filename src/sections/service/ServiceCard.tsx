@@ -34,18 +34,24 @@ import HistoryIcon from '@mui/icons-material/History';
 import Link from 'next/link';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { MenuIcon } from 'lucide-react';
 import axiosClient from 'src/utils/axiosClient';
 import UpdateStep0 from './update-service/UpdateStep0';
 import UpdateStep1 from './update-service/UpdateStep1';
 import UpdateStep2 from './update-service/UpdateStep2';
 import UpdateStep5 from './update-service/UpdateStep5';
-import { useResidenceBlockContext } from 'src/auth/context/manage-block-residence-context/ManageBlockResidenceContext';
-import { BookIcon, MenuIcon } from 'lucide-react';
 import UpdateStep4 from './update-service/UpdateStep4';
 import { formatDate } from 'src/utils/format-time';
 import UpdatePolicy from './update-service/UpdateStep3';
 
 const baseURL = 'https://core-api.thehostie.com';
+const policyTemplate = `
+🏨 Chính Sách Khách Sạn Paradise
+
+⏰ Thời gian nhận phòng và trả phòng
+- Nhận phòng: sau 14:00
+- Trả phòng: trước 12:00
+`;
 
 interface Service {
     residence_id: number;
@@ -89,19 +95,26 @@ export default function ServiceCardList({
     // Image state
     const [images, setImages] = React.useState<File[]>([]);
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+
     const onDrop = React.useCallback((acceptedFiles: File[]) => {
         setImages((prevImages) => [...prevImages, ...acceptedFiles]);
         setSnackbarOpen(true);
     }, []);
+
+
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         accept: 'image/*' as unknown as Accept,
     });
+
+
     // Delete residence
     const handleClose = () => {
         setAnchorEl(null);
         setSelectedId(null);
         setSelectedName('');
+        fetchData(currentPage, search);
     };
     const handleDeleteClick = () => {
         setOpenDialog(true);
@@ -171,7 +184,7 @@ export default function ServiceCardList({
             const data = response.data;
             if (data.success) {
                 const fetchedImages = data.data.images.map((image: { image: string }) => image.image);
-                setImages(fetchedImages);
+                setImages(data.data.images);
             } else {
                 console.error(data.msg);
             }
@@ -187,15 +200,21 @@ export default function ServiceCardList({
             console.error('Error fetching residence data:', error);
         }
     };
+
+
+
     const [policy, setPolicy] = React.useState()
+
     const fetchPolicy = async () => {
         try {
             const response = await axiosClient.get(`${baseURL}/residences/${selectedId}/policy`, {});
-            setPolicy(response.data.data.files.map((image: { image: string }) => image.file_url))
+            setPolicy(response.data.data.files)
         } catch (error) {
             console.error('Error fetching residence data:', error);
         }
     };
+
+
     const handleEditClick = () => {
         setOpenEditDialog(true);
         setAnchorEl(null);
@@ -302,52 +321,41 @@ export default function ServiceCardList({
             toast.error('Cập nhật giá thất bại vui lòng thử lại sau.')
         }
     };
+
+
+    const [imageDelete, setImageDelete] = React.useState()
+
     const handleStep5Submit = async (data: any) => {
+
         const formData = new FormData();
         formData.append('step', '5');
         formData.append('id', residenceData.residence_id);
-
-        const convertIfUrl = async (image: string | File) => {
-            if (typeof image === 'string' && image.startsWith('https')) {
-                const response = await fetch(image);
-                const blob = await response.blob();
-                const filename = image.split('/').pop() || 'image.jpg';
-                return new File([blob], filename, { type: blob.type });
-            }
-            return image; // Nếu là File thì trả về chính nó
-        };
-
-        const imagePromises = images.map((image) => convertIfUrl(image));
-        const processedImages = await Promise.all(imagePromises);
-
-        if (processedImages.length > 6) {
-            toast.error('Bạn chỉ có thể đăng tối đa 6 bức hình');
-            return;
-        }
-
-        processedImages.forEach((file) => formData.append('files', file));
-
+        images.forEach((file) => {
+            formData.append('files', file);
+        });
+        formData.append('delete_images', imageDelete)
         try {
-            const response = await axiosClient.post(`${baseURL}/residences`, formData);
-            if (response) {
-                fetchImages();
-                toast.success('Cập nhật hình ảnh của lưu trú thành công');
-            }
+            const response = await axiosClient.post('https://core-api.thehostie.com/residences', formData, {
+
+            });
+            handleClose();
+            fetchImages()
+            toast.success('Cập nhật hình ảnh nơi lưu trú thành công');
+
         } catch (error) {
-            console.error('Error submitting step 5:', error);
-            toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại dữ liệu.');
+            console.log(error);
+
+            if (error.status === 413) {
+                toast.error('Tệp hình quá nặng không thể upload lên server')
+
+            } else {
+
+                toast.error('Đã có lỗi xảy ra')
+            }
+
         }
     };
-
-
-
-    const policyTemplate = `
-🏨 Chính Sách Khách Sạn Paradise
-
-⏰ Thời gian nhận phòng và trả phòng
-- Nhận phòng: sau 14:00
-- Trả phòng: trước 12:00
-`;
+    const [deletePolicy, setDeletePolicy] = React.useState()
 
     const handleSavePolicy = async (files: File[]) => {
 
@@ -357,10 +365,12 @@ export default function ServiceCardList({
         files.forEach((file) => {
             formData.append('files', file);
         });
+        formData.append('delete_policy', deletePolicy)
         try {
             const response = await axiosClient.post('https://core-api.thehostie.com/residences/policy', formData, {
 
             });
+            fetchPolicy()
             toast.success('Cập nhật hình ảnh chính sách thành công')
 
         } catch (error) {
@@ -369,8 +379,6 @@ export default function ServiceCardList({
 
 
     };
-
-
     return (
         <>
             <Grid container spacing={3}>
@@ -556,7 +564,7 @@ export default function ServiceCardList({
                             />
                         )}
                         {activeStep === 3 && (<UpdateStep4 onSubmit={handleStep4Submit} dataPrices={prices} />)}
-                        {activeStep === 4 && (<UpdatePolicy dataFiles={policy} onSave={handleSavePolicy} />)}
+                        {activeStep === 4 && (<UpdatePolicy dataFiles={policy} onSave={handleSavePolicy} setDeletePolicy={setDeletePolicy} />)}
                         {activeStep === 5 && (
                             <UpdateStep5
                                 onSubmit={handleStep5Submit}
@@ -566,6 +574,7 @@ export default function ServiceCardList({
                                 setSnackbarOpen={setSnackbarOpen}
                                 getRootProps={getRootProps}
                                 getInputProps={getInputProps}
+                                setImageDelete={setImageDelete}
                             />
                         )}
                     </Box>
