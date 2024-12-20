@@ -1,3 +1,5 @@
+'use client'
+
 import { m } from 'framer-motion';
 // @mui
 import Badge from '@mui/material/Badge';

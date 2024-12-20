@@ -1,3 +1,5 @@
+'use client'
+
 // @mui
 import { Theme, SxProps } from '@mui/material/styles';
 import Button from '@mui/material/Button';

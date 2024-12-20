@@ -1,3 +1,5 @@
+'use client'
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Link from '@mui/material/Link';

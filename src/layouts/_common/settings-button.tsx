@@ -1,3 +1,5 @@
+'use client'
+
 import { m } from 'framer-motion';
 // @mui
 import { Theme, SxProps } from '@mui/material/styles';

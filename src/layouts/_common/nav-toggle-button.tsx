@@ -1,3 +1,5 @@
+'use client'
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';

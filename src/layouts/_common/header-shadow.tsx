@@ -1,3 +1,5 @@
+'use client'
+
 // @mui
 import Box, { BoxProps } from '@mui/material/Box';
 
