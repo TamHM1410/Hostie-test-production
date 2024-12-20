@@ -3,6 +3,7 @@ import { Box, TextField, Typography, Button, Chip, Divider, DialogActions } from
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 
+
 const API_BASE_URL = 'https://core-api.thehostie.com/amenities/icon';
 
 export const fetchIcon = async () => {
@@ -57,11 +58,16 @@ export default function Step2({
     }, []);
 
     const handleAddAmenity = () => {
-        if (!amenityName || !selectedIcon) {
-            setError('Vui lòng nhập tên tiện ích và chọn 1 biểu tượng');
+
+        if (!selectedIcon) {
+            setError('Vui lòng chọn 1 tiện ích');
             return;
         }
 
+        if (selectedAmenities.some((amenity) => amenity.amenity_id === selectedIcon)) {
+            setError('Bạn đã chọn tiện ích này rồi');
+            return;
+        }
         if (selectedAmenities.length >= 4) {
             setError('Bạn chỉ có thể thêm tối đa 4 tiện ích.');
             return;
@@ -78,7 +84,7 @@ export default function Step2({
     };
 
     const handleRemoveAmenity = (amenityToRemove: Amenity) => {
-        setSelectedAmenities(selectedAmenities.filter((a: any) => a.name !== amenityToRemove.name));
+        setSelectedAmenities(selectedAmenities.filter((a: any) => a.amenity_id !== amenityToRemove.amenity_id));
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -97,27 +103,16 @@ export default function Step2({
             <Typography variant='h6'>Thêm tiện ích cho lưu trú</Typography>
             <Box display="flex" flexDirection="column" gap={2} alignItems="center" mt={2}>
                 <TextField
-                    id="outlined-amenity-name"
-                    label="Tên tiện ích"
-                    value={amenityName}
-                    onChange={(e) => setAmenityName(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{ minWidth: { xs: '100%', sm: 450 } }}
-                    error={Boolean(error && !amenityName)}
-                    helperText={error && !amenityName ? 'Tên tiện ích không được để trống' : ''}
-                />
-                <TextField
                     id="outlined-select-amenity_id"
                     select
-                    label="Chọn biểu tượng"
+                    label="Chọn tiện ích"
                     value={selectedIcon}
                     onChange={(e) => setSelectedIcon(e.target.value)}
                     margin="normal"
                     fullWidth
                     sx={{ minWidth: { xs: '100%', sm: 450 } }}
                     error={Boolean(error && !selectedIcon)}
-                    helperText={error && !selectedIcon ? 'Vui lòng chọn biểu tượng' : ''}
+                    helperText={error && !selectedIcon ? 'Vui lòng chọn tiện ích' : ''}
                 >
                     {icons.map((option) => (
                         <MenuItem key={option.id} value={option.id}>
@@ -125,15 +120,6 @@ export default function Step2({
                         </MenuItem>
                     ))}
                 </TextField>
-                <TextField
-                    id="outlined-description"
-                    label="Mô tả tiện ích"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{ minWidth: { xs: '100%', sm: 450 } }}
-                />
                 <Button onClick={handleAddAmenity} color="primary" size='small' variant='outlined'>
                     Thêm tiện ích
                 </Button>
@@ -146,13 +132,13 @@ export default function Step2({
             </Box>
             <Divider sx={{ marginBottom: 3, marginTop: 3 }} />
             <Box mt={2}>
-                <Typography variant="subtitle1">Tiện ích đã thêm:</Typography>
+                <Typography variant="subtitle1">Tiện ích đã chọn:</Typography>
                 <Box mt={1} display="flex" gap={1} flexWrap="wrap">
                     {selectedAmenities.length > 0 ? (
                         selectedAmenities.map((amenity: any, index: any) => (
                             <Chip
                                 key={index}
-                                label={`${amenity.name} `}
+                                label={`${icons.find(a => a.id === amenity.amenity_id)?.name || ''} `}
                                 onDelete={() => handleRemoveAmenity(amenity)}
                                 color="primary"
                             />
@@ -163,7 +149,7 @@ export default function Step2({
                 </Box>
             </Box>
             <Box mt={4}>
-                <Typography variant="subtitle1">Biểu tượng đã chọn:</Typography>
+                <Typography variant="subtitle1">Biểu tượng của tiện ích đã chọn:</Typography>
                 <Box mt={1} display="flex" gap={3} flexWrap="wrap">
                     {selectedAmenities.length > 0 ? (
                         selectedAmenities.map((amenity: any, index: any) => (

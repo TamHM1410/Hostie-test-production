@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import {
     Dialog,
@@ -306,7 +307,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                         >
                             <Typography variant="body2">Phụ phí vượt số khách tiêu chuẩn:</Typography>
                             <Typography variant="body2" fontWeight="bold" color="secondary">
-                                {formattedAmount(priceQuotation?.charge_price) + '' + `\\${priceQuotation?.guest_count - priceQuotation?.standard_num_guests} người\\${priceQuotation?.total_nights} đêm` || '0'}
+                                {formattedAmount(priceQuotation?.charge_price) + '' + `\\${priceQuotation?.guest_count - priceQuotation?.standard_num_guests < 0 ? 0 : priceQuotation?.guest_count - priceQuotation?.standard_num_guests} người\\${priceQuotation?.total_nights} đêm` || '0'}
                             </Typography>
                         </Box>
                         <Box

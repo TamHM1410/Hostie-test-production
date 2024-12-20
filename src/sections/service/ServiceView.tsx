@@ -33,6 +33,13 @@ import Step2 from './CreateStep2';
 import Step4 from './CreateStep4';
 import CreatePolicy from './CreateStep3-2';
 
+const policyTemplate = `
+🏨 Chính Sách Khách Sạn Paradise
+
+⏰ Thời gian nhận phòng và trả phòng
+- Nhận phòng: sau 14:00
+- Trả phòng: trước 12:00
+`;
 
 
 const typeOfServices = [
@@ -111,6 +118,7 @@ export default function ServiceView() {
     };
 
     const handleStep1Submit = async (data: any) => {
+        setIsLoading2(true)
         if (!idService) {
             const payload = {
                 step: 1,
@@ -127,13 +135,15 @@ export default function ServiceView() {
 
             try {
                 const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
-
                 });
                 setIdService(response.data.data.id);
                 nextStep();
+                toast.success('Hoàn thành bước 1')
             } catch (error) {
                 console.error('Error submitting step 1:', error);
                 toast.error('Tên nơi lưu trú này đã được sử dụng.')
+            } finally {
+                setIsLoading2(false)
             }
         } else {
             const payload = {
@@ -156,14 +166,19 @@ export default function ServiceView() {
                 });
                 setIdService(response.data.data.id);
                 nextStep();
+                toast.success('Hoàn thành bước 1')
             } catch (error) {
                 console.error('Error submitting step 1:', error);
                 toast.error('Tên nơi lưu trú này đã được sử dụng.')
+            }
+            finally {
+                setIsLoading2(false)
             }
         }
     };
 
     const handleStep2Submit = async (data: any) => {
+        setIsLoading2(true)
         const payload = {
             step: 2,
             id: parseInt(idService),
@@ -180,12 +195,16 @@ export default function ServiceView() {
             });
 
             nextStep();
+            toast.success('Hoàn thành bước 2')
         } catch (error) {
             console.error('Error submitting step 1:', error);
+        } finally {
+            setIsLoading2(false)
         }
     };
 
     const handleStep3Submit = async (data: any) => {
+        setIsLoading2(true)
         const payload = {
             step: 3,
             id: parseInt(idService),
@@ -198,12 +217,16 @@ export default function ServiceView() {
             });
 
             nextStep();
+            toast.success('Hoàn thành bước 3')
         } catch (error) {
             console.error('Error submitting step 1:', error);
+        } finally {
+            setIsLoading2(false)
         }
     };
 
     const handleStep4Submit = async (data: any) => {
+        setIsLoading2(true)
         console.log(typeof data.weekendSurcharge);
         const payload = {
             step: 4,
@@ -232,8 +255,11 @@ export default function ServiceView() {
             });
 
             nextStep();
+            toast.success('Hoàn thành bước 4')
         } catch (error) {
             console.error('Error submitting step 3:', error);
+        } finally {
+            setIsLoading2(false)
         }
     };
 
@@ -252,7 +278,7 @@ export default function ServiceView() {
             handleClose();
             fetchData(1, '');
             setIsLoading2(false)
-            toast.success('Tạo nơi lưu trú thành công');
+            toast.success('Tạo nơi lưu trú thành công.');
 
         } catch (error) {
             console.log(error);
@@ -271,17 +297,8 @@ export default function ServiceView() {
         }
     };
 
-
-    const policyTemplate = `
-🏨 Chính Sách Khách Sạn Paradise
-
-⏰ Thời gian nhận phòng và trả phòng
-- Nhận phòng: sau 14:00
-- Trả phòng: trước 12:00
-`;
-
     const handleSavePolicy = async (files: File[]) => {
-
+        setIsLoading2(true)
         const formData = new FormData();
         formData.append('policy', policyTemplate);
         formData.append('residence_id', idService);
@@ -294,8 +311,11 @@ export default function ServiceView() {
             });
 
             nextStep();
+            toast.success('Hoàn thành bước 5')
         } catch (error) {
             toast.error('Đã có lỗi trong bước tạo chính sách')
+        } finally {
+            setIsLoading2(false)
         }
 
 
@@ -417,6 +437,8 @@ export default function ServiceView() {
                         totalPages={totalPage}
                         currentPage={currentPage}
                         onPageChange={handlePageChange}
+                        isLoading={isLoading2}
+                        setIsLoading={setIsLoading2}
                     />
                 </>
             }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useReducer, useCallback, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 // utils
 import axios, { endpoints } from 'src/utils/axios';
 //
@@ -82,12 +83,13 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Props) {
+  const {data:session}=useSession()
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const initialize = useCallback(async () => {
     try {
       const accessToken = sessionStorage.getItem(STORAGE_KEY);
-
+     
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
 
@@ -190,9 +192,9 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = session?.user ? 'authenticated' : 'unauthenticated';
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = session?.user ? checkAuthenticated: 'loading' ;
 
   const memoizedValue = useMemo(
     () => ({

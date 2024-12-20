@@ -33,6 +33,7 @@ import { formatCurrency } from '../booking-service/Booking';
 import BookingLogsModal from '../booking-list/BookingLogs';
 import { CalendarMonthRounded } from '@mui/icons-material';
 import { formattedAmount } from 'src/utils/format-time';
+import toast from 'react-hot-toast';
 
 const logsData = [
     {
@@ -120,6 +121,11 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         setIsEdit(false);
     };
     const handleActionClick = async (type: 'accept' | 'cancel' | 'confirmPayment' | 'notPayment', rowId: number) => {
+
+        if (type === 'accept' && !bankList.length) {
+            toast.error('Bạn chưa có tài khoản ngân hàng hãy tạo tài khoản ngân hàng trước khi chấp nhận.')
+            return;
+        }
         setActionType(type);
         setSelectedRowId(rowId);
 
@@ -148,8 +154,6 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         if (selectedRowId === null) return;
         const row = rows.find((r) => r.id === selectedRowId);
         if (!row) return;
-
-
         const formattedCheckin = row.checkin;
         const formattedCheckout = row.checkout;
         if (actionType === 'accept') {
@@ -161,8 +165,6 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                 values?.commission
             );
         } else if (actionType === 'cancel') {
-
-
             await cancelBooking(row.id, formattedCheckin, formattedCheckout, values?.rejectionReason);
         } else if (actionType === 'confirmPayment') {
             await confirmReceiveMoney(row.id, formattedCheckin, formattedCheckout);
@@ -279,11 +281,22 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                                         <CancelIcon />
                                     </IconButton>
                                 </Tooltip>
+                                <Tooltip title="Xem chi tiết ">
+                                    <IconButton
+                                        color="info"
+                                        onClick={() => {
+                                            fetchDataDetail(row.original.id);
+                                            handleViewBooking();
+                                        }}
+                                    >
+                                        <VisibilityIcon />
+                                    </IconButton>
+                                </Tooltip>
                             </>
                         ) : status === 2 ? (
                             row.original.is_host_receive ? (
                                 <>
-                                    <Tooltip title="Xem chi tiết nơi lưu trú">
+                                    <Tooltip title="Xem chi tiết ">
                                         <IconButton
                                             color="info"
                                             onClick={() => {
@@ -491,7 +504,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
             <BookingDetailSidebar
                 open={openSidebar}
                 onClose={() => setOpenSidebar(false)}
-                bookingDetails={detail?.booking}
+                bookingDetails={detail}
                 onSave={(updatedDetails) => {
                     console.log(updatedDetails);
                 }}

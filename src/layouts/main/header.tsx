@@ -176,7 +176,7 @@ export default function Header() {
             /> */}
 
             {!mdUp && !session && <NavMobile offsetTop={offsetTop} data={navMobileConfig} />}
-            {!mdUp && session && <Button  onClick={() => signOut()}>Đăng xuất</Button>}
+            {!mdUp && session && <PositionedMenu />}
           </Stack>
         </Container>
       </Toolbar>

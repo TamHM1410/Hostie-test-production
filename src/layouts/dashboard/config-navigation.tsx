@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+'use client'
+import { useMemo, useEffect } from 'react'; // Thêm useEffect
 
 /// nextauth
 // routes
@@ -51,18 +52,19 @@ const ICONS = {
 
 export function useNavData() {
   const { t } = useLocales();
-
-
-
   const router = useRouter();
-
   const { userCurrentRole } = useGetUserCurrentRole();
 
+  useEffect(() => {
+    // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
+    if (!userCurrentRole) {
+      router.push('/auth/jwt/login');
+    }
+  }, [userCurrentRole, router]);
 
   const data = useMemo(
     () => [
       // OVERVIEW
-      // ----------------------------------------------------------------------
       {
         subheader: "Tổng quan",
         items: [
@@ -75,11 +77,9 @@ export function useNavData() {
       },
 
       // MANAGEMENT
-      // ----------------------------------------------------------------------
       {
         subheader: 'Quản lý',
         items: [
-          // USER
           {
             title: 'Người dùng',
             path: '/dashboasrsdsdsa',
@@ -120,7 +120,6 @@ export function useNavData() {
       {
         subheader: 'Khác',
         items: [
-          // USER
           {
             title: 'Tin nhắn',
             path: paths.dashboard.chat,
@@ -130,24 +129,19 @@ export function useNavData() {
         ],
       },
     ],
-
     [t]
   );
 
   const bulterNav = useMemo(
     () => [
-      // OVERVIEW
-      // ----------------------------------------------------------------------
       {
         subheader: "Tổng quan",
         items: [
-
           {
             title: 'Căn hộ đang làm việc',
             path: '/dashboard/housekeepers',
             icon: ICONS.ecommerce,
           },
-
           {
             title: 'Tài khoản',
             path: '/dashboard/user/account',
@@ -163,16 +157,12 @@ export function useNavData() {
     ],
     [t]
   );
+
   const userNav = useMemo(
     () => [
-      // OVERVIEW
-      // ----------------------------------------------------------------------
       {
         subheader: "Tổng quan",
         items: [
-
-          
-
           {
             title: 'Tài khoản',
             path: '/dashboard/user/account',
@@ -183,14 +173,12 @@ export function useNavData() {
     ],
     [t]
   );
+
   const hostNav = useMemo(
     () => [
-      // OVERVIEW
-      // ----------------------------------------------------------------------
       {
         subheader: 'Tổng quan',
         items: [
-
           {
             title: 'Phân tích',
             path: paths.dashboard.general.analytics,
@@ -206,7 +194,6 @@ export function useNavData() {
             path: paths.dashboard.service,
             icon: <Icon icon="carbon:stay-inside" style={{ width: 35, height: 35 }} />,
           },
-
           {
             title: 'Danh sách ',
             path: 'hidsshisd',
@@ -220,7 +207,6 @@ export function useNavData() {
                 title: t('hold  residence list'),
                 path: paths.dashboard.hold_residence,
               },
-
             ],
           },
           {
@@ -241,7 +227,7 @@ export function useNavData() {
                 path: paths.dashboard.manage_customer,
               },
               {
-                title: t('Quản lí báo cáo'),
+                title: t('Quản lý báo cáo'),
                 path: paths.dashboard.report_list,
               },
             ],
@@ -254,13 +240,9 @@ export function useNavData() {
         ],
       },
 
-      // MANAGEMENT
-      // ----------------------------------------------------------------------
-
       {
         subheader: 'Khác',
         items: [
-          // USER
           {
             title: 'Tin nhắn',
             path: paths.dashboard.chat,
@@ -275,17 +257,14 @@ export function useNavData() {
         ],
       },
     ],
-
     [t]
   );
+
   const seller = useMemo(
     () => [
-      // OVERVIEW
-      // ----------------------------------------------------------------------
       {
         subheader: 'Tổng quan',
         items: [
-
           {
             title: "Phân tích",
             path: paths.dashboard.general.analytics,
@@ -300,7 +279,6 @@ export function useNavData() {
             title: 'Danh sách ',
             path: '/dashboard/booking/xxxdsd',
             icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
-
             children: [
               {
                 title: "Danh sách đặt",
@@ -310,9 +288,9 @@ export function useNavData() {
                 title: "Danh sách giữ ",
                 path: paths.dashboard.hold_residence,
               },
-
             ],
-          }, {
+          },
+          {
             title: 'Quản lý ',
             path: 'dsihsdhis',
             icon: ICONS.job,
@@ -325,19 +303,14 @@ export function useNavData() {
                 title: 'Quản lý báo cáo',
                 path: paths.dashboard.report_list,
               },
-
             ],
           },
         ],
       },
 
-      // MANAGEMENT
-      // ----------------------------------------------------------------------
-
       {
         subheader: "Khác",
         items: [
-          // USER
           {
             title: "Tin nhắn",
             path: paths.dashboard.chat,
@@ -352,9 +325,9 @@ export function useNavData() {
         ],
       },
     ],
-
     [t]
   );
+
   switch (userCurrentRole) {
     case 'HOUSEKEEPER':
       return bulterNav;
@@ -364,10 +337,9 @@ export function useNavData() {
       return seller;
     case 'HOST':
       return hostNav;
-      case 'USER': return userNav
-      break;
-
+    case 'USER':
+      return userNav;
     default:
-      router.push('/auth/jwt/login');
+      return null; // Nếu không có vai trò hợp lệ, không render gì
   }
 }

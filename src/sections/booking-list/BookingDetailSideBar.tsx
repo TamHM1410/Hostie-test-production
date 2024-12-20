@@ -1,9 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
-import { Drawer, Box, Typography, TextField, Button, Grid, Autocomplete } from '@mui/material';
+import { Drawer, Box, Typography, Grid, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button } from '@mui/material';
+import { differenceInMinutes, parseISO } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
-import { differenceInMinutes, parseISO } from 'date-fns';
+
+import { formattedAmount } from 'src/utils/format-time';
+
 interface BookingData {
     id: number;
     residence_id: number;
@@ -34,7 +35,7 @@ interface BookingDetailSidebarProps {
     onClose: () => void;
     bookingDetails: BookingData | null;
     onSave: (updatedDetails: Partial<BookingData>) => void;
-    isEditing: boolean; // Additional prop to control edit mode
+    isEditing: boolean;
 }
 
 const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
@@ -66,202 +67,139 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
             setEditableDetails({ ...editableDetails, guest_id: selectedCustomerId });
         }
     };
+
     return (
         <Drawer
             anchor="right"
             open={open}
             onClose={onClose}
             variant="temporary"
-            sx={{ '& .MuiDrawer-paper': { width: '100%', maxWidth: 500 } }}
+            sx={{
+                '& .MuiDrawer-paper': {
+                    width: '100%',
+                    maxWidth: 700,
+                    padding: '24px',
+                    backgroundColor: '#f4f6f8',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '8px',
+                },
+            }}
         >
-            <Box
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-                p={3}
-                height="100%"
-            >
-                <Typography variant="h6" gutterBottom align="center" marginBottom={3}>
-                    Thông tin chi tiết đặt nơi lưu trú
+            <Box sx={{ padding: 2 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 800, marginBottom: 2, fontSize: '1.45rem', color: '#333' }}>
+                    Chi Tiết Hóa Đơn Đặt Nơi Lưu Trú
                 </Typography>
-                <Grid container spacing={2} justifyContent="center">
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Tên nơi lưu trú"
-                            value={editableDetails?.residence_name || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, residence_name: e.target.value })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="SĐT Chủ nhà"
-                            value={editableDetails?.host_phone || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, host_phone: e.target.value })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <Autocomplete
-                            options={customerList?.data || []}
-                            getOptionLabel={(option) => option?.name || ''}
-                            onChange={handleCustomerChange}
-                            renderInput={(params) => {
-                                const selectedCustomer = customerList?.data?.find(
-                                    (customer: any) => customer?.id === editableDetails?.guest_id
-                                );
-                                return <TextField {...params} label="Tên khách hàng" disabled={!isEditing} />;
-                            }}
-                            disabled={!isEditing}
-                            value={
-                                customerList.data?.find((customer: any) => customer?.id == editableDetails?.guest_id) ||
-                                null
-                            }
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Số lượng khách"
-                            value={editableDetails?.guest_count || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, guest_count: Number(e.target.value) })
-                            }
-                            fullWidth
-                            disabled={!isEditing}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Tổng số tiền"
-                            value={editableDetails?.total_amount || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, total_amount: Number(e.target.value) })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Số tiền cần thanh toán"
-                            value={editableDetails?.paid_amount || ''}
-                            // onChange={(e) =>
-                            //     setEditableDetails({ ...editableDetails, paid_amount: Number(e.target.value) })
-                            // }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Ngày nhận phòng"
-                            value={editableDetails?.checkin || ''}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, checkin: e.target.value })}
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Ngày trả phòng"
-                            value={editableDetails?.checkout || ''}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, checkout: e.target.value })}
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Số đêm"
-                            value={editableDetails?.total_nights || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, total_nights: Number(e.target.value) })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Số ngày"
-                            value={editableDetails?.total_days || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, total_days: Number(e.target.value) })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Địa chỉ chỗ ở"
-                            value={editableDetails?.residence_address || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, residence_address: e.target.value })
-                            }
-                            fullWidth
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Ngày hết hạn"
-                            value={
-                                editableDetails?.expire
-                                    ? (() => {
-                                        const now = new Date();
-                                        const expireDate = parseISO(editableDetails.expire);
-                                        const minutesLeft = differenceInMinutes(expireDate, now);
 
-                                        if (minutesLeft > 0) {
-                                            return `${minutesLeft} phút còn lại`;
-                                        }
-                                        return 'Đã hết hạn';
-                                    })()
-                                    : ''
-                            }
-                            fullWidth
-                            disabled
-                        />
+                <Grid container spacing={3} > {/* Adjusted gap here */}
+                    {/* Thông tin đặt phòng */}
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Đặt Phòng:</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>ID Đặt Phòng :</strong> {bookingDetails?.booking?.id}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Ngày Nhận Phòng :</strong> {bookingDetails?.booking?.checkin}</Typography>
+                        <Typography sx={{ marginTop: 1 }} ><strong>Ngày Trả Phòng :</strong> {bookingDetails?.booking?.checkout}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tên Khách :</strong> {bookingDetails?.booking?.guest_name}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Khách :</strong> {bookingDetails?.booking?.guest_phone}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Chỗ Nghỉ :</strong> {bookingDetails?.booking?.residence_name}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tổng Tiền :</strong> {formattedAmount(bookingDetails?.booking?.total_amount)}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Tiền Cọc :</strong> {formattedAmount(bookingDetails?.booking?.paid_amount)}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tỷ Lệ Hoa Hồng :</strong> {bookingDetails?.booking?.commission_rate}%</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Phí Thêm Khách :</strong> {formattedAmount(bookingDetails?.booking?.extra_guest_fee)}</Typography>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            minRows={4}
-                            disabled={!isEditing}
-                            placeholder="Nhập mô tả ở đây..."
-                            value={editableDetails?.description || ''}
-                            onChange={(e) =>
-                                setEditableDetails({ ...editableDetails, description: e.target.value })
-                            }
-                            style={{ width: '100%' }} // Ensure it takes full width
-                        />
+
+                    {/* Thông tin chủ nhà */}
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Chủ Nhà:</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tên Chủ Nhà :</strong> {bookingDetails?.booking?.seller_name || 'Chưa Cung Cấp'}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>ID Chủ Nhà :</strong> {bookingDetails?.booking?.seller_id || 'Chưa Cung Cấp'}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Chủ Nhà :</strong> {bookingDetails?.booking?.host_phone || 'Chưa Cung Cấp'}</Typography>
+
+
                     </Grid>
                 </Grid>
-                <Box mt={3} width="100%">
-                    {isEditing && (
-                        <Box mt={3} width="100%">
-                            <Button variant="contained" color="primary" onClick={handleSave} fullWidth>
-                                Lưu
-                            </Button>
-                        </Box>
-                    )}
+
+                {/* Bảng Chi Tiết Đặt Phòng */}
+                <Box marginTop={3}>
+                    <Typography variant="h6" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.2rem' }}>Chi Tiết Đặt Phòng:</Typography>
+                    <TableContainer component={Paper} sx={{ marginTop: 2, boxShadow: 'none', borderRadius: '8px' }}>
+                        <Table>
+                            <TableHead sx={{ backgroundColor: '#e0e0e0' }}>
+                                <TableRow>
+                                    <TableCell sx={{ fontWeight: 500, padding: '12px' }}>Ngày</TableCell> {/* Increased padding */}
+                                    <TableCell align="right" sx={{ fontWeight: 500, padding: '12px' }}>Giá</TableCell> {/* Increased padding */}
+                                    <TableCell align="right" sx={{ fontWeight: 500, padding: '12px' }}>Trạng Thái</TableCell> {/* Increased padding */}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {bookingDetails?.details?.map((detail) => (
+                                    <TableRow key={detail.id}>
+                                        <TableCell sx={{ padding: '16px' }}>{new Date(detail.date).toLocaleDateString()}</TableCell> {/* Increased padding */}
+                                        <TableCell align="right" sx={{ padding: '16px' }}>{formattedAmount(detail.price)}</TableCell> {/* Increased padding */}
+                                        <TableCell align="right" sx={{ padding: '16px' }}>
+                                            {detail.status === 1 ? 'Đã Xác Nhận' : 'Chờ Xác Nhận'}
+                                        </TableCell> {/* Increased padding */}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Box>
-                {editableDetails?.housekeeper_transaction && (
+
+                {/* Thông Tin Bổ Sung */}
+                <Box marginTop={3}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Bổ Sung:</Typography>
+                    <Typography sx={{ marginTop: 1 }}><strong>Mô Tả :</strong> {bookingDetails?.booking?.description}</Typography>
+                    <Typography sx={{ marginTop: 1 }}><strong>Hoa Hồng :</strong> {formattedAmount(bookingDetails?.booking?.commission)}</Typography>
+                    <Typography sx={{ marginTop: 1 }}>
+                        <strong>Ngày Hết Hạn :</strong>
+                        {bookingDetails?.booking?.expire ? (
+                            (() => {
+                                const now = new Date();
+                                const expireDate = parseISO(bookingDetails?.booking?.expire);
+                                const minutesLeft = differenceInMinutes(expireDate, now);
+                                if (bookingDetails?.booking?.status === 0) {
+                                    return 'Đã bị từ chối'
+                                }
+                                if (bookingDetails?.booking?.is_seller_transfer === true) {
+                                    return 'Đã thanh toán thành công'
+                                }
+                                if (minutesLeft > 0) {
+                                    return `${minutesLeft} phút còn lại`;
+                                }
+
+                                return 'Đã hết hạn';
+                            })()
+                        ) : 'Đã hết hạn'}
+                    </Typography>
+                    {bookingDetails?.booking?.reason_reject && <Typography sx={{ marginTop: 1 }}><strong>Lý do từ chối  :</strong> {bookingDetails?.booking?.reason_reject || 'Không có lý do rõ ràng'}</Typography>}
+                </Box>
+                {bookingDetails?.booking?.housekeeper_transaction && (
                     <Box mt={4} width="100%" textAlign="center">
                         <Typography variant="h6" mb={2}>
-                            Hình ảnh giao dịch của quản gia
+                            Hình ảnh giao dịch của quản gia khi khách tới
                         </Typography>
                         <Box
                             component="img"
-                            src={editableDetails.housekeeper_transaction}
-                            alt={`Transaction ${editableDetails.housekeeper_transaction}`}
+                            src={bookingDetails?.booking?.housekeeper_transaction}
+                            alt={`Transaction ${bookingDetails?.booking?.housekeeper_transaction}`}
+                            sx={{
+                                maxWidth: '100%',
+                                height: '20%',
+                                borderRadius: 4,
+                                boxShadow: 3,
+                            }}
+                        />
+                    </Box>
+
+                )}
+                {bookingDetails?.booking?.additional_transaction && (
+                    <Box mt={4} width="100%" textAlign="center">
+                        <Typography variant="h6" mb={2}>
+                            Hình ảnh giao dịch thêm của quản gia khi khách rời đi
+                        </Typography>
+                        <Box
+                            component="img"
+                            src={bookingDetails?.booking?.additional_transaction}
+                            alt={`Transaction ${bookingDetails?.booking?.additional_transaction}`}
                             sx={{
                                 maxWidth: '100%',
                                 height: 'auto',
@@ -270,7 +208,9 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                             }}
                         />
                     </Box>
+
                 )}
+
             </Box>
         </Drawer>
     );

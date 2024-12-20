@@ -9,7 +9,7 @@ import { Box } from '@mui/material';
 
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen ,LoadingScreen} from 'src/components/loading-screen';
+import { LoadingScreen} from 'src/components/loading-screen';
 import { getAllRolesApi } from 'src/api/users';
 
 import RoleTable from './role-table';

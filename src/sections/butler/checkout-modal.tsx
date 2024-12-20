@@ -165,6 +165,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       }
       mutate(butler?.id);
     } catch (error) {
+      console.log(error,'err')
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   });

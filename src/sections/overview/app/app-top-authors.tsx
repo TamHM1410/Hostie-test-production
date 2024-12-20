@@ -72,7 +72,9 @@ function AuthorItem({ author, index ,url,username,total_value,type}: AuthorItemP
         >
           <Iconify icon="solar:heart-bold" width={14} sx={{ mr: 0.5 }} />
           {/* {fShortenNumber(author.totalFavorites)} */} { total_value && type!=='admin'&&  <Box sx={{gap:2}}>Tổng tiền booking từ seller này: 
-            <span style={{fontSize:15,fontWeight:700}}>{total_value} vnd</span> </Box>}
+            <span style={{fontSize:15,fontWeight:700}}>  
+              { new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total_value)}
+             </span> </Box>}
             {
               type==="admin" &&<Box sx={{gap:2}}>
             <span style={{fontSize:15,fontWeight:700}}>{total_value} </span> </Box>

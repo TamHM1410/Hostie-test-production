@@ -19,6 +19,7 @@ import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DatePicker } from '@mui/x-date-pickers';
+import toast from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
   defaultPrice: Yup.number()
@@ -53,7 +54,7 @@ const validationSchema = Yup.object().shape({
       seasonSurcharge: Yup.number()
         .nullable()
         .positive('Giá mới phải là số dương'),
-      seasonDescription: Yup.string().required('Mô tả là bắt buộc'),
+      seasonDescription: Yup.string(),
     })
   ),
 });
@@ -257,38 +258,57 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
             control={control}
             name={`seasonEntries.${index}.seasonFrom`}
             render={({ field }) => (
-              <DatePicker
-                {...field}
-                label="Ngày bắt đầu"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    error={!!errors.seasonEntries?.[index]?.seasonFrom}
-                    helperText={errors.seasonEntries?.[index]?.seasonFrom?.message || ''}
-                  />
+              <>
+                <DatePicker
+                  {...field}
+                  label="Ngày bắt đầu"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      error={!!errors.seasonEntries?.[index]?.seasonFrom}
+                      helperText={errors.seasonEntries?.[index]?.seasonFrom?.message || ''}
+                    />
+                  )}
+                  onChange={(date) => field.onChange(date)}
+                />
+
+                {!!errors.seasonEntries?.[index]?.seasonFrom && (
+                  <Typography color="error" variant="caption">
+                    {errors.seasonEntries?.[index]?.seasonFrom?.message}
+                  </Typography>
                 )}
-                onChange={(date) => field.onChange(date)}
-              />
+
+              </>
+
+
             )}
           />
           <Controller
             control={control}
             name={`seasonEntries.${index}.seasonTo`}
             render={({ field }) => (
-              <DatePicker
-                {...field}
-                label="Ngày kết thúc"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    error={!!errors.seasonEntries?.[index]?.seasonTo}
-                    helperText={errors.seasonEntries?.[index]?.seasonTo?.message || ''}
-                  />
+              <>
+                <DatePicker
+                  {...field}
+                  label="Ngày kết thúc"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      error={!!errors.seasonEntries?.[index]?.seasonTo}
+                      helperText={errors.seasonEntries?.[index]?.seasonTo?.message || ''}
+                    />
+                  )}
+                  onChange={(date) => field.onChange(date)}
+                />
+                {!!errors.seasonEntries?.[index]?.seasonTo && (
+                  <Typography color="error" variant="caption">
+                    {errors.seasonEntries?.[index]?.seasonTo?.message}
+                  </Typography>
                 )}
-                onChange={(date) => field.onChange(date)}
-              />
+              </>
+
             )}
           />
           <TextField
@@ -302,14 +322,14 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
               endAdornment: <InputAdornment position="end">VND</InputAdornment>,
             }}
           />
-          <TextField
+          {/* <TextField
             label="Mô tả"
             variant="outlined"
             fullWidth
             {...register(`seasonEntries.${index}.seasonDescription`)}
             error={!!errors.seasonEntries?.[index]?.seasonDescription}
             helperText={errors.seasonEntries?.[index]?.seasonDescription?.message}
-          />
+          /> */}
           <IconButton onClick={() => removeSeasonEntry(index)} color="error">
             <RemoveIcon />
           </IconButton>

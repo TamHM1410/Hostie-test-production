@@ -17,9 +17,7 @@ import { RouterLink } from 'src/routes/components';
 import EmptyContent from 'src/components/empty-content';
 //
 
-import { useQuery } from '@tanstack/react-query';
-import { SplashScreen } from 'src/components/loading-screen';
-import { findPackageById } from 'src/api/pagekages';
+
 
 import CheckoutSummary from './checkout-summary';
 import CheckoutCartProductList from './checkout-cart-product-list';
@@ -37,10 +35,11 @@ export default function CheckoutCart({ discount, data, step }: any) {
   const router = useRouter();
 
   const id = searchParam.get('packageId');
+  const type = searchParam.get('type');
+
   
-  console.log('packageId',id)
   const handleNextStep = () => {
-    router.push(`/pricing/checkout/?step=1&packageId=${id}`);
+    router.push(`/pricing/checkout/?step=1&type=${type}&packageId=${id}`);
   };
 
   if (!id) {

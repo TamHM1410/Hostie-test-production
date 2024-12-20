@@ -3,7 +3,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 interface CustomCredentials {
- 
   username: string;
   password: string;
   id?: string;
@@ -73,12 +72,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       // Type the token to JWTToken
-      const jwtToken: JWTToken|any = { ...token, ...user };
+      const jwtToken: JWTToken | any = { ...token, ...user };
       return jwtToken;
     },
     async session({ session, token }) {
       // Type the token as JWTToken
-      const jwtToken = token as JWTToken |any;
+
+      const jwtToken = token as JWTToken | any;
 
       session.user = {
         ...session.user,
@@ -89,12 +89,15 @@ export const authOptions: NextAuthOptions = {
         status: jwtToken.status,
         urlAvatar: jwtToken.urlAvatar,
         name: jwtToken.username,
-
       };
       return session;
     },
   },
   pages: {
     signIn: '/auth/jwt/login',
-  }
+  },
+  session: {
+    maxAge: 24 * 60 * 60, // Phiên có hiệu lực trong 24 giờ
+    updateAge: 12 * 60 * 60, // Làm mới token mỗi 12 giờ
+  },
 };

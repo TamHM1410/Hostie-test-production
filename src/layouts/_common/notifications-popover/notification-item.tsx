@@ -30,9 +30,9 @@ function getVietnameseText(eventCode: any): any {
     case 'SELLER_TRANSFERRED':
       return 'Người môi giới đã chuyển tiền cho bạn';
     case 'HOST_RECEIVED':
-      return 'Chủ nơi lưu trú đã nhận được tiền đơn của bạn đã hoàn tất';
+      return 'Chủ nơi lưu trú chưa nhận được tiền của bạn';
     case 'HOST_DONT_RECEIVED':
-      return 'Chủ nơi lưu trú chưa nhận được tiền của bạn.';
+      return 'Chủ nơi lưu trú đã nhận được tiền đơn của bạn đã hoàn tất';
     case 'HOLD_CREATED':
       return 'Bạn có đơn giữ nơi lưu trú mới';
     case 'HOST_ACCEPTED_HOLD':

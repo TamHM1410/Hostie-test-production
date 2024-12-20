@@ -9,6 +9,7 @@ import React, { createContext, useContext, useState, useMemo, useEffect } from '
 import toast from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
 import axiosClient from 'src/utils/axiosClient';
+import axiosClient2 from 'src/utils/axiosClient2';
 
 interface CalendarFilterParams {
     type: number;
@@ -38,7 +39,7 @@ interface BookingContextProps {
         selectedProvince: string | null,
         selectedAccommodationType: string | null,
         dateRange: [Date | null, Date | null],
-        maxPrice: number | null, minPrice: number | null) => void;
+        maxPrice: number | null, minPrice: number | null, animated: any | [],) => void;
     priceQuotation: any;
     fetchPriceQuotation: (checkin: string, checkout: string, id: number, guest_count?: any) => void;
     handleHoldingSubmit: (residence_id: string, startDate: string, endDate: string, expireTime: number) => Promise<void>;
@@ -80,7 +81,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const fetchPolicy = async (id: any) => {
         setLoading(true)
         try {
-            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}/policy`, {});
+            const response = await axiosClient2.get(`${API_BASE_URL}/residences/${id}/policy`, {});
 
             if (response.status === 200) {
                 const data1 = response.data;
@@ -99,7 +100,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const fetchImages = async (id: any) => {
         setLoading(true)
         try {
-            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}/images`, {
+            const response = await axiosClient2.get(`${API_BASE_URL}/residences/${id}/images`, {
                 params: {
                     page_size: 99,
                     last_id: 0,
@@ -127,7 +128,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const fetchResidenceInfor = async (id: any) => {
         setLoading(true)
         try {
-            const response = await axiosClient.get(`${API_BASE_URL}/residences/${id}`, {});
+            const response = await axiosClient2.get(`${API_BASE_URL}/residences/${id}`, {});
 
             if (response.status === 200) {
                 const data1 = response.data;
@@ -143,7 +144,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setLoading(false)
         }
     };
-
     const fetchBookingData = async (
         page: number,
         year: string,
@@ -152,7 +152,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         selectedAccommodationType: string | null,
         dateRange: [Date | null, Date | null],
         maxPrice: number | null,
-        minPrice: number | null
+        minPrice: number | null,
+        amenities: any | [],
     ) => {
         setLoading(true);
         setError(null);
@@ -176,12 +177,13 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const formattedCheckinDate = dateRange?.[0] ? formatDate(new Date(dateRange[0])) : '';
         const formattedCheckoutDate = dateRange?.[1] ? formatDate(new Date(dateRange[1])) : '';
 
-        console.log(month);
+
         const formattedMonth = String(month).padStart(2, '0');
 
 
         // Initialize the base query string
         let apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
+
 
         // Add parameters to the query only if they are not null or undefined
         if (formattedCheckinDate) {
@@ -196,14 +198,18 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (selectedProvince) {
             apiQuery += `&province_id=${selectedProvince}`;
         }
-        if (maxPrice !== undefined && maxPrice === 0) {
+        if (maxPrice !== undefined) {
             apiQuery += `&max_price=${maxPrice}`;
         }
-        if (minPrice !== undefined && minPrice === 0) {
+        if (minPrice !== undefined) {
             apiQuery += `&min_price=${minPrice}`;
         }
+        if (Array.isArray(amenities) && amenities.length > 0) {
+            apiQuery += `&amenities=${amenities.join(',')}`;
+        }
+
         try {
-            const response = await axiosClient.get(
+            const response = await axiosClient2.get(
                 `${API_BASE_URL}/residences/calendar${apiQuery}`
             );
 
@@ -215,13 +221,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setBookingData(data.data.data.calendars);
             setTotalPages(data.data.data.total_pages);
         } catch (err: any) {
-            setError(err.message);
+            console.log(err);
+
         } finally {
             setLoading(false);
         }
     };
-
-
     const [provinceList, setProviceList] = useState()
 
     const fetchProvince = async () => {
@@ -229,13 +234,14 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
 
         try {
-            const response = await axiosClient.get(`${API_BASE_URL}/region/provinces`, {});
+            const response = await axiosClient2.get(`${API_BASE_URL}/region/provinces`, {});
             if (!response) {
                 throw new Error('Unable to fetch customer list');
             }
             setProviceList(response.data.data);
         } catch (err: any) {
-            setError(err.message);
+            console.log(err);
+
         } finally {
             setLoading(false);
         }
@@ -246,29 +252,31 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
 
         try {
-            const response = await axiosClient.get(`${API_BASE_URL}/customers?page_size=99999`, {});
+            const response = await axiosClient2.get(`${API_BASE_URL}/customers?page_size=99999`, {});
             if (!response) {
                 throw new Error('Unable to fetch customer list');
             }
 
             setCustomerList(response.data.data);
         } catch (err: any) {
-            setError(err.message);
+            console.log(err);
         } finally {
             setLoading(false);
         }
     };
+
     const fetchPriceQuotation = async (checkin: string, checkout: string, id: number, guest_count?: any) => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await axiosClient.post(
+            const response = await axiosClient2.post(
                 `${API_BASE_URL}/booking/price_quotation`,
                 {
                     residence_ids: [parseInt(id)],
                     checkin,
                     checkout,
+                    guest_count
                 }
             );
 
@@ -278,15 +286,17 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const newData = response.data?.data?.find((d: any) => d.residence_id === id)
             setPriceQuotation(newData);
         } catch (err: any) {
-            setError(err?.response?.data?.message || 'An error occurred while fetching the price quotation.');
+            console.log(err);
+
         } finally {
             setLoading(false);
         }
     };
+
     const fetchCalendarFilter = async (params: CalendarFilterParams): Promise<void> => {
         setLoading(true);
         try {
-            const response = await axiosClient.get<CalendarFilterResponse>(
+            const response = await axiosClient2.get<CalendarFilterResponse>(
                 `http://{{DeployURL}}:5005/residences/calendar?page_size=${pageSize}&page=${1}`,
                 { params }
             );
@@ -294,11 +304,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setBookingData(data.data.data.calendars);
             setTotalPages(data.data.data.total_pages);
         } catch (error) {
-            console.error("Error fetching calendar filter:", error);
+            console.log(error)
         } finally {
             setLoading(false);
         }
     };
+
     const handleHoldingSubmit = async (residence_id: string, startDate: string, endDate: string, expireTime: number) => {
         const requestBody = {
             residence_id,
@@ -306,28 +317,19 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             checkout: endDate,
             expire: expireTime
         };
-
         try {
-            const response = await axiosClient.post(`${API_BASE_URL}/booking/hold`, requestBody, {});
+            const response = await axiosClient2.post(`${API_BASE_URL}/booking/hold`, requestBody, {});
 
             if (response.status === 200) {
                 toast.success('Giữ chỗ thành công');
-            } else {
+            } else if (response.status === 400) {
                 toast.error('Giữ chỗ thất bại. Vui lòng thử lại.');
             }
-        } catch (error) {
-            if (
-                error.response?.data?.msg ===
-                'another hold with residence_id 153 has already been accepted during this period'
-            ) {
-                console.log(error.response);
-
-                toast.error('Ngày được chọn có thể đã được giữ vui lòng thử lại');
-            } else {
-                toast.error('Có vẻ đã có lỗi xảy ra.');
-            }
+        } catch (error_code) {
+            toast.error(error_code)
         }
     };
+
     const handleBookingSubmit = async (values: any) => {
         if (values.hold_id) {
             const payload = {
@@ -342,7 +344,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             };
 
             try {
-                const response = await axiosClient.post(`${API_BASE_URL}/booking/`, payload, {});
+                const response = await axiosClient2.post(`${API_BASE_URL}/booking/`, payload, {});
                 if (response.status === 200) {
                     toast.success('Tạo đơn đặt nơi lưu trú thành công');
                 } else {
@@ -351,39 +353,10 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 // Additional logic can be added here if needed
             } catch (error) {
-                if (error?.error_code) {
-                    const errorCode = error?.error_code;
-
-                    switch (errorCode) {
-                        case "OVERLAP_BLOCK_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã bị chặn bởi chỗ ở này.");
-                            break;
-                        case "OVERLAP_HOLD_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã bị giữ bởi một khách hàng khác.");
-                            break;
-                        case "OVERLAP_BOOKING_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã được đặt bởi một khách hàng khác.");
-                            break;
-                        case "RESIDENCE_NOT_ACTIVE":
-                            toast.error("Chỗ ở này hiện không hoạt động.");
-                            break;
-                        case "ALREADY_BOOKING":
-                            toast.error("Bạn đã đặt chỗ này trước đó.");
-                            break;
-                        case "CANNOT_BOOKING_IN_PAST":
-                            toast.error("Không thể đặt chỗ ở quá khứ.");
-                            break;
-                        default:
-                            toast.error("Đã xảy ra lỗi. Vui lòng thử lại.");
-                            break;
-                    }
-                } else {
-                    toast.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
-                }
+                toast.error(error)
             }
         } else {
             const payload = {
-
                 residence_id: values.residence_id || '',
                 checkin: values.start_date,
                 checkout: values.end_date,
@@ -393,7 +366,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             };
 
             try {
-                const response = await axiosClient.post(`${API_BASE_URL}/booking/`, payload, {});
+                const response = await axiosClient2.post(`${API_BASE_URL}/booking/`, payload, {});
                 if (response.status === 200) {
                     toast.success('Tạo đơn đặt nơi lưu trú thành công');
                 } else {
@@ -402,42 +375,13 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 // Additional logic can be added here if needed
             } catch (error) {
-                console.error('Error:', error);
-
-                if (error?.error_code) {
-                    const errorCode = error?.error_code;
-
-                    switch (errorCode) {
-                        case "OVERLAP_BLOCK_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã bị chặn bởi chỗ ở này.");
-                            break;
-                        case "OVERLAP_HOLD_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã bị giữ bởi một khách hàng khác.");
-                            break;
-                        case "OVERLAP_BOOKING_RESIDENCE":
-                            toast.error("Khoảng thời gian đặt đã được đặt bởi một khách hàng khác.");
-                            break;
-                        case "RESIDENCE_NOT_ACTIVE":
-                            toast.error("Chỗ ở này hiện không hoạt động.");
-                            break;
-                        case "ALREADY_BOOKING":
-                            toast.error("Bạn đã đặt chỗ này trước đó.");
-                            break;
-                        case "CANNOT_BOOKING_IN_PAST":
-                            toast.error("Không thể đặt chỗ ở quá khứ.");
-                            break;
-                        default:
-                            toast.error("Đã xảy ra lỗi. Vui lòng thử lại.");
-                            break;
-                    }
-                } else {
-                    toast.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
-                }
+                toast.error(error)
             }
         }
 
 
     };
+
     const appendCalendarData = (incomingCalendarData: any[]) => {
         setBookingData((prevBookingData) => {
             // Loop through each incoming data item

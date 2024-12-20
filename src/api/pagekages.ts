@@ -26,13 +26,17 @@ const findPackageById = async (id: any, type: any): Promise<any> => {
 };
 
 const registerPackageApi = async (payload: any) => {
-  const rs = axiosClient.post(endPoint.register_package.post, payload);
+  const rs = axiosClient.post(`${endPoint.register_package.post}?packageId=${payload}`);
   return rs;
 };
-const extendPackageApi =async (payload:any)=>{
- const rs =await axiosClient.put(endPoint.register_package.extendPackage,payload)
-  return rs
-}
+
+const extendPackageApi = async (payload: any) => {
+  console.log(payload, 'payload');
+  const rs = await axiosClient.put(
+    `${endPoint.register_package.extendPackage}?packageId=${payload}`
+  );
+  return rs;
+};
 const getUserDiscount = async () => {
   const rs = await axiosClient.get(endPoint.register_package.getDiscount);
 

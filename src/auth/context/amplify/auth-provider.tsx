@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer, useCallback, useMemo } from 'react';
 import { Auth } from '@aws-amplify/auth';
+import { useSession } from 'next-auth/react';
 // config
 import { AMPLIFY_API } from 'src/config-global';
 //
@@ -60,6 +61,8 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Props) {
+
+  const {data:session}=useSession()
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const initialize = useCallback(async () => {
@@ -164,9 +167,9 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = session?.user ? 'authenticated' : 'unauthenticated';
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = !session?.user? 'loading' : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({

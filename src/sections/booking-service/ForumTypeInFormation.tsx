@@ -12,6 +12,7 @@ import BookingFormDialog from './BookingDialogForm';
 import HoldingFormDialog from './HoldingForm';
 import DatePickerForm from './BooingFormOnInFor';
 import { formattedAmount } from 'src/utils/format-time';
+import toast from 'react-hot-toast';
 
 
 export default function ForumTypeInFormation() {
@@ -30,6 +31,11 @@ export default function ForumTypeInFormation() {
     const [openForm, setOpenForm] = useState(false);
 
     const handleAction = (type: 'book' | 'hold') => {
+
+        if (type === 'book' && !customerList.data.length) {
+            toast.error('Bạn chưa có khách hàng nào hãy vào trang quản lí khách hàng để tạo mới 1 khách hàng.')
+            return;
+        }
         setActionType(type);
         setOpenDatePicker(true);
     };
@@ -44,14 +50,13 @@ export default function ForumTypeInFormation() {
     };
 
     const onSubmitHolding = (values: { expire: number }) => {
-        if (!startDate && !endDate) return;
 
+
+        if (!startDate && !endDate) return;
         // Extract the necessary data
         const { expire } = values;
-
         // Pass all necessary values to the submission handler
         handleHoldingSubmit(residenceInfor.residence_id, startDate, endDate, expire);
-
         // Close the dialog after successful submission
         setOpenForm(false);
     };

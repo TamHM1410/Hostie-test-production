@@ -34,6 +34,13 @@ const PurchaseHistory = (props: any) => {
         <span>{cell.getValue() == null ? 'none' : cell.getValue().slice(0, 10)}</span>
       ),
     }),
+    columnHelper.accessor('startAt', {
+      header: 'Ngày bắt đầu',
+      size: 220,
+      Cell: ({ cell }: any) => (
+        <span>{cell.getValue() == null ? 'none' : cell.getValue().slice(0, 10)}</span>
+      ),
+    }),
     columnHelper.accessor('expireAt', {
       header: 'Ngày hết hạn',
       size: 220,
@@ -43,6 +50,30 @@ const PurchaseHistory = (props: any) => {
     }),
     columnHelper.accessor('packagePrice', {
       header: 'Giá tiền',
+      size: 220,
+      Cell: ({ cell }: any) => (
+        <span>
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(cell.getValue())}
+        </span>
+      ),
+    }),
+    columnHelper.accessor('discountAmount', {
+      header: 'Giảm giá',
+      size: 220,
+      Cell: ({ cell }: any) => (
+        <span>
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(cell.getValue())}
+        </span>
+      ),
+    }),
+    columnHelper.accessor('totalAmount', {
+      header: 'Tổng',
       size: 220,
       Cell: ({ cell }: any) => (
         <span>
@@ -70,15 +101,30 @@ const PurchaseHistory = (props: any) => {
       ),
     }),
 
-    columnHelper.accessor('status', {
+    columnHelper.accessor('registerStatus', {
       header: 'Trạng thái giao dịch',
       size: 210,
       Cell: ({ cell }: any) => (
         <span>
-          {cell.getValue() === 3 && <Chip label={statusOption[3]} variant="soft" color="error" />}
-          {cell.getValue() === 2 && <Chip label={statusOption[2]} variant="soft" color="success" />}
-          {cell.getValue() === 1 && <Chip label={statusOption[1]} variant="soft" color="warning" />}
-          {cell.getValue() === 0 && <Chip label={statusOption[0]} variant="soft" color="default" />}
+          {cell.getValue() === "FAIL"&& <Chip label={statusOption[3]} variant="soft" color="error" />}
+          {cell.getValue() === "EXPIRED"&& <Chip label={statusOption[3]} variant="soft" color="error" />}
+
+          {cell.getValue() === "SUCCESS" && <Chip label={statusOption[2]} variant="soft" color="success" />}
+        
+        </span>
+      ),
+    }),
+
+    columnHelper.accessor('active', {
+      header: 'Trạng thái gói',
+      size: 210,
+      Cell: ({ cell }: any) => (
+        <span>
+          {cell.getValue() === true && <Chip label={'Đang dùng'} variant="soft" color="success" />}
+          {cell.getValue() === false && <Chip label={statusOption[0]} variant="soft" color="default" />}
+
+          {cell.getValue() === "SUCCESS" && <Chip label={statusOption[2]} variant="soft" color="success" />}
+        
         </span>
       ),
     }),

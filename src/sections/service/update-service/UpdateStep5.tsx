@@ -21,7 +21,7 @@ export default function UpdateStep5({
     onSubmit,
     setImageDelete,
 }: Step4Props) {
-    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     const minImages = 6;
 
     // State to store IDs of removed images
@@ -52,7 +52,7 @@ export default function UpdateStep5({
             return;
         }
         if (totalSize > maxSize) {
-            toast.error('Tổng dung lượng đã vượt quá giới hạn 50MB!');
+            toast.error('Tổng dung lượng đã vượt quá giới hạn 10MB!');
             return;
         }
         onSubmit(); // Call the parent submission handler
@@ -63,7 +63,7 @@ export default function UpdateStep5({
     return (
         <Box>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload tối thiểu 6 hình ảnh, tổng dung lượng không vượt quá 50MB.
+                *Yêu cầu upload tối thiểu 6 hình ảnh, tổng dung lượng không vượt quá 10MB.
             </Typography>
             <Box
                 {...getRootProps()}
@@ -86,7 +86,7 @@ export default function UpdateStep5({
                 </Typography>
                 {totalSize > maxSize && (
                     <Typography variant="body2" color="error">
-                        Tổng dung lượng đã vượt quá giới hạn 50MB!
+                        Tổng dung lượng đã vượt quá giới hạn 10MB!
                     </Typography>
                 )}
             </Box>

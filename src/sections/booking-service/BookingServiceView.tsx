@@ -7,6 +7,7 @@ import ForumTypeInFormation from "./ForumTypeInFormation"
 import BookingDashboard from "./Booking"
 import { useSettingsContext } from "src/components/settings"
 import { log } from "console"
+import ColorNotes from "./ColorNote"
 
 
 const ForumTypeView = () => {
@@ -20,7 +21,6 @@ const ForumTypeView = () => {
     const current1 = String(currentMonth).padStart(0, 2)
     const [months, setMonths] = useState(current1)
     const [years, setYears] = useState(year)
-    console.log(months);
 
     return (
 
@@ -47,7 +47,9 @@ const ForumTypeView = () => {
                 </Box>
                 <ForumTypeFilter setMonth={setMonths} setYears={setYears} searchVisible={view} month={months} year={years} setClose={setView} />
                 <ForumTypeInFormation />
+                <ColorNotes />
                 <BookingDashboard year={years} setYears={setYears} selectedMonth={months} setSelectedMonth={setMonths} />
+
             </Box>
 
         </Container>

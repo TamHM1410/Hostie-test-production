@@ -183,3 +183,35 @@ html,
 body {
   scroll-behavior: smooth; /* Hiệu ứng cuộn mượt */
 }
+.table-container {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table .sticky-header {
+  position: sticky;
+  top: 0; /* Cố định phần đầu bảng khi cuộn */
+  z-index: 2; /* Đảm bảo phần header nằm trên nội dung */
+  background-color: #f9f9f9;
+  z-index: 200;
+
+}
+
+.table .villa-name {
+  position: sticky;
+  left: 0; /* Cố định cột đầu tiên */
+  background-color: #f9f9f9;
+  z-index: 100; /* Đảm bảo cột nằm dưới header */
+}

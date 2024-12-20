@@ -10,7 +10,7 @@ import {getAllRolesApi} from 'src/api/users';
 import { useSession } from 'next-auth/react';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen ,LoadingScreen} from 'src/components/loading-screen';
+import { LoadingScreen} from 'src/components/loading-screen';
 import AmenityTable from './amenity-table';
 import { finAllAmenity } from 'src/api/amenity';
 import AddNewModal from './add-new-modal';

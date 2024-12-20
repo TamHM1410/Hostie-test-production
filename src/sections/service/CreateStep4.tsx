@@ -21,7 +21,7 @@ export default function Step4({
     onSubmit,
 }: Step4Props) {
     const minImages = 6;
-    const maxTotalSizeMB = 50;
+    const maxTotalSizeMB = 10;
 
     // Calculate the total size of uploaded images
     const totalSizeMB = images.reduce((sum, file) => sum + file.size / (1024 * 1024), 0);
@@ -29,7 +29,7 @@ export default function Step4({
     const onDrop = (acceptedFiles: File[]) => {
         const newFilesSizeMB = acceptedFiles.reduce((sum, file) => sum + file.size / (1024 * 1024), 0);
         if (totalSizeMB + newFilesSizeMB > maxTotalSizeMB) {
-            toast.error('Tổng dung lượng vượt quá 50 MB!', { position: 'top-right' });
+            toast.error('Tổng dung lượng vượt quá 10 MB!', { position: 'top-right' });
         } else {
             setImages([...images, ...acceptedFiles]);
             toast.success('Hình ảnh đã được tải lên!', { position: 'top-right' });
@@ -53,7 +53,7 @@ export default function Step4({
                 Thêm hình ảnh cho nơi lưu trú
             </Typography>
             <Typography variant="body2" color="textSecondary">
-                *Yêu cầu upload tối thiểu 6 hình ảnh và tổng dung lượng không vượt quá 50 MB.
+                *Yêu cầu upload tối thiểu 6 hình ảnh và tổng dung lượng không vượt quá 10 MB.
             </Typography>
             <Box
                 {...dropzoneProps()}
@@ -73,7 +73,7 @@ export default function Step4({
                 </Typography>
                 {totalSizeMB > maxTotalSizeMB && (
                     <Typography variant="body2" color="error">
-                        Tổng dung lượng vượt quá 50 MB!
+                        Tổng dung lượng vượt quá 10 MB!
                     </Typography>
                 )}
             </Box>

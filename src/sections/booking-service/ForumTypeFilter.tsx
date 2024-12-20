@@ -1,11 +1,28 @@
-import { Button, Select, Paper, Grid, Snackbar, TextField, MenuItem } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // Ensure @mui/x-date-pickers is installed
-import { useState } from "react";
+import { Button, Select, Paper, Grid, Snackbar, MenuItem } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useBooking } from "src/auth/context/service-context/BookingContext";
+import axios from "axios";
 
+interface IconOption {
+    id: string;
+    icon: string;
+    name: string;
+}
+const API_BASE_URL = 'https://core-api.thehostie.com/amenities/icon';
+
+export const fetchIcon = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching icons:', error);
+        return [];
+    }
+};
 // Validation Schema
 const schema = yup.object().shape({
     selectedProvince: yup.string(),
@@ -13,27 +30,40 @@ const schema = yup.object().shape({
     startDate1: yup.date().nullable(),
     endDate1: yup.date()
         .nullable()
-        .test("valid-range", "Ngày kết thúc không thể nhỏ hơn ngày bắt đầu!", (endDate1, context) => {
-            const startDate1 = context.parent.startDate1;
-            if (!startDate1 || !endDate1) return true; // Allow null dates
-            return endDate1 >= startDate1;
-        })
-    ,
-    maxPrice: yup.string().nullable().min(0, "Giá tối đa không được nhỏ hơn 0."),
-    minPrice: yup.string().nullable().min(0, "Giá tối thiểu không được nhỏ hơn 0."),
+        .test(
+            "valid-range",
+            "Ngày kết thúc không thể nhỏ hơn ngày bắt đầu!",
+            (endDate1, context) => {
+                const startDate1 = context.parent.startDate1;
+                if (!startDate1 || !endDate1) return true; // Allow null dates
+                return endDate1 >= startDate1;
+            }
+        ),
+    priceRange: yup.array()
+        .of(yup.number().min(0, "Giá phải lớn hơn hoặc bằng 0"))
+        .nullable(),
+    iconFilter: yup.array().of(yup.number()).nullable(),
+
 });
 
 const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYears }: { setYears: any, setMonth: any, searchVisible: boolean; month: any; year: any; setClose: any; }) => {
     const { provinceList, fetchBookingData } = useBooking();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [icons, setIcons] = useState<IconOption[]>([]);
 
-    // React Hook Form setup
+    useEffect(() => {
+        const loadIcons = async () => {
+            const data = await fetchIcon();
+            setIcons(data);
+        };
+        loadIcons();
+    }, []);
+
     const {
         handleSubmit,
         control,
         reset,
-        setError,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
@@ -42,50 +72,37 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
             selectedAccommodationType: "",
             startDate1: null,
             endDate1: null,
-            maxPrice: 0,
-            minPrice: 0,
+            priceRange: [0, 100000000], // Default price range
+            iconFilter: null, // Default value for icon filter
         },
     });
 
     const onSubmit = (data: any) => {
-        const { selectedProvince, selectedAccommodationType, startDate1, endDate1, maxPrice, minPrice } = data;
+        const { selectedProvince, selectedAccommodationType, startDate1, endDate1, priceRange, iconFilter } = data;
+        const [minPrice, maxPrice] = priceRange || [0, null];
 
-        // Format dates if selected
+        // Debug log the submitted data
+
+
         if (startDate1) {
-            // Trích xuất tháng từ đối tượng Date
-            const month1 = startDate1.getMonth(); // Tháng được tính từ 0 (0 = Tháng 1, 11 = Tháng 12)
-
-            const year1 = startDate1.getFullYear()
-            setYears(year1)
-            console.log(year1);
-
-            const formattedMonth = String(month1 + 1).padStart(2, '0'); // Thêm '0' nếu chỉ có một chữ số
-
-            // Tạo một đối tượng Date mới và đặt tháng
-            const newDate = new Date();
-            setMonth(month1 + 1); // Đặt tháng theo giá trị đã lấy từ startDate1
-
+            const month1 = startDate1.getMonth();
+            const year1 = startDate1.getFullYear();
+            setYears(year1);
+            setMonth(month1 + 1);
         }
-        // Fetch booking data
-        fetchBookingData(1, year, month, selectedProvince, selectedAccommodationType, [startDate1, endDate1], maxPrice, minPrice);
 
-        // Store search parameters in localStorage
+        fetchBookingData(1, year, month, selectedProvince, selectedAccommodationType, [startDate1, endDate1], maxPrice, minPrice, [iconFilter]);
+
         localStorage.setItem("searchParams", JSON.stringify(data));
-
-        // Show success message in snackbar
         setSnackbarMessage("Tìm kiếm thành công!");
         setSnackbarOpen(true);
     };
 
     const handleClearFilters = () => {
-        reset(); // Reset form fields
-        localStorage.removeItem("searchParams"); // Remove stored search params
-        fetchBookingData(1, year, month); // Fetch data with default filters
-
-        // Close the filter panel
+        reset();
+        localStorage.removeItem("searchParams");
+        fetchBookingData(1, year, month);
         setClose(false);
-
-        // Optionally show snackbar
         setSnackbarMessage("Bộ lọc đã được xóa!");
         setSnackbarOpen(true);
     };
@@ -97,14 +114,13 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                 opacity: searchVisible ? 1 : 0,
                 transition: "opacity 0.5s ease-in-out",
                 padding: "16px",
-                borderRadius: "8px", // Rounded corners for Paper
-                boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)", // Slight shadow
+                borderRadius: "8px",
+                boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
             }}
             aria-hidden={!searchVisible}
         >
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-                    {/* Province Selection */}
                     <Grid item xs={12} md={3}>
                         <Controller
                             name="selectedProvince"
@@ -136,7 +152,6 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                         {errors.selectedProvince && <p style={{ color: "red", marginTop: "4px" }}>{errors.selectedProvince.message}</p>}
                     </Grid>
 
-                    {/* Accommodation Type Selection */}
                     <Grid item xs={12} md={3}>
                         <Controller
                             name="selectedAccommodationType"
@@ -166,10 +181,8 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                         )}
                     </Grid>
 
-                    {/* Date Range Selection */}
                     <Grid item xs={12} md={6}>
                         <Grid container spacing={2}>
-                            {/* Start Date */}
                             <Grid item xs={6}>
                                 <Controller
                                     name="startDate1"
@@ -179,12 +192,10 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                                             value={field.value}
                                             onChange={(date) => field.onChange(date)}
                                             label="Chọn ngày bắt đầu"
-                                            renderInput={(props) => <TextField {...props} fullWidth />}
                                         />
                                     )}
                                 />
                             </Grid>
-                            {/* End Date */}
                             <Grid item xs={6}>
                                 <Controller
                                     name="endDate1"
@@ -194,59 +205,96 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                                             value={field.value}
                                             onChange={(date) => field.onChange(date)}
                                             label="Chọn ngày kết thúc"
-                                            renderInput={(props) => <TextField {...props} fullWidth />}
                                         />
                                     )}
                                 />
                             </Grid>
                         </Grid>
-                        {errors.startDate1 && <p style={{ color: "red", marginTop: "4px" }}>{errors.startDate1.message}</p>}
-                        {errors.endDate1 && <p style={{ color: "red", marginTop: "4px" }}>{errors.endDate1.message}</p>}
                     </Grid>
 
-                    {/* Price Inputs */}
-                    <Grid item xs={12} md={2}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6}>
-                                <Controller
-                                    name="minPrice"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            type="number"
-                                            {...field}
-                                            label="Giá tối thiểu"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                        />
-                                    )}
-                                />
-                                {errors.minPrice && <p style={{ color: "red", marginTop: "4px" }}>{errors.minPrice.message}</p>}
-                            </Grid>
-                            <Grid item xs={6}>
-                                <Controller
-                                    name="maxPrice"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            type="number"
-                                            {...field}
-                                            label="Giá tối đa"
-                                            InputProps={{
-                                                inputProps: { min: 0 },
-                                            }}
-                                        />
-                                    )}
-                                />
-                                {errors.maxPrice && <p style={{ color: "red", marginTop: "4px" }}>{errors.maxPrice.message}</p>}
-                            </Grid>
-                        </Grid>
+                    {/* Price Range Slider */}
+                    <Grid item xs={12} md={3}>
+                        <Controller
+                            name="priceRange"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    fullWidth
+                                    {...field}
+                                    displayEmpty
+                                    renderValue={(value) => {
+                                        if (!value || value.length === 0) return "Chọn khoảng giá";
+                                        if (Array.isArray(value)) {
+                                            const [min, max] = value;
+                                            if (min === 0 && max === 100000) return "0 - 100k";
+                                            if (min === 100000 && max === 400000) return "100k - 400k";
+                                            if (min === 400000 && max === 700000) return "400k - 700k";
+                                            if (min === 700000 && max === 1000000) return "700k - 1 triệu";
+                                            if (min === 1000000 && max === 2000000) return "1 triệu - 2 triệu";
+                                            if (min === 2000000 && max === 5000000) return "2 triệu - 5 triệu";
+                                            if (min === 5000000 && max === 1000000000000000) return "5 triệu trở lên";
+                                        }
+                                        return "Chọn khoảng giá";
+                                    }}
+                                    aria-label="Chọn khoảng giá"
+                                    style={{ minHeight: "40px" }}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Chọn khoảng giá
+                                    </MenuItem>
+                                    <MenuItem value={[0, 100000]}>0 - 100k</MenuItem>
+                                    <MenuItem value={[100000, 400000]}>100k - 400k</MenuItem>
+                                    <MenuItem value={[400000, 700000]}>400k - 700k</MenuItem>
+                                    <MenuItem value={[700000, 1000000]}>700k - 1 triệu</MenuItem>
+                                    <MenuItem value={[1000000, 2000000]}>1 triệu - 2 triệu</MenuItem>
+                                    <MenuItem value={[2000000, 5000000]}>2 triệu - 5 triệu</MenuItem>
+                                    <MenuItem value={[5000000, 1000000000000000]}>5 triệu trở lên</MenuItem>
+                                </Select>
+                            )}
+                        />
+
+                        {errors.priceRange && <p style={{ color: "red", marginTop: "4px" }}>{errors.priceRange.message}</p>}
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Controller
+                            name="iconFilter"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    fullWidth
+                                    {...field}
+                                    multiple
+                                    value={field.value || []}
+                                    displayEmpty
+                                    renderValue={(selected) => {
+                                        if (!selected || selected.length === 0) return "Chọn biểu tượng";
+                                        const selectedIcons = icons.filter((icon) => selected.includes(icon.id));
+                                        return selectedIcons.map((icon) => icon.name).join(", ");
+                                    }}
+                                    aria-label="Chọn biểu tượng"
+                                    error={!!errors.iconFilter}
+                                    style={{ minHeight: "40px" }}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Chọn biểu tượng
+                                    </MenuItem>
+                                    {icons.map((icon) => (
+                                        <MenuItem key={icon.id} value={icon.id}>
+                                            <img
+                                                src={icon.icon}
+                                                alt={icon.name}
+                                                style={{ width: "24px", marginRight: "8px" }}
+                                            />
+                                            {icon.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                        {errors.iconFilter && <p style={{ color: "red", marginTop: "4px" }}>{errors.iconFilter.message}</p>}
                     </Grid>
 
-                    {/* Buttons */}
+
                     <Grid item xs={12} md={4} sx={{ display: "flex", gap: 2 }}>
                         <Button
                             type="submit"
@@ -257,7 +305,6 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                                 width: "100%",
                                 height: "40px",
                             }}
-                            aria-label="Tìm kiếm"
                         >
                             Tìm kiếm
                         </Button>
@@ -266,7 +313,6 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                             color="secondary"
                             onClick={handleClearFilters}
                             style={{ width: "100%", height: "40px" }}
-                            aria-label="Xóa bộ lọc"
                         >
                             Xóa bộ lọc
                         </Button>
@@ -274,7 +320,6 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
                 </Grid>
             </form>
 
-            {/* Snackbar for success messages */}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

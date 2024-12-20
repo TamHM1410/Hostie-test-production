@@ -399,7 +399,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                                                     </ListItemButton>
                                                 </ListItem>
                                             )}
-                                            {!row.original.is_host_accept && (
+                                            {/* {!row.original.is_host_accept && (
                                                 <ListItem disablePadding>
                                                     <ListItemButton
                                                         onClick={() => {
@@ -414,7 +414,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                                                         <ListItemText primary="Sửa Đặt Nơi Lưu Trú" />
                                                     </ListItemButton>
                                                 </ListItem>
-                                            )}
+                                            )} */}
                                             {row.original.is_host_accept && !row.original.is_seller_transfer && (
                                                 <ListItem disablePadding>
                                                     <ListItemButton
@@ -497,7 +497,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
             <BookingDetailSidebar
                 open={openSidebar}
                 onClose={() => setOpenSidebar(false)}
-                bookingDetails={detail?.booking}
+                bookingDetails={detail}
                 onSave={(updatedDetails) => {
                     handleUpdateBookingSubmit(updatedDetails);
                 }}

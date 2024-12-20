@@ -19,6 +19,7 @@ import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DatePicker } from '@mui/x-date-pickers';
+import toast from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
     default_price: Yup.number()
@@ -29,8 +30,8 @@ const validationSchema = Yup.object().shape({
             Yup.object().shape({
                 weeknd_day: Yup.number().required('Vui lòng chọn ngày cuối tuần'),
                 price: Yup.number()
-                    .nullable()
-                    .positive('Giá mới phải là số dương'),
+                    .required('Giá mới là bắt buộc')
+                    .min(1, 'Giá phải lớn hơn 0'),
             })
         )
         .max(2, 'Không thể thêm quá 2 mục giá cuối tuần'),
@@ -51,9 +52,9 @@ const validationSchema = Yup.object().shape({
                     'Ngày kết thúc không được vượt quá 1 năm kể từ ngày hiện tại'
                 ),
             price: Yup.number()
-                .nullable()
-                .positive('Giá mới phải là số dương'),
-            description: Yup.string().required('Mô tả là bắt buộc'),
+                .required('Giá mới là bắt buộc')
+                .min(1, 'Giá phải lớn hơn 0'),
+            description: Yup.string(),
         })
     ),
 });
@@ -146,7 +147,6 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
     // }, [setValue]);
 
     const handleFormSubmit = (data: FormData) => {
-        localStorage.setItem('step3Data', JSON.stringify(data));
         onSubmit(data);
     };
 
@@ -154,6 +154,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
         if (weekend_price?.length < 2) {
             setValue('weekend_price', [...weekend_price, { weeknd_day: 0, price: 0 }]);
         }
+
     };
 
     const removeWeekendEntry = (index: number) => {
@@ -164,12 +165,12 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
     };
 
     const addSeasonEntry = () => {
-        if (season_price?.length < 5) {
-            setValue('season_price', [
-                ...season_price,
-                { start_date: null, end_date: null, price: 0, description: '' },
-            ]);
-        }
+
+        setValue('season_price', [
+            ...season_price,
+            { start_date: null, end_date: null, price: 0, description: '' },
+        ]);
+
     };
 
     const removeSeasonEntry = (index: number) => {
@@ -270,38 +271,56 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
                         control={control}
                         name={`season_price.${index}.start_date`}
                         render={({ field }) => (
-                            <DatePicker
-                                {...field}
-                                label="Ngày bắt đầu"
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        fullWidth
-                                        error={!!errors.season_price?.[index]?.start_date}
-                                        helperText={errors.season_price?.[index]?.start_date?.message || ''}
-                                    />
+                            <>
+                                <DatePicker
+                                    {...field}
+                                    label="Ngày bắt đầu"
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            fullWidth
+                                            error={!!errors.season_price?.[index]?.start_date}
+                                            helperText={errors.season_price?.[index]?.start_date?.message || ''}
+                                        />
+                                    )}
+                                    onChange={(date) => field.onChange(date)}
+                                />
+                                {!!errors.season_price?.[index]?.start_date && (
+                                    <Typography color="error" variant="caption">
+                                        {errors.season_price?.[index]?.start_date?.message}
+                                    </Typography>
                                 )}
-                                onChange={(date) => field.onChange(date)}
-                            />
+                            </>
+
                         )}
                     />
                     <Controller
                         control={control}
                         name={`season_price.${index}.end_date`}
                         render={({ field }) => (
-                            <DatePicker
-                                {...field}
-                                label="Ngày kết thúc"
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        fullWidth
-                                        error={!!errors.season_price?.[index]?.end_date}
-                                        helperText={errors.season_price?.[index]?.end_date?.message || ''}
-                                    />
+                            <>
+                                <DatePicker
+                                    {...field}
+                                    label="Ngày kết thúc"
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            fullWidth
+                                            error={!!errors.season_price?.[index]?.end_date}
+                                            helperText={errors.season_price?.[index]?.end_date?.message || ''}
+                                        />
+                                    )}
+                                    onChange={(date) => field.onChange(date)}
+
+                                />
+
+                                {!!errors.season_price?.[index]?.end_date && (
+                                    <Typography color="error" variant="caption">
+                                        {errors.season_price?.[index]?.end_date?.message}
+                                    </Typography>
                                 )}
-                                onChange={(date) => field.onChange(date)}
-                            />
+                            </>
+
                         )}
                     />
                     <TextField
@@ -314,14 +333,6 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
                         InputProps={{
                             endAdornment: <InputAdornment position="end">VND</InputAdornment>,
                         }}
-                    />
-                    <TextField
-                        label="Mô tả"
-                        variant="outlined"
-                        fullWidth
-                        {...register(`season_price.${index}.description`)}
-                        error={!!errors.season_price?.[index]?.description}
-                        helperText={errors.season_price?.[index]?.description?.message}
                     />
                     <IconButton onClick={() => removeSeasonEntry(index)} color="error">
                         <RemoveIcon />

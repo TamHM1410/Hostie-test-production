@@ -67,13 +67,13 @@ export default function UpdateStep2({
         }
 
         // Check if the amenity name is already in the list
-        if (tempSelectedAmenities.some(amenity => amenity.name === amenityName)) {
+        if (tempSelectedAmenities.some(amenity => amenity.icon_id === selectedIcon)) {
             setError('Tên tiện ích đã tồn tại.');
             return;
         }
 
-        if (!amenityName || !selectedIcon) {
-            setError('Vui lòng nhập tên tiện ích và chọn biểu tượng.');
+        if (!selectedIcon) {
+            setError('Vui lòng chọn 1 tiện ích.');
             return;
         }
 
@@ -86,7 +86,7 @@ export default function UpdateStep2({
     };
 
     const handleRemoveAmenity = (amenityToRemove: Amenity) => {
-        setTempSelectedAmenities(tempSelectedAmenities.filter(a => a.name !== amenityToRemove.name));
+        setTempSelectedAmenities(tempSelectedAmenities.filter(a => a.icon_id !== amenityToRemove.icon_id));
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -109,18 +109,8 @@ export default function UpdateStep2({
             </Backdrop>
             <Box display="flex" flexDirection="column" alignItems="center" >
                 <TextField
-                    label="Tên tiện ích"
-                    value={amenityName}
-                    onChange={(e) => setAmenityName(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{ minWidth: { xs: '100%', sm: 450 } }}
-                    error={Boolean(error && !amenityName)}
-                    helperText={error && !amenityName ? 'Tên tiện ích không được để trống.' : ''}
-                />
-                <TextField
                     select
-                    label="Chọn biểu tượng"
+                    label="Chọn tiện ích"
                     value={selectedIcon}
                     onChange={(e) => setSelectedIcon(e.target.value)}
                     margin="normal"
@@ -136,15 +126,6 @@ export default function UpdateStep2({
                         </MenuItem>
                     ))}
                 </TextField>
-                <TextField
-                    label="Mô tả tiện ích"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{ minWidth: { xs: '100%', sm: 450 } }}
-                />
-
                 <Button onClick={handleAddAmenity} color="primary" size="small">
                     Thêm tiện ích
                 </Button>
@@ -157,24 +138,24 @@ export default function UpdateStep2({
             </Box>
 
             <Box mt={2}>
-                <Typography variant="subtitle1">Tiện ích đã thêm:</Typography>
+                <Typography variant="subtitle1">Tiện ích đã chọn:</Typography>
                 <Box mt={1} display="flex" gap={1} flexWrap="wrap">
                     {tempSelectedAmenities.length > 0 ? (
                         tempSelectedAmenities.map((amenity, index) => (
                             <Chip
                                 key={index}
-                                label={`${amenity.name} (icon ${icons.find(a => a.id === amenity.icon_id)?.name || ''})`}
+                                label={`${icons.find(a => a.id === amenity.icon_id)?.name || ''}`}
                                 onDelete={() => handleRemoveAmenity(amenity)}
                                 color="primary"
                             />
                         ))
                     ) : (
-                        <Typography variant="body2">Chưa có tiện ích nào được thêm.</Typography>
+                        <Typography variant="body2">Chưa có tiện ích nào được chọn.</Typography>
                     )}
                 </Box>
             </Box>
             <Box mt={2}>
-                <Typography variant="subtitle1">Biểu tượng đã chọn:</Typography>
+                <Typography variant="subtitle1">Biểu tượng của tiện ích đã chọn:</Typography>
                 <Box mt={1} display="flex" gap={3} flexWrap="wrap">
                     {tempSelectedAmenities.length > 0 ? (
                         tempSelectedAmenities.map((amenity, index) => (

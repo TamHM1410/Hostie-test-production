@@ -35,6 +35,72 @@ interface Log {
     data_change: DataChange[] | null;
 }
 
+const fieldMapping: Record<string, string> = {
+    id: "Mã",
+    residence_id: "Mã nơi lưu trú",
+    seller_id: "Mã người môi giới",
+    total_amount: "Tổng số tiền",
+    paid_amount: "Số tiền đã thanh toán",
+    checkin: "Ngày nhận phòng",
+    checkout: "Ngày trả phòng",
+    total_nights: "Tổng số đêm",
+    total_days: "Tổng số ngày",
+    hold_residence_id: "Mã giữ nơi lưu trú",
+    guest_name: "Tên khách hàng",
+    guest_phone: "Số điện thoại khách hàng",
+    host_phone: "Số điện thoại chủ nhà",
+    residence_address: "Địa chỉ nơi lưu trú",
+    is_host_accept: "Chủ nhà đã xác nhận",
+    is_seller_transfer: "Người môi giới đã chuyển khoản",
+    is_host_receive: "Chủ nhà đã nhận",
+    is_customer_checkin: "Khách hàng đã nhận phòng",
+    is_customer_checkout: "Khách hàng đã trả phòng",
+    description: "Mô tả",
+    bank_account_id: "Mã tài khoản ngân hàng",
+    guest_count: "Số lượng khách",
+    bank_account_holder: "Chủ tài khoản",
+    bank_account_no: "Số tài khoản",
+    reason_reject: "Lý do từ chối",
+    bank_id: "Mã ngân hàng",
+    commission_rate: "Tỷ lệ hoa hồng",
+    created_at: "Ngày tạo",
+    updated_at: "Ngày cập nhật",
+};
+const formatBoolean = (field: string, value: boolean): string => {
+    const booleanMappings: Record<string, Record<boolean, string>> = {
+        is_host_accept: { true: "Đã xác nhận", false: "Chưa xác nhận" },
+        is_seller_transfer: { true: "Đã chuyển khoản", false: "Chưa chuyển khoản" },
+        is_host_receive: { true: "Đã nhận", false: "Chưa nhận" },
+        is_customer_checkin: { true: "Đã nhận phòng", false: "Chưa nhận phòng" },
+        is_customer_checkout: { true: "Đã trả phòng", false: "Chưa trả phòng" },
+    };
+    return booleanMappings[field]?.[value] || (value ? "Có" : "Không");
+};
+
+const formatMoney = (value: number): string =>
+    new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(value);
+
+const formatDate = (value: string): string => {
+    const date = new Date(value);
+    return date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    });
+};
+const eventTypeMapping: Record<string, string> = {
+    BOOKING_CREATED: "Đặt nơi lưu trú mới",
+    HOST_ACCEPTED_BOOKING: "Chủ nhà đã xác nhận đặt chỗ",
+    SELLER_TRANSFERRED: "Người môi giới đã chuyển khoản",
+    HOST_RECEIVED: "Chủ nhà đã nhận tiền",
+    CUSTOMER_CHECKIN: "Khách hàng đã nhận phòng",
+    CUSTOMER_CHECKOUT: "Khách hàng đã trả phòng",
+    BOOKING_SYSTEM_CANCELLED: "Hệ thống đã hủy đặt chỗ",
+};
+
 interface LogsTableModalProps {
     logs: Log[];
     open: boolean;
@@ -62,14 +128,13 @@ const BookingLogsModal: React.FC<LogsTableModalProps> = ({ logs, open, onClose }
                             {logs?.map((log, index) => (
                                 <TableRow key={index}>
                                     {/* Hiển thị ngày */}
-                                    <TableCell>
-                                        {new Date(log.date).toLocaleString("vi-VN", {
-                                            timeZone: "Asia/Ho_Chi_Minh",
-                                        })}
-                                    </TableCell>
+                                    <TableCell>{formatDate(log.date)}</TableCell>
 
                                     {/* Hiển thị loại sự kiện */}
-                                    <TableCell>{log?.event_type}</TableCell>
+                                    <TableCell>
+                                        {eventTypeMapping[log?.event_type] || log?.event_type}
+                                    </TableCell>
+
 
                                     {/* Hiển thị thông tin người dùng */}
                                     <TableCell>
@@ -100,9 +165,25 @@ const BookingLogsModal: React.FC<LogsTableModalProps> = ({ logs, open, onClose }
                                                         <TableBody>
                                                             {log.data_change.map((change, idx) => (
                                                                 <TableRow key={idx}>
-                                                                    <TableCell>{change?.field}</TableCell>
-                                                                    <TableCell>{change?.old_value ?? "N/A"}</TableCell>
-                                                                    <TableCell>{change?.new_value ?? "N/A"}</TableCell>
+                                                                    <TableCell>{fieldMapping[change?.field] || change?.field}</TableCell>
+                                                                    <TableCell>
+                                                                        {["total_amount", "paid_amount"].includes(change?.field)
+                                                                            ? formatMoney(change?.old_value)
+                                                                            : ["checkin", "checkout", "created_at", "updated_at"].includes(change?.field)
+                                                                                ? formatDate(change?.old_value)
+                                                                                : typeof change?.old_value === "boolean"
+                                                                                    ? formatBoolean(change?.field, change?.old_value)
+                                                                                    : change?.old_value ?? "N/A"}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        {["total_amount", "paid_amount"].includes(change?.field)
+                                                                            ? formatMoney(change?.new_value)
+                                                                            : ["checkin", "checkout", "created_at", "updated_at"].includes(change?.field)
+                                                                                ? formatDate(change?.new_value)
+                                                                                : typeof change?.new_value === "boolean"
+                                                                                    ? formatBoolean(change?.field, change?.new_value)
+                                                                                    : change?.new_value ?? "N/A"}
+                                                                    </TableCell>
                                                                 </TableRow>
                                                             ))}
                                                         </TableBody>

@@ -14,7 +14,8 @@ type Props = {
 export function AuthConsumer({ children }: Props) {
   return (
     <AuthContext.Consumer>
-      {(auth) => (auth.loading ? <SplashScreen /> : children)}
+      
+      {(auth) => (auth.loading ? children: children)}
     </AuthContext.Consumer>
   );
 }

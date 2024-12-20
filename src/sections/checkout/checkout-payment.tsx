@@ -1,9 +1,8 @@
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter,useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
 // @mui
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -26,6 +25,7 @@ import CheckoutSummary from './checkout-summary';
 // import CheckoutBillingInfo from './checkout-billing-info';
 import CheckoutPaymentMethods from './checkout-payment-methods';
 import { useCurrentPaymentType } from 'src/zustand/package';
+import toast from 'react-hot-toast';
 
 // ----------------------------------------------------------------------
 
@@ -75,13 +75,17 @@ const CARDS_OPTIONS: ICheckoutCardOption[] = [
 export default function CheckoutPayment({ price, id, discount, step }: any) {
   const { type, package_id } = useCurrentPaymentType();
 
+  // const id = searchParams.get('packageId') || package_id;
+
   const checkout = useCheckoutContext();
 
   const router = useRouter();
 
-  const searchParam=useSearchParams()
+  const searchParam = useSearchParams();
 
-  const currentId=searchParam.get("packageId")
+  const currentId = searchParam.get('packageId');
+
+  const typePackage = searchParam.get('type');
 
   const { data: session } = useSession();
 
@@ -111,28 +115,28 @@ export default function CheckoutPayment({ price, id, discount, step }: any) {
         packageId: currentId,
       };
 
-      if (type === 'extend') {
-        const result: any = await extendPackageApi(package_id);
+      if (typePackage === 'extend') {
+        const result: any = await extendPackageApi(Number(currentId));
         router.push(result?.paymentUrl);
       }
 
-      if (type === 'upgrade') {
-        const result: any = await upgrade_package(id);
+      if (typePackage === 'upgrade') {
+        const result: any = await upgrade_package(Number(currentId));
         router.push(result?.paymentUrl);
       }
-      if (type === 'normal') {
-        const result: any = await registerPackageApi(payload);
+      if (typePackage === 'normal') {
+        const result: any = await registerPackageApi(Number(currentId));
         router.push(result?.paymentUrl);
       }
     } catch (error) {
-      console.error(error);
+      toast.error('Đã có lỗi xảy ra')
+      console.error(error, 'err');
     }
   });
 
-
   const handleBack = () => {
     router.push(
-      `/pricing/checkout/?step=0&type=${type}&packageId=${currentId}`
+      `/pricing/checkout/?step=0&type=${type ? type : typePackage}&packageId=${currentId}`
     );
   };
 

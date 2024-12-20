@@ -1,5 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
+import { useSession } from 'next-auth/react';
+
+import { SplashScreen } from 'src/components/loading-screen';
+
 // auth
 
 // components
@@ -12,9 +18,22 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return (
+  const { data: session, status } = useSession(); // Lấy session và trạng thái
 
-    <DashboardLayout>{children}</DashboardLayout>
+  const [isMounted, setIsMounted] = useState(false); // Tránh lỗi khi rendering trên server
 
-  );
+  useEffect(() => {
+    setIsMounted(true); // Chỉ set sau khi component đã mount trên client
+  }, []);
+
+  if (!isMounted || status === 'loading') {
+    return <SplashScreen />;
+  }
+
+  if (!session) {
+    // Nếu không có session, chuyển hướng đến trang đăng nhập
+    return null; // Để tránh render nếu không có session
+  }
+
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

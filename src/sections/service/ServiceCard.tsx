@@ -30,9 +30,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
-import HistoryIcon from '@mui/icons-material/History';
 import Link from 'next/link';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { MenuIcon } from 'lucide-react';
 import axiosClient from 'src/utils/axiosClient';
@@ -45,6 +43,7 @@ import { formatDate } from 'src/utils/format-time';
 import UpdatePolicy from './update-service/UpdateStep3';
 
 const baseURL = 'https://core-api.thehostie.com';
+
 const policyTemplate = `
 🏨 Chính Sách Khách Sạn Paradise
 
@@ -65,6 +64,8 @@ interface ServiceCardListProps {
     currentPage: number;
     onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
     fetchData: any;
+    isLoading: any;
+    setIsLoading: any;
 }
 export default function ServiceCardList({
     currentItems,
@@ -72,6 +73,7 @@ export default function ServiceCardList({
     currentPage,
     onPageChange,
     fetchData,
+    setIsLoading
 }: ServiceCardListProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [prices, setPrices] = React.useState()
@@ -125,6 +127,7 @@ export default function ServiceCardList({
         setConfirmName('');
     };
     const handleDeleteConfirm = async () => {
+        setIsLoading(true)
         if (confirmName === selectedName) {
             try {
                 const response = await axiosClient.delete(`${baseURL}/residences/`, {
@@ -145,6 +148,7 @@ export default function ServiceCardList({
             } finally {
                 setOpenDialog(false);
                 setConfirmName('');
+                setIsLoading(false)
             }
         } else {
             toast.error('Tên không chính xác, không thể xóa.');
@@ -161,7 +165,6 @@ export default function ServiceCardList({
         setActiveStep(newValue);
     };
     // data residence
-
     const fetchDataDetail = async () => {
         try {
             const response = await axiosClient.get(`${baseURL}/residences/${selectedId}`, {});
@@ -201,8 +204,6 @@ export default function ServiceCardList({
         }
     };
 
-
-
     const [policy, setPolicy] = React.useState()
 
     const fetchPolicy = async () => {
@@ -213,8 +214,6 @@ export default function ServiceCardList({
             console.error('Error fetching residence data:', error);
         }
     };
-
-
     const handleEditClick = () => {
         setOpenEditDialog(true);
         setAnchorEl(null);
@@ -223,9 +222,9 @@ export default function ServiceCardList({
         fetchImages();
         fetchPolicy()
     };
-
     // submit step
     const handleStep1Submit = async (data: any) => {
+        setIsLoading(true)
         const payload = {
             step: 1,
             name: data.serviceName,
@@ -244,12 +243,15 @@ export default function ServiceCardList({
             const response = await axiosClient.post(`${baseURL}/residences`, payload);
             toast.success('Cập nhật thông tin cơ bản của lưu trú thành công');
             fetchDataDetail();
+            setIsLoading(false)
         } catch (error) {
             console.error('Error submitting step 1:', error);
             toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
+            setIsLoading(false)
         }
     };
     const handleStep2Submit = async (data: any) => {
+        setIsLoading(true)
         const payload = {
             step: 2,
             id: residenceData.residence_id,
@@ -263,12 +265,15 @@ export default function ServiceCardList({
             const response = await axiosClient.post(`${baseURL}/residences`, payload, {});
             fetchDataDetail();
             toast.success('Cập nhật địa chỉ của lưu trú thành công');
+            setIsLoading(false)
         } catch (error) {
             console.error('Error submitting step 1:', error);
             toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
+            setIsLoading(false)
         }
     };
     const handleStep3Submit = async (data: any) => {
+        setIsLoading(true)
         const payload = {
             step: 3,
             id: residenceData.residence_id,
@@ -283,13 +288,15 @@ export default function ServiceCardList({
             const response = await axiosClient.post(`${baseURL}/residences`, payload, {});
             fetchDataDetail();
             toast.success('Cập nhật tiện ích của lưu trú thành công');
+            setIsLoading(false)
         } catch (error) {
             console.error('Error submitting step 1:', error);
             toast.error('Đã xảy ra lỗi khi cập hãy kiểm tra lại dữ liệu.');
+            setIsLoading(false)
         }
     };
     const handleStep4Submit = async (data: any) => {
-        console.log(typeof data.weekendSurcharge);
+        setIsLoading(true)
         const payload = {
             step: 4,
             id: parseInt(residenceData.residence_id),
@@ -316,9 +323,12 @@ export default function ServiceCardList({
 
             });
             toast.success("Cập nhật giá thành công")
+            fetchPrices()
+            setIsLoading(false)
         } catch (error) {
             console.error('Error submitting step 3:', error);
             toast.error('Cập nhật giá thất bại vui lòng thử lại sau.')
+            setIsLoading(false)
         }
     };
 
@@ -326,7 +336,7 @@ export default function ServiceCardList({
     const [imageDelete, setImageDelete] = React.useState()
 
     const handleStep5Submit = async (data: any) => {
-
+        setIsLoading(true)
         const formData = new FormData();
         formData.append('step', '5');
         formData.append('id', residenceData.residence_id);
@@ -341,15 +351,16 @@ export default function ServiceCardList({
             handleClose();
             fetchImages()
             toast.success('Cập nhật hình ảnh nơi lưu trú thành công');
-
+            setIsLoading(false)
         } catch (error) {
             console.log(error);
-
+            setIsLoading(false)
             if (error.status === 413) {
                 toast.error('Tệp hình quá nặng không thể upload lên server')
+                setIsLoading(false)
 
             } else {
-
+                setIsLoading(false)
                 toast.error('Đã có lỗi xảy ra')
             }
 
@@ -358,7 +369,7 @@ export default function ServiceCardList({
     const [deletePolicy, setDeletePolicy] = React.useState()
 
     const handleSavePolicy = async (files: File[]) => {
-
+        setIsLoading(true)
         const formData = new FormData();
         formData.append('policy', policyTemplate);
         formData.append('residence_id', residenceData.residence_id);
@@ -372,9 +383,11 @@ export default function ServiceCardList({
             });
             fetchPolicy()
             toast.success('Cập nhật hình ảnh chính sách thành công')
-
+            setIsLoading(false)
         } catch (error) {
             toast.error('Đã có lỗi khi cập nhật hình ảnh chính sách')
+            setIsLoading(false)
+
         }
 
 

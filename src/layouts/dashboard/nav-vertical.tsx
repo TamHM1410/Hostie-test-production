@@ -28,6 +28,7 @@ type Props = {
 export default function NavVertical({ openNav, onCloseNav }: Props) {
   const { user } = useMockedUser();
 
+
   const pathname = usePathname();
 
   const lgUp = useResponsive('up', 'lg');

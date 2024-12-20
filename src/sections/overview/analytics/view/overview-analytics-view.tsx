@@ -52,7 +52,7 @@ export default function OverviewAnalyticsView() {
   const [totalResidence, setTotalResidence] = useState(0);
   const [totalButler, setTotalButler] = useState(0);
   const [commission, setTotalCommission] = useState(0);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0.1);
 
   const results = useQueries({
     queries: [
@@ -158,7 +158,7 @@ export default function OverviewAnalyticsView() {
   if (results.loading) {
     return <LoadingScreen />;
   }
-  console.log(totalResidence,'sold')
+  console.log(totalRevenue,'sold')
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -183,7 +183,7 @@ export default function OverviewAnalyticsView() {
         <Grid xs={12} sm={6} md={userCurrentRole === 'HOST' ? 3 : 4}>
           <AnalyticsWidgetSummary
             title={userCurrentRole === 'HOST' ? 'Quản gia ' : ' Tổng doanh thu cho chủ nhà '}
-            total={totalButler}
+            total={userCurrentRole === 'HOST' ? totalButler: totalRevenue}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
@@ -191,9 +191,9 @@ export default function OverviewAnalyticsView() {
         <Grid xs={12} sm={6} md={userCurrentRole === 'HOST' ? 3 : 4}>
           <AnalyticsWidgetSummary
             title={
-              Array.isArray(results) && userCurrentRole === 'HOST'
+              userCurrentRole === 'HOST'
                 ? 'Hoa hồng cho seller'
-                : 'Hoa hồng của bạn'
+                : 'Hoa hồng của bạn '
             }
             total={commission}
             color="error"
