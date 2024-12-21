@@ -76,7 +76,6 @@ export default function AvatarView() {
                 <Avatar alt={_mock.fullName(index + 3)}>
                   {_mock
                     .fullName(index + 3)
-                    .charAt(0)
                     .toUpperCase()}
                 </Avatar>
               </Tooltip>
