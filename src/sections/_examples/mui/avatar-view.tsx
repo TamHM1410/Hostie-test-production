@@ -74,9 +74,7 @@ export default function AvatarView() {
             {COLORS.map((color, index) => (
               <Tooltip key={color} title={color}>
                 <Avatar alt={_mock.fullName(index + 3)}>
-                  {_mock
-                    .fullName(index + 3)
-                    .toUpperCase()}
+                 xxxx
                 </Avatar>
               </Tooltip>
             ))}
