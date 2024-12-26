@@ -54,12 +54,12 @@ export default function PricingView() {
 
       <Box sx={{mt:5}}>
         <Grid container spacing={15} columns={16}>
-          <Grid item xs={16} sm={8}>
-            <Typography sx={{py:2,px:{xs:10}}}>Các gói dành cho seller:</Typography>
+          <Grid item xs={8}>
+            <Typography sx={{py:2}}>Các gói dành cho seller:</Typography>
             <SellerPackageCard />
           </Grid>
-          <Grid item xs={16} sm={8}>
-          <Typography sx={{py:2,px:{xs:10}}}>Các gói dành cho chủ nhà:</Typography>
+          <Grid item xs={8}>
+          <Typography sx={{py:2}}>Các gói dành cho chủ nhà:</Typography>
 
             <HostPackageCard />
           </Grid>

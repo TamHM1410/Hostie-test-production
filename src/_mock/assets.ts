@@ -221,10 +221,10 @@ export const _phoneNumbers = [
 // ----------------------------------------------------------------------
 
 export const _roles = [
-  'Co-founder,BE developer ',
-  'Co-founder,BE developer',
-  'Co-founder,FE developer',
-  'Co-founder,FE developer',
+  'CTO',
+  'Co-founder (ko làm gì)',
+  'Front-end developer',
+  'Co-founder',
   
 ];
 
