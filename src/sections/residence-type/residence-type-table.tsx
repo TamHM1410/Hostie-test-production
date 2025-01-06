@@ -1,5 +1,4 @@
 //  @hook
-import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { UserManagement } from 'src/types/users';
 import {useCurrentResidenceType } from 'src/zustand/store';
 
@@ -13,12 +12,9 @@ import {
   } from 'material-react-table';
   
 import { Box, Button, Chip } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 //  @component
-
 import ResidenceActionMenu from './residence-type-menu';
 
-//  @another
 
   
 
@@ -58,7 +54,7 @@ import ResidenceActionMenu from './residence-type-menu';
       }),
   
       columnHelper.accessor('action', {
-        header: 'Hành động',
+        header: 'Thao tác',
         size: 220,
         Cell: ({ cell }:any) => (
           <span

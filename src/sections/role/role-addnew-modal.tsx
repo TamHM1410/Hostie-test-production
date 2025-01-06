@@ -1,51 +1,59 @@
+//  @hooks
 import * as React from 'react';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRoleManagement } from 'src/api/useRoleManagement';
+
+//  @lib
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Grid, Stack, Card } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+
+//  @type
 import { Role } from 'src/types/users';
-import { createdRoleApi } from 'src/api/users';
 
 const AddNewRoleModal = (props: any) => {
+  const { createNewRole } = useRoleManagement();
 
-
-  const [open,setOpen]=useState(false)
-//   const { currenUserSelected } = useCurrentUser();
+  const [open, setOpen] = useState(false);
+  //   const { currenUserSelected } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) =>  createdRoleApi(payload),
-    onSuccess: () => {
-        setOpen(!open)
-        toast.success('created success')
-        queryClient.invalidateQueries(['roleList'] as any);
-        reset()
+    mutationFn: async (payload: any) => {
+      const res = await createNewRole(payload);
+      setOpen(!open);
+      queryClient.invalidateQueries(['roleList'] as any);
+      reset();
 
+      return 'dsdjsods';
     },
+    onSuccess: () => {},
     onError: (error) => {
-      toast.error('Error');
+      console.log(error, 'err');
     },
   });
 
   const UpdateUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().required('Chưa nhập thông tin'),
     status: Yup.number().notRequired(),
-    description: Yup.string().required('Email is required'),
+    description: Yup.string().required('Chưa nhập thông tin'),
   });
 
-  const defaultValues: Pick<Role,'name'|'status'|'description'> = {
+  const defaultValues: Pick<Role, 'name' | 'status' | 'description'> = {
     name: '',
-    status: 0,
+    status: 2,
     description: '',
   };
 
@@ -62,15 +70,13 @@ const AddNewRoleModal = (props: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-        mutate(data)
-    } catch (error) {
-      console.error(error);
-    }
+      mutate(data);
+    } catch (error) {}
   };
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2}}>
+      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2 }}>
         <AddIcon /> Thêm mới quyền
       </Button>
       <Modal
@@ -87,9 +93,9 @@ const AddNewRoleModal = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
-            borderRadius:2,
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
           }}
@@ -109,14 +115,13 @@ const AddNewRoleModal = (props: any) => {
                     sm: 'repeat(0, 1fr)',
                   }}
                 >
-                  <RHFTextField name="name" label=" Name" />
-                  <RHFTextField name="description" label=" Description" />
+                  <RHFTextField name="name" label=" Tên" />
+                  <RHFTextField name="description" label=" Mô tả" />
 
-                  <RHFTextField name="status" label="Status" />
+                  {/* <RHFTextField name="status" label="Trạng thái" /> */}
                 </Box>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
-                 
                   <Button variant="contained" onClick={() => setOpen(false)}>
                     Hủy
                   </Button>

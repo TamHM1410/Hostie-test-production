@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useCallback, useState} from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useCurrentUser } from 'src/zustand/store';
@@ -24,28 +24,25 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 /// type
 import { UserInfor, BankAccount } from 'src/types/users';
 import toast from 'react-hot-toast';
-import UserSocial from './user-social';
 
 ///
 
 //------------------
 const updateInfor = async (payload: any) => {
   const res = await updateUserById(payload);
-  
+
   if (!res) {
     throw new Error('Failed to update user');
   }
   return res.result;
 };
 
-
-
 export default function UserGeneral(props: any) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const { userData ,open,setOpen } = props;
+  const { userData, open, setOpen } = props;
 
-  const {currenUserSelected}=useCurrentUser()
+  const { currenUserSelected } = useCurrentUser();
 
   const { data, isLoading, isPending, error } = useQuery({
     queryKey: ['userInfo'],
@@ -137,24 +134,25 @@ export default function UserGeneral(props: any) {
     }
   });
 
-//   console.log(currenUserSelected,'cureent')
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
         <Grid xs={12} md={4}>
-          <Card sx={{ pt: 10, pb: 5, px: 3, textAlign: 'center' }}>
-        
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Image
-                  alt="cmm"
-                  src={currenUserSelected?.urlAvatar ===null ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIhfGUExJgZR3U14lrHjfQffv7uu3jgtAOA&s' :currenUserSelected?.urlAvatar }
-                  width={120}
-                  height={120}
-                  style={{ borderRadius: 80 }}
-                />
-              </Box>
-            
+          <Card sx={{ pt: 10, pb: 5, px: 3, textAlign: 'center' }} >
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Image
+                alt="cmm"
+                src={
+                  currenUserSelected?.urlAvatar === null
+                    ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIhfGUExJgZR3U14lrHjfQffv7uu3jgtAOA&s'
+                    : currenUserSelected?.urlAvatar
+                }
+                width={120}
+                height={120}
+                style={{ borderRadius: 80 }}
+              />
+            </Box>
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
               {currenUserSelected?.username}
@@ -164,7 +162,7 @@ export default function UserGeneral(props: any) {
 
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-            <Typography sx={{ py: 3 }}>User Infor</Typography>
+            <Typography sx={{ py: 3 }}>Thông tin người dùng</Typography>
             <Box
               rowGap={3}
               columnGap={3}
@@ -218,7 +216,7 @@ export default function UserGeneral(props: any) {
                 </>
               );
             })}
-            
+
             <Stack
               spacing={3}
               alignItems="flex-end"
@@ -226,27 +224,11 @@ export default function UserGeneral(props: any) {
               flexDirection="row-reverse"
               sx={{ mt: 3 }}
             >
-              {/* {isEdit && (
-                <LoadingButton variant="contained" loading={isSubmitting} type="submit">
-                  Save Changes
-                </LoadingButton>
-              )}
-              
-             
-              <LoadingButton
-                variant="contained"
-                loading={isSubmitting}
-                onClick={() => setIsEdit(!isEdit)}
-              >
-                {isEdit ? ' Hủy bỏ' : 'Sửa'}
-              </LoadingButton> */}
               {!isEdit && (
-                <LoadingButton variant="contained" onClick={()=>setOpen(!open)}>
-                 Trở về
+                <LoadingButton variant="contained" onClick={() => setOpen(!open)}>
+                  Trở về
                 </LoadingButton>
               )}
-             
-            
             </Stack>
           </Card>
         </Grid>

@@ -2,14 +2,14 @@
 
 /// @hook
 import { useQuery } from '@tanstack/react-query';
+import { useResidence } from 'src/api/useResidence';
 
 //  @mui
 import { Box } from '@mui/material';
 
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { SplashScreen } from 'src/components/loading-screen';
-import { findAllResidenceType } from 'src/api/residence';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 import ResidenceTable from './residence-type-table';
 import ResidenceTypeAddNewModal from './residence-type-addnew';
@@ -17,13 +17,15 @@ import ResidenceTypeAddNewModal from './residence-type-addnew';
 //  @api function
 
 export default function ResidenceView() {
+  const { getAllResidenceType } = useResidence();
+
   const { data, isLoading } = useQuery({
     queryKey: ['residenceTypeList'],
-    queryFn: () => findAllResidenceType(),
+    queryFn: () => getAllResidenceType(),
   });
 
   if (isLoading) {
-    return <SplashScreen />;
+    return <LoadingScreen />;
   }
 
   return (
@@ -33,7 +35,7 @@ export default function ResidenceView() {
         links={[{ name: '' }]}
         sx={{
           mb: { xs: 3, md: 5 },
-          px:5
+          px: 5,
         }}
       />
       <Box sx={{ px: 5 }}>

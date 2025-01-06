@@ -11,6 +11,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useAuth } from 'src/api/useAuth';
+
 // routes
 
 import { useSearchParams, useRouter } from 'src/routes/hooks';
@@ -22,15 +24,14 @@ import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 import { registerButler } from 'src/api/butler';
 
-
 /// toast
 import toast from 'react-hot-toast';
-
 
 // ----------------------------------------------------------------------
 
 export default function ButlerForm() {
   const router = useRouter();
+  const { butler_register } = useAuth();
 
   // const [errorMsg, setErrorMsg] = useState('');
   const password = useBoolean();
@@ -40,7 +41,9 @@ export default function ButlerForm() {
     housekeeperRegistrationCode: Yup.string().required('First name required'),
     email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
     password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'mật khẩu ít nhất 8 ký tự'),
-    retype_password: Yup.string().required('Mật khẩu là bắt buộc').oneOf([Yup.ref('password')], 'Mật khẩu không khớp')
+    retype_password: Yup.string()
+      .required('Mật khẩu là bắt buộc')
+      .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
   });
 
   const defaultValues: any = {
@@ -64,20 +67,15 @@ export default function ButlerForm() {
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
-    delete data?.retype_password
+      delete data?.retype_password;
 
-    const rs =   await registerButler(data)
-    console.log(rs,'datawithout retype')
-
-   
-
+      const rs = await butler_register(data);
+      if (rs) {
         toast.success('Đăng ký thành công');
-        router.push('/auth/jwt/login');
         reset();
-
-    } catch (error) {
-        toast.error('Có lỗi xảy ra');
-    }
+        router.push('/auth/jwt/login');
+      }
+    } catch (error) {}
   });
 
   return (

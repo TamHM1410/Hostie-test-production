@@ -1,34 +1,37 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+
+// @hook
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useResidence } from 'src/api/useResidence';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Grid, Stack, Card } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-
 import AddIcon from '@mui/icons-material/Add';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-
-import { Role } from 'src/types/users';
 import { create_new_residence_type } from 'src/api/residence';
 
 const ResidenceTypeAddNewModal = (props: any) => {
+  const { createNewResidenceType } = useResidence();
+
   const [open, setOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) => create_new_residence_type(payload),
+    mutationFn: (payload: any) => createNewResidenceType(payload),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('created success');
       queryClient.invalidateQueries(['residenceTypeList'] as any);
       reset();
     },
@@ -42,7 +45,7 @@ const ResidenceTypeAddNewModal = (props: any) => {
     description: Yup.string().required('Description is required'),
   });
 
-  const defaultValues: Pick<Role, 'name' | 'description'> = {
+  const defaultValues: any = {
     name: '',
     description: '',
   };
@@ -85,7 +88,7 @@ const ResidenceTypeAddNewModal = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
@@ -93,7 +96,7 @@ const ResidenceTypeAddNewModal = (props: any) => {
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-          Thêm mới loại căn hộ
+            Thêm mới loại căn hộ
           </Typography>
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Grid md={12} xs={8}>
@@ -109,7 +112,6 @@ const ResidenceTypeAddNewModal = (props: any) => {
                 >
                   <RHFTextField name="name" label="Tên" />
                   <RHFTextField name="description" label="Mô tả" />
-
                 </Box>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>

@@ -3,7 +3,7 @@
 // --hook
 import { useQuery, useQueries } from '@tanstack/react-query';
 import { useCurrentPackage } from 'src/zustand/store';
-import { findPackageById, getUserDiscount } from 'src/api/pagekages';
+import { usePackage } from 'src/api/usePackage';
 
 // @mui
 import Container from '@mui/material/Container';
@@ -28,6 +28,8 @@ import { useCurrentPaymentType } from 'src/zustand/package';
 
 export default function CheckoutView() {
   // const router=useRouter()
+
+  const {findPackageById,getUserDiscount}=usePackage()
 
   const { currentPackage } = useCurrentPackage();
 
@@ -61,15 +63,15 @@ export default function CheckoutView() {
       return res
     },
   });
- console.log(params,'params')
   const results = useQueries({
     queries: [
       {
-        queryKey: ['post'],
+        queryKey: ['discount'],
         queryFn: async () => {
           const rs = await getUserDiscount();
+          console.log(rs,'rs')
           if (typeof rs !== 'number') {
-            return rs?.data?.result;
+            return rs?.result;
           }
           return rs;
         },

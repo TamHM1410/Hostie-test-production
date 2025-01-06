@@ -3,28 +3,32 @@
 //  @hook
 
 import { useQueries } from '@tanstack/react-query';
+import { usePackage } from 'src/api/usePackage';
 
 //  @mui
+
 import { Box, Grid } from '@mui/material';
 
 //  @component
+
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import { SplashScreen, LoadingScreen } from 'src/components/loading-screen';
-// import { getAllRolesApi } from 'src/api/users';
-import { getCurrenPackage, getSuggestPackage, user_getPackage_history } from 'src/api/pagekages';
-import PurchaseHistory from './package-purchase-history-view';
 
+// import { getAllRolesApi } from 'src/api/users';
+
+import PurchaseHistory from './package-purchase-history-view';
 import CurrentPackage from './current-package';
 import SuggestPackage from './suggest-package';
 //  @api
 
 export default function YourPackageView() {
+  const {getCurrentPackage,getSuggestPackage,user_getPackage_history}=usePackage()
   const results = useQueries({
     queries: [
       {
         queryKey: ['currentPackage'],
         queryFn: async () => {
-          const rs = await getCurrenPackage();
+          const rs = await getCurrentPackage();
           return rs;
         },
       },

@@ -1,40 +1,48 @@
 'use client';
 
-import * as Yup from 'yup';
+//  hooks
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useSearchParams, useRouter } from 'src/routes/hooks';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { useState, useEffect } from 'react';
+
+//  @lib
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { signIn, useSession } from 'next-auth/react';
+import { useLogin } from 'src/api/users';
+//  @react
+import { RouterLink } from 'src/routes/components';
+
+import { paths } from 'src/routes/paths';
+
+//  @component
+import Iconify from 'src/components/iconify';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import toast from 'react-hot-toast';
+
+/// @mui
+import { LoadingButton } from '@mui/lab';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Button } from '@mui/material';
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-import { useSearchParams, useRouter } from 'src/routes/hooks';
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useAuthContext } from 'src/auth/hooks';
-import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import { signIn, useSession } from 'next-auth/react';
-import { loginApi } from 'src/api/users';
-import toast from 'react-hot-toast';
+import { useAuth } from 'src/api/useAuth';
 
 export default function JwtLoginView() {
-  const { login } = useAuthContext();
-  const { data: session } = useSession();
   const router = useRouter();
 
+  const { login } = useAuth();
+
   const [errorMsg, setErrorMsg] = useState('');
+
   const [defaultValues, setDefaultValues] = useState({
     username: '',
     password: '',
   });
 
-  const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo');
   const password = useBoolean();
 
   const LoginSchema = Yup.object().shape({
@@ -54,10 +62,10 @@ export default function JwtLoginView() {
   } = methods;
 
   const onSubmit = handleSubmit(async (data: any, event: any) => {
-    event?.preventDefault(); // Ngăn chặn hành động mặc định của form
+    event?.preventDefault();
 
     try {
-      const res = await loginApi(data);
+      const res = await login(data);
 
       if (res) {
         await signIn('credentials', {
@@ -75,7 +83,8 @@ export default function JwtLoginView() {
 
       toast.success('Đăng nhập thành công!');
     } catch (error) {
-      toast.error(error);
+      // toast.error(error);
+      console.log('axios', error);
     }
   });
 
@@ -117,13 +126,17 @@ export default function JwtLoginView() {
       >
         <span onClick={() => router.push('/auth/forgot-password')}>Quên mật khẩu?</span>
       </Link>
-      <Button type="submit" variant="contained" color="inherit" fullWidth>
+      <LoadingButton
+        loading={isSubmitting}
+        type="submit"
+        variant="contained"
+        color="inherit"
+        fullWidth
+      >
         Đăng nhập
-      </Button>
+      </LoadingButton>
     </Stack>
   );
-
-
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>

@@ -5,7 +5,7 @@
 
 
 import { useSession } from 'next-auth/react';
-import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect,useRef } from 'react';
 import toast from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
 import axiosClient from 'src/utils/axiosClient';
@@ -64,6 +64,9 @@ export const useBooking = () => {
 };
 
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    
+    const bookingDataRef=useRef<any>([])
+
     const [bookingData, setBookingData] = useState<any[]>([]);
     const [customerList, setCustomerList] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState(1);
@@ -71,7 +74,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [loading, setLoading] = useState(true);
     const [errorr, setError] = useState<string | null>(null);
     const [residenceInfor, setResidenceInfor] = useState()
-    const pageSize = 7;
+    const pageSize = 4;
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const [priceQuotation, setPriceQuotation] = useState()
@@ -213,11 +216,14 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 `${API_BASE_URL}/residences/calendar${apiQuery}`
             );
 
+            console.log(response,'response')
+
             if (!response) {
                 throw new Error('Unable to fetch booking data');
             }
 
             const data = response;
+            bookingDataRef.current=[...bookingDataRef.current,...data.data.data.calendars]
             setBookingData(data.data.data.calendars);
             setTotalPages(data.data.data.total_pages);
         } catch (err: any) {
@@ -227,6 +233,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setLoading(false);
         }
     };
+
     const [provinceList, setProviceList] = useState()
 
     const fetchProvince = async () => {
@@ -440,12 +447,15 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         fetchProvince()
     }, [])
 
+    
+    
 
     const value = useMemo(
         () => ({
             bookingData,
             totalPages,
             currentPage,
+          
             loading,
             errorr,
             setCurrentPage,

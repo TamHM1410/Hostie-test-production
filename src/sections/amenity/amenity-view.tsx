@@ -1,32 +1,26 @@
 'use client';
 
-//
-///hook
-import { useState, useEffect } from 'react';
+//  @hook
 import { useQuery } from '@tanstack/react-query';
-import BookingDetails from '../overview/booking/booking-details';
-import { Grid, Typography, Box } from '@mui/material';
-import {getAllRolesApi} from 'src/api/users';
-import { useSession } from 'next-auth/react';
+import { Box } from '@mui/material';
+import { useAmenity } from 'src/api/useAmenity';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { LoadingScreen} from 'src/components/loading-screen';
 import AmenityTable from './amenity-table';
-import { finAllAmenity } from 'src/api/amenity';
 import AddNewModal from './add-new-modal';
+import { LoadingScreen } from 'src/components/loading-screen';
 export default function AmenityView() {
-  const {data:session}=useSession()
+  const { findAllAmenity } = useAmenity();
   const { data, isLoading } = useQuery({
     queryKey: ['amenityList'],
 
-    queryFn: () =>  finAllAmenity(),
-    
+    queryFn: () => findAllAmenity(),
   });
 
   if (isLoading) {
     return (
       <>
-        <LoadingScreen/>
+        <LoadingScreen />
       </>
     );
   }
@@ -39,14 +33,15 @@ export default function AmenityView() {
           links={[{ name: '' }]}
           sx={{
             mb: { xs: 3, md: 5 },
-            px:5
+            px: 5,
           }}
         />
-        <Box sx={{  px: 5 }}>
-          <AddNewModal/>
-        
+        <Box sx={{ px: 5 }}>
+          <AddNewModal />
         </Box>
-        <Box sx={{ py: 5, px: 5 }}>< AmenityTable data={data}/></Box>
+        <Box sx={{ py: 5, px: 5 }}>
+          <AmenityTable data={data} />
+        </Box>
       </Box>
     </>
   );

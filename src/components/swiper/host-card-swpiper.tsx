@@ -34,7 +34,7 @@ export default function HostPackageCard() {
     queryKey: ['packageList'],
     queryFn: async () => {
       const rs=await findAllPackage()
-      return rs
+      return rs?.data?.result
     },
   });
 

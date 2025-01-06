@@ -12,7 +12,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 
 import AddIcon from '@mui/icons-material/Add';
-;
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
@@ -21,20 +20,17 @@ import { createdRoleApi } from 'src/api/users';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const ViewDetailRoleModal = (props: any) => {
-
-
-  const [open,setOpen]=useState(false)
-//   const { currenUserSelected } = useCurrentUser();
+  const [open, setOpen] = useState(false);
+  //   const { currenUserSelected } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) =>  createdRoleApi(payload),
+    mutationFn: (payload: any) => createdRoleApi(payload),
     onSuccess: () => {
-        setOpen(!open)
-        toast.success('created success')
-        queryClient.invalidateQueries(['roleList'] as any);
-        reset()
-
+      setOpen(!open);
+      toast.success('created success');
+      queryClient.invalidateQueries(['roleList'] as any);
+      reset();
     },
     onError: (error) => {
       toast.error('Error');
@@ -47,7 +43,7 @@ const ViewDetailRoleModal = (props: any) => {
     description: Yup.string().required('Email is required'),
   });
 
-  const defaultValues: Pick<Role,'name'|'status'|'description'> = {
+  const defaultValues: Pick<Role, 'name' | 'status' | 'description'> = {
     name: '',
     status: 0,
     description: '',
@@ -66,7 +62,7 @@ const ViewDetailRoleModal = (props: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-        mutate(data)
+      mutate(data);
     } catch (error) {
       console.error(error);
     }
@@ -91,9 +87,9 @@ const ViewDetailRoleModal = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
-            borderRadius:2,
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
           }}
@@ -113,18 +109,16 @@ const ViewDetailRoleModal = (props: any) => {
                     sm: 'repeat(0, 1fr)',
                   }}
                 >
-                  <RHFTextField name="name" label=" Name"  aria-readonly/>
+                  <RHFTextField name="name" label=" Name" aria-readonly />
                   <RHFTextField name="description" label=" Description" aria-readonly />
 
-                  <RHFTextField name="status" label="Status" aria-readonly/>
+                  <RHFTextField name="status" label="Status" aria-readonly />
                 </Box>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
-                 
                   <Button variant="contained" onClick={() => setOpen(false)}>
                     close
                   </Button>
-               
                 </Stack>
               </Card>
             </Grid>

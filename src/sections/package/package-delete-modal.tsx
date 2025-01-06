@@ -1,43 +1,37 @@
 import * as React from 'react';
 import { useState } from 'react';
+
+//  @hook
+import { useCurrentPackage } from 'src/zustand/store';
+import { usePackage } from 'src/api/usePackage';
+
+/// @mui
+
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { Grid, Stack, Card, FormControl } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import {  useCurrentPackage } from 'src/zustand/store';
-import AddIcon from '@mui/icons-material/Add';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { createdRoleApi } from 'src/api/users';
-import { deleteRoleApi } from 'src/api/users';
-import { delete_package_api } from 'src/api/pagekages';
-
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const DeletePackageModal = (props: any) => {
+  const { deletePackage } = usePackage();
+
   const [open, setOpen] = useState(false);
+
   const { currentPackage } = useCurrentPackage();
+
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) => delete_package_api(payload),
+    mutationFn: (payload: any) => deletePackage(payload),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('Deleted success');
-      queryClient.invalidateQueries(['packageList']as any);
-    },
-    onError: (error) => {
-      toast.error('Error');
+      queryClient.invalidateQueries(['packageList'] as any);
     },
   });
-
-  console.log(currentPackage, 'current role');
 
   const onSubmit = async () => {
     try {
@@ -49,7 +43,11 @@ const DeletePackageModal = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2, width: 130 ,color:'red'}}>
+      <Button
+        variant="outlined"
+        onClick={() => setOpen(true)}
+        sx={{ gap: 2, width: 130, color: 'red' }}
+      >
         <DeleteOutlineIcon /> Xóa
       </Button>
       <Modal
@@ -66,9 +64,9 @@ const DeletePackageModal = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
-            borderRadius:2,
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
           }}

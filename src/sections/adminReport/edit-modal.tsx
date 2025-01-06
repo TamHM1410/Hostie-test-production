@@ -1,4 +1,6 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+
 import {
   Button,
   Modal,
@@ -14,15 +16,17 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+
+//  @hooks
 import { useForm } from 'react-hook-form';
+import { useReport } from 'src/api/useReport';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { updateReport } from 'src/api/report';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 const EditReportModal = (props: any) => {
+  const { updateReport } = useReport();
+
   const { open, setOpen, selectEdit } = props;
 
   const [status, setStatus] = React.useState(selectEdit?.status || 'PENDING');
@@ -30,15 +34,11 @@ const EditReportModal = (props: any) => {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: ({payload,id}:{payload:any,id:any}) => updateReport(payload,id),
+    mutationFn: ({ payload, id }: { payload: any; id: any }) => updateReport(id, payload),
     onSuccess: () => {
       setOpen(false);
-      toast.success('Cập nhật thành công');
       queryClient.invalidateQueries(['reportList'] as any);
       reset();
-    },
-    onError: () => {
-      toast.error('Đã xảy ra lỗi');
     },
   });
 
@@ -72,12 +72,10 @@ const EditReportModal = (props: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-      const payload = { adminNote:data?.adminNote,
-        status:data?.status
-       };
-       const id =data?.id
+      const payload = { adminNote: data?.adminNote, status: data?.status };
+      const id = data?.id;
       console.log(payload, 'payload');
-      mutate({payload,id});
+      mutate({ payload, id });
     } catch (error) {
       console.error(error);
     }
@@ -143,8 +141,7 @@ const EditReportModal = (props: any) => {
                         >
                           <MenuItem value="INVESTIGATING">Điều tra</MenuItem>
                           <MenuItem value="PENDING"> Chờ xử lý</MenuItem>
-                          <MenuItem value="RESOLVED" >Đã giải quyết</MenuItem>
-
+                          <MenuItem value="RESOLVED">Đã giải quyết</MenuItem>
                         </Select>
                       </FormControl>
                     </Box>

@@ -3,7 +3,7 @@
 //  @hook
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-
+import { useReport } from 'src/api/useReport';
 //  @mui
 import { Box, Grid } from '@mui/material';
 
@@ -12,15 +12,17 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import { LoadingScreen } from 'src/components/loading-screen';
 import { getALlTransactionPackage } from 'src/api/pagekages';
 
-// import TransactionTable from './transaction-table';
-// import Filter from './filter';
+
 import { getAllReport } from 'src/api/report';
 import { useDebounce } from 'src/hooks/use-debounce';
 import ReportTable from './report-table';
 
+
 //  @api
 
 export default function  ReportAdmin() {
+
+  const {findAllReport}=useReport()
 
   const [filter,setFilter]=useState('all')
 
@@ -35,7 +37,7 @@ export default function  ReportAdmin() {
   const { data, isLoading } = useQuery({
     queryKey: ['reportList',value],
     queryFn: async () => {
-      const rs = await getAllReport();
+      const rs = await findAllReport();
       return rs;
     },
   });

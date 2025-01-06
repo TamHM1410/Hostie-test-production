@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { usePackage } from 'src/api/usePackage';
 // @mui
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -17,7 +18,6 @@ import {
 import Iconify from 'src/components/iconify';
 import FormProvider from 'src/components/hook-form';
 //
-import { registerPackageApi, upgrade_package, extendPackageApi } from 'src/api/pagekages';
 
 import { useCheckoutContext } from './context';
 import CheckoutSummary from './checkout-summary';
@@ -73,6 +73,8 @@ const CARDS_OPTIONS: ICheckoutCardOption[] = [
 ];
 
 export default function CheckoutPayment({ price, id, discount, step }: any) {
+  const { registerPackageApi, upgrade_package, extendPackageApi } = usePackage();
+
   const { type, package_id } = useCurrentPaymentType();
 
   // const id = searchParams.get('packageId') || package_id;
@@ -129,7 +131,7 @@ export default function CheckoutPayment({ price, id, discount, step }: any) {
         router.push(result?.paymentUrl);
       }
     } catch (error) {
-      toast.error('Đã có lỗi xảy ra')
+      toast.error('Đã có lỗi xảy ra');
       console.error(error, 'err');
     }
   });

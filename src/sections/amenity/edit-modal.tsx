@@ -1,49 +1,53 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+//  @hook
 import { useState, useEffect, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { useCurrentAmenity } from 'src/zustand/store';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useAmenity } from 'src/api/useAmenity';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+
+//  @mui
+import Image from 'next/image';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Grid, Stack, Card } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { useCurrentAmenity } from 'src/zustand/store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { updateAmenityApi } from 'src/api/amenity';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Image from 'next/image';
+import { Grid, Stack, Card } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { Edit } from '@mui/icons-material';
 import { AmenityFormType } from 'src/types/amenity';
 import { Upload } from 'src/components/upload';
 
 const EditAmenityModal = () => {
+  const { updateAmenity } = useAmenity();
+
   const { currentAmenity } = useCurrentAmenity();
+
   const [open, setOpen] = useState(false);
+
   const [status, setStatus] = useState(currentAmenity?.status);
+
   const [type, setType] = useState(currentAmenity?.iconType);
+
   const [file, setFile] = useState<File | string | any>(null);
+
   const [changeFile, setChangeFile] = useState(false);
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ id, payload }: any) => updateAmenityApi({ id, payload }),
+    mutationFn: ({ id, payload }: any) => updateAmenity(id, payload),
     onSuccess: () => {
       setOpen(false);
-      toast.success('Update success');
       queryClient.invalidateQueries(['amenityList'] as any);
       reset();
-    },
-    onError: (error) => {
-      toast.error('Error');
-      console.log(error);
     },
   });
 
@@ -125,7 +129,11 @@ const EditAmenityModal = () => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2, width: 130 ,display:'flex'}}>
+      <Button
+        variant="outlined"
+        onClick={() => setOpen(true)}
+        sx={{ gap: 2, width: 130, display: 'flex' }}
+      >
         <Edit /> Sửa
       </Button>
       <Modal
@@ -140,13 +148,15 @@ const EditAmenityModal = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 800,
-            height: 630,
+            width: 'auto',
+            height: 'auto',
+            maxHeight:700,
+
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            overflowY:'scroll'
+            overflowY: 'scroll',
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
@@ -217,10 +227,10 @@ const EditAmenityModal = () => {
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
                   <Button variant="contained" onClick={() => setOpen(false)}>
-                   Hủy
+                    Hủy
                   </Button>
                   <LoadingButton variant="contained" type="submit" loading={isSubmitting}>
-                   Lưu & thay đổi
+                    Lưu & thay đổi
                   </LoadingButton>
                 </Stack>
               </Card>

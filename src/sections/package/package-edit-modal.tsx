@@ -1,51 +1,45 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+//  @hook
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useCurrentPackage } from 'src/zustand/store';
+import { usePackage } from 'src/api/usePackage';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Grid, Stack, Card } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { useCurrentUser } from 'src/zustand/store';
-import AddIcon from '@mui/icons-material/Add';
-import { UserManagement } from 'src/types/users';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { adminUpdateUserById } from 'src/api/users';
-import { Role } from 'src/types/users';
-import { createdRoleApi } from 'src/api/users';
-import { aW } from '@fullcalendar/core/internal-common';
-import { Edit } from '@mui/icons-material';
-import {useCurrentPackage} from 'src/zustand/store';
-import { updatedRoleApi } from 'src/api/users';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { Grid, Stack, Card } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { Edit } from '@mui/icons-material';
 import { PackageFormType } from 'src/types/pagekages';
 import { update_package } from 'src/api/pagekages';
 
 const EditPackage = (props: any) => {
-  const {  currentPackage } = useCurrentPackage();
+  const { updatePackage } = usePackage();
+
+  const { currentPackage } = useCurrentPackage();
+
   const [open, setOpen] = useState(false);
-  const [status, setstatus] = React.useState( currentPackage?.status);
-  //   const { currenUserSelected } = useCurrentUser();
+
+  const [status, setstatus] = React.useState(currentPackage?.status);
+
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: ({ id, payload }: { id: any; payload: any }) => update_package({ id, payload }),
+    mutationFn: ({ id, payload }: { id: any; payload: any }) => updatePackage(id, payload),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('created success');
       queryClient.invalidateQueries(['packageList'] as any);
       reset();
-    },
-    onError: (error) => {
-      toast.error('Error');
     },
   });
 
@@ -53,16 +47,14 @@ const EditPackage = (props: any) => {
     name: Yup.string().required('Name is required'),
     status: Yup.number().notRequired(),
     description: Yup.string().required('Email is required'),
-    price :Yup.string().required('Price is required'),
-    // id:Yup.number().notRequired()
+    price: Yup.string().required('Price is required'),
   });
 
-  const defaultValues: PackageFormType|any = {
-    // id: currentPackage?.id||0,
-    name:  currentPackage?.name || '',
+  const defaultValues: PackageFormType | any = {
+    name: currentPackage?.name || '',
     status: status || 0,
-    description:  currentPackage?.description || '',
-    price:currentPackage?.price || ''
+    description: currentPackage?.description || '',
+    price: currentPackage?.price || '',
   };
 
   const methods = useForm({
@@ -87,7 +79,7 @@ const EditPackage = (props: any) => {
         ...data,
         status: defaultValues?.status,
       };
-      let id= currentPackage?.id
+      let id = currentPackage?.id;
       mutate({ id, payload });
     } catch (error) {
       console.error(error);
@@ -113,9 +105,9 @@ const EditPackage = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
-            borderRadius:2,
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
           }}
@@ -163,7 +155,7 @@ const EditPackage = (props: any) => {
                     Hủy
                   </Button>
                   <LoadingButton variant="contained" type="submit" loading={isSubmitting}>
-                    Lưu 
+                    Lưu
                   </LoadingButton>
                 </Stack>
               </Card>

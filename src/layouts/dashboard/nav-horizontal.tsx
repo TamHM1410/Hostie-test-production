@@ -44,6 +44,7 @@ function NavHorizontal() {
             currentRole: user?.role || 'admin',
           }}
         />
+        
       </Toolbar>
 
       <HeaderShadow />

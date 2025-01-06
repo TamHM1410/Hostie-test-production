@@ -14,7 +14,7 @@ type Props = {
 export default function Layout({ children }: Props) {
   return (
     <GuestGuard>
-      <AuthClassicLayout title="Quản lý công việc hiệu quả hơn với Hosite">
+      <AuthClassicLayout title="Quản lý dịch vụ Villa & homestay hiệu quả hơn với Hosite">
         {children}
       </AuthClassicLayout>
     </GuestGuard>

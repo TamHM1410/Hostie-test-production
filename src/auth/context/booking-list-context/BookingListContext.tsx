@@ -45,8 +45,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 const response = await axiosClient.get(`${baseURl}/booking?sort=id:desc`, {
                     params: { page, page_size: ROWS_PER_PAGE, },
                 });
-                setRows(response.data.data.result);
-                setTotalRecords(response.data.data.pagination.total_pages);
+                setRows(response.data?.data?.result);
+                setTotalRecords(response.data?.data?.pagination.total_pages);
             } catch (error) {
                 console.error('Error fetching booking data:', error);
             } finally {
@@ -75,7 +75,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsLoading(true);
         try {
             const response = await axiosClient.get(`${baseURl}/booking/${id}`, {});
-            setDetail(response.data.data);
+            setDetail(response.data?.data);
         } catch (error) {
             console.error('Error fetching booking data:', error);
         } finally {

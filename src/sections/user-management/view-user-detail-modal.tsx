@@ -30,16 +30,19 @@ const UserDetailModal = (props: any) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 800,
-            height: 800,
+            width: {xs:'screen',sx:'auto'},
+            height: {xs:'screen',sx:'auto'},
+            maxHeight:{xs:'100%'},
+            maxWidth:{xs:'100%',sm:'100%'},
             bgcolor: 'background.paper',
             boxShadow: 24,
             borderRadius: 2,
             p: 4,
+            overflow:{xs:'scroll'}
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-            User detail
+            Thông tin người dùng
           </Typography>
           <UserDetail open={open} setOpen={setOpen}/>
         </Box>

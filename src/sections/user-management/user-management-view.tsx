@@ -1,25 +1,24 @@
 'use client';
 
-//
-/// hook
+/// hooks
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'src/hooks/use-debounce';
+import { useUserManagement } from 'src/api/useUserManagement';
+
+//  @component
 import { Box } from '@mui/material';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { getAllUserApi } from 'src/api/users';
-
 import UserFilter from './user-filter-modal';
-
 import UserTable from './user-table';
 
-import { useDebounce } from 'src/hooks/use-debounce';
-
-
-
 export default function UserManagementView() {
+  const { getAllUsers } = useUserManagement();
+
   const [filter, setFilter] = useState('all');
+
   const [value, setValue] = useState('');
 
   const debouncedSearchTerm = useDebounce(value, 600);
@@ -28,7 +27,7 @@ export default function UserManagementView() {
     queryKey: ['usersList', filter, debouncedSearchTerm],
 
     queryFn: async () => {
-      const res = await getAllUserApi({ search: debouncedSearchTerm });
+      const res = await getAllUsers({ search: debouncedSearchTerm });
       switch (filter) {
         case 'all':
           return res;
@@ -46,7 +45,6 @@ export default function UserManagementView() {
           }
           return [];
         }
-       
 
         default:
           return res;
@@ -54,7 +52,6 @@ export default function UserManagementView() {
     },
   });
 
-  
   return (
     <Box>
       <CustomBreadcrumbs

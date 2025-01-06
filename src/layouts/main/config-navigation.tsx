@@ -42,13 +42,13 @@ export const navMobileConfig= [
   },
   
   {
-    title: 'Câu hỏi thường gặp',
+    title: 'Về chúng tôi',
     icon: <Iconify icon="solar:notebook-bold-duotone" />,
-    path: paths.faqs,
+    path: paths.about,
   },
   {
-    title: 'Dashboard',
-    icon: <Iconify icon="ic:round-dashboard" />,
-    path: paths.dashboard.root,
+    title: 'Đăng nhập',
+    icon: <Iconify icon="solar:user-linear" />,
+    path: paths.auth.jwt.login,
   }
 ];

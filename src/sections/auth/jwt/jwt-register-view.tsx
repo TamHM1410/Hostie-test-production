@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useDropzone } from 'react-dropzone';
-
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
@@ -18,92 +17,78 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useAuth } from 'src/api/useAuth';
+
 // routes
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 import { useSearchParams, useRouter } from 'src/routes/hooks';
-// config
-// auth
+
+/// asset
+import toast from 'react-hot-toast';
+import Iconify from 'src/components/iconify';
 
 // components
-import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import { Button } from '@mui/material';
-
-import { SignUp, socialUrls } from 'src/types/users';
-import { registerApi } from 'src/api/users';
-
-/// toast
-import toast from 'react-hot-toast';
 import RegisterTab from './register-tab';
 import ButlerForm from './butler-form';
 import RegisterPrivacy from './register-privacy';
+import RegisterModal from './register-modal';
 
 // ----------------------------------------------------------------------
 
 export default function JwtRegisterView() {
   const router = useRouter();
 
+  const { register } = useAuth();
+
   // const [errorMsg, setErrorMsg] = useState('');
-  const [listSocial, setListUrl] = useState<socialUrls[] | any[]>([]);
+  const [listSocial, setListUrl] = useState<any[]>([]);
 
   const [isChecked, setIsChecked] = useState(false); // Chú ý 'setIsChecked' thay vì 'setIschecked'
 
+  const [openRegisterModal, setOpenRegister] = useState(false);
+
   const [currentTab, setCurrentTab] = useState('user');
+
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get('returnTo');
+  const ref = searchParams.get('ref');
+
 
   const password = useBoolean();
 
-  const RegisterSchema = Yup.object()
-    .shape({
-      username: Yup.string().required('Nhập tên đăng nhập'),
-      referenceCode: Yup.string().notRequired(),
-      email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
-      password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'Mật khẩu ít nhất 8 ký tự'),
-      retype_password: Yup.string()
-        .required('Mật khẩu là bắt buộc')
-        .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
-      socialUrls: Yup.array()
-        .of(
-          Yup.object().shape({
-            url: Yup.string().notRequired(),
-            social_name: Yup.string().notRequired(),
-          })
-        )
-        .notRequired(),
-      isChecked: Yup.boolean()
-        .oneOf([true], 'Bạn cần đồng ý với điều khoản')
-        .required('Bạn cần đồng ý với điều khoản'),
-      profile_images: Yup.array()
-        .min(3, 'Chỉ được tải lên tối đa 3 ảnh')
-        .max(3, 'Chỉ được tải lên tối đa 3 ảnh'),
-    })
-    // .test(
-    //   'at-least-one',
-    //   'Phải có ít nhất một trong referenceCode   hoặc socialUrls',
-    //   function (value) {
-    //     // Nếu không có giá trị, coi như không hợp lệ
-    //     if (!value) return false;
-
-    //     const { referenceCode, socialUrls } = value;
-
-    //     // Kiểm tra từng điều kiện
-    //     const hasReferenceCode = referenceCode && referenceCode.trim() !== '';
-    //     const hasSocialUrls =
-    //       Array.isArray(socialUrls) &&
-    //       socialUrls.some((social) => social.url?.trim() || social.social_name?.trim());
-
-    //     return hasReferenceCode || hasSocialUrls;
-    //   }
-    // );
+  const RegisterSchema = Yup.object().shape({
+    username: Yup.string().required('Nhập tên đăng nhập'),
+    referenceCode: Yup.string().notRequired(),
+    email: Yup.string().required('Email là bắt buộc').email('Email phải là địa chỉ email hợp lệ'),
+    password: Yup.string().required('Mật khẩu là bắt buộc').min(8, 'Mật khẩu ít nhất 8 ký tự'),
+    retype_password: Yup.string()
+      .required('Mật khẩu là bắt buộc')
+      .oneOf([Yup.ref('password')], 'Mật khẩu không khớp'),
+    socialUrls: Yup.array()
+      .of(
+        Yup.object().shape({
+          url: Yup.string().notRequired(),
+          social_name: Yup.string().notRequired(),
+        })
+      )
+      .notRequired(),
+    isChecked: Yup.boolean()
+      .oneOf([true], 'Bạn cần đồng ý với điều khoản')
+      .required('Bạn cần đồng ý với điều khoản'),
+    profile_images: Yup.array()
+      .min(3, 'Chỉ được tải lên tối đa 3 ảnh')
+      .max(3, 'Chỉ được tải lên tối đa 3 ảnh'),
+  });
 
   const defaultValues: any = {
     username: '',
@@ -111,7 +96,7 @@ export default function JwtRegisterView() {
     email: '',
     password: '',
     socialUrls: listSocial,
-    referenceCode: '',
+    referenceCode: ref||'',
     isChecked: isChecked,
     profile_images: [],
   };
@@ -189,7 +174,6 @@ export default function JwtRegisterView() {
       },
     ]);
   };
-  console.log(methods.formState.errors,'errror');
 
   const handleChange = (event: SelectChangeEvent, index: number) => {
     const newSocialName = event.target.value; // Get the new social name from the event
@@ -202,7 +186,7 @@ export default function JwtRegisterView() {
   };
 
   const onSubmit = handleSubmit(async (data: any) => {
-    console.log(data, 'dta');
+    console.log(data,'data')
     const formData = new FormData();
     try {
       delete data['isChecked'];
@@ -235,20 +219,21 @@ export default function JwtRegisterView() {
 
       // Append profile images
 
-      const res = await registerApi(formData);
+      const res = await register(formData);
 
       if (res) {
         toast.success('Đăng ký thành công');
-        router.push('/auth/jwt/login');
-
+        setOpenRegister(true);
         setIsChecked(false);
+        setListUrl([]);
+        setPreviewImages([]);
+        reset();
       }
-
-      // console.log(formData,'form data')
     } catch (error) {
-      toast.error(error);
+      setIsChecked(false);
     }
   });
+
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5, position: 'relative' }}>
       <Typography variant="h4">Đăng ký tài khoản</Typography>
@@ -277,12 +262,14 @@ export default function JwtRegisterView() {
     </Typography>
   );
 
+ 
+
   const renderForm = (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={2.5}>
         <RHFTextField name="email" label="Địa chỉ email* " />
         <RHFTextField name="username" label="Tên đăng nhập*" />
-        <RHFTextField name="referenceCode " label="Mã giới thiệu " />
+        <RHFTextField name="referenceCode" label="Mã giới thiệu "/>
 
         <RHFTextField
           name="password"
@@ -408,7 +395,7 @@ export default function JwtRegisterView() {
         />
         {methods.formState.errors.isChecked && (
           <Typography color="error" variant="body2">
-            {methods.formState.errors.isChecked.message}
+            {methods?.formState?.errors?.isChecked?.message}
           </Typography>
         )}
 
@@ -431,7 +418,9 @@ export default function JwtRegisterView() {
       {renderHead}
       <RegisterTab currentTab={currentTab} setCurrentTab={setCurrentTab} />
       {currentTab === 'user' && renderForm}
+
       {currentTab === 'butler' && <ButlerForm />}
+      <RegisterModal open={openRegisterModal} setOpen={setOpenRegister} />
 
       {renderTerms}
     </>

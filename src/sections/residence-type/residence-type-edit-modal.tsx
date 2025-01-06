@@ -1,29 +1,36 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+
+//  @hook
 import { useState } from 'react';
+import { useResidence } from 'src/api/useResidence';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Grid, Stack, Card } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-
-
-import { Edit } from '@mui/icons-material';
-import { useCurrentResidenceType } from 'src/zustand/store';
-import { update_residence_type } from 'src/api/residence';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { Grid, Stack, Card } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { Edit } from '@mui/icons-material';
+
+import toast from 'react-hot-toast';
+
+//  @store
+import { useCurrentResidenceType } from 'src/zustand/store';
+import { update_residence_type } from 'src/api/residence';
 
 const EditResidenceTypeModal = () => {
+  const { updateResidenceType } = useResidence();
+
   const { currentResidenceType } = useCurrentResidenceType();
 
   const [open, setOpen] = useState(false);
@@ -33,11 +40,10 @@ const EditResidenceTypeModal = () => {
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: ({ payload, id}: { id: any; payload: any }) => update_residence_type(payload, id),
+    mutationFn: ({ payload, id }: { id: any; payload: any }) => updateResidenceType(payload, id),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('created success');
-      queryClient.invalidateQueries(['residenceTypeList'] as  any);
+      queryClient.invalidateQueries(['residenceTypeList'] as any);
       reset();
     },
     onError: (error) => {
@@ -49,11 +55,9 @@ const EditResidenceTypeModal = () => {
     name: Yup.string().required('Name is required'),
     status: Yup.number().notRequired(),
     description: Yup.string().required('description is required'),
-
   });
 
   const defaultValues: any = {
-
     name: currentResidenceType?.name || '',
     status: status || 0,
     description: currentResidenceType?.description || '',
@@ -77,13 +81,12 @@ const EditResidenceTypeModal = () => {
 
   const onSubmit = async (data: any) => {
     try {
-     
       const payload = {
         ...data,
         status: defaultValues?.status,
       };
       const id = currentResidenceType?.id;
-      mutate({payload, id});
+      mutate({ payload, id });
     } catch (error) {
       console.error(error);
     }
@@ -108,7 +111,7 @@ const EditResidenceTypeModal = () => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:600,lg:800},
+            minWidth: { xs: 300, md: 600, lg: 800 },
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,

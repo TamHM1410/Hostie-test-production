@@ -4,11 +4,11 @@
 
 import { useQuery, useQueries } from '@tanstack/react-query';
 import { useState, useCallback, useEffect } from 'react';
+import { useButler } from 'src/api/useButler';
 
 //  @mui
 import { Box, Input, TextField, IconButton, InputAdornment } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { butler_add_residence } from 'src/api/butler';
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -22,8 +22,7 @@ import ButlerFilter from './bulter-filter';
 import ButlerTable from './bulter-table';
 import ButlerBookingTable from './butler-booking-table';
 
-// import RoleTable from './role-table';
-// import AddNewRoleModal from './role-addnew-modal';
+
 
 //  @api
 
@@ -42,6 +41,8 @@ const TABS = [
 ];
 
 export default function ButlerView() {
+  const { butler_add_residence } = useButler();
+
   const [currentTab, setCurrentTab] = useState('all');
 
   const [filter, setFilter] = useState('all');
@@ -55,7 +56,7 @@ export default function ButlerView() {
         queryKey: ['butlerResidenceList'],
 
         queryFn: async () => {
-          const res =await getButlerResidence();
+          const res = await getButlerResidence();
           return res;
         },
       },
@@ -63,7 +64,7 @@ export default function ButlerView() {
         queryKey: ['butlerBooking'],
 
         queryFn: async () => {
-          const res =await getButlerBooking();
+          const res = await getButlerBooking();
           return res;
         },
       },
@@ -79,8 +80,6 @@ export default function ButlerView() {
     setCurrentTab(newValue);
   }, []);
 
-
-
   const handleAddResidence = async () => {
     try {
       const payload = {
@@ -90,9 +89,7 @@ export default function ButlerView() {
       await butler_add_residence(payload);
       setHousekeeperRegistrationCode('');
       toast.success('Đăng ký thành công! Xin chờ chủ nhà xét duyệt');
-    } catch (error) {
-      toast.error('Đã xảy ra lỗi');
-    }
+    } catch (error) {}
   };
 
   if (result.pending) {

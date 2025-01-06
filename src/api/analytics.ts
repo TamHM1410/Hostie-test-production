@@ -1,6 +1,8 @@
+'use client'
 import { endPoint ,goEndPoint} from 'src/utils/endPoints';
 import goAxiosClient from 'src/utils/goAxiosClient';
 import axiosClient from 'src/utils/axiosClient';
+import useAxiosAuth from 'src/utils/hooks/useAxiosAuth';
 
 export const getHostAnalytic =async ()=>{
     return await goAxiosClient.get(goEndPoint.analytic.host)
@@ -26,5 +28,6 @@ export const getSellerAnalytic=async ()=>{
 
 
 export const getDashboardAnalytic = async (): Promise< any> =>{
-    return await axiosClient.get(endPoint.admin.analytic)
+    const axiosAuth=useAxiosAuth()
+    return await axiosAuth.get(endPoint.admin.analytic)
 }

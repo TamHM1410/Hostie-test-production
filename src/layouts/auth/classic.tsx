@@ -60,7 +60,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
         width: 1,
         mx: 'auto',
         maxWidth: {
-          md:480,
+          md:700,
           xs:'100%'
         },
         
@@ -96,7 +96,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       <Box
         component="img"
         alt="auth"
-        src={image || '/assets/images/login.jpg'}
+        src={image || '/assets/background/overlay_2.jpg'}
         sx={{
           maxWidth: {
             xs: 480,

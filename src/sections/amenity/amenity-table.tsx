@@ -1,21 +1,20 @@
 import {
     MaterialReactTable,
     useMaterialReactTable,
-    type MRT_Row,
+
     createMRTColumnHelper,
   } from 'material-react-table';
-  import { useState } from 'react';
   
-  import { Box, Button, Chip, Menu, MenuItem } from '@mui/material';
-  import FileDownloadIcon from '@mui/icons-material/FileDownload';
-  import { mkConfig, generateCsv, download } from 'export-to-csv';
+  import { Chip} from '@mui/material';
+  import { mkConfig } from 'export-to-csv';
   import { UserManagement } from 'src/types/users';
-  import { useCurrentRole ,useCurrentAmenity} from 'src/zustand/store';
+  import {useCurrentAmenity} from 'src/zustand/store';
   import AmenityMenu from './amenity-menu';
   import Image from 'next/image';
+
   const columnHelper = createMRTColumnHelper<UserManagement | any>();
   
-  const statusOption = ['Từ chối','Xét duyệt', 'Chấp thuận' ];
+  const statusOption = ['Từ chối','Đang xử lý', 'Chấp thuận' ];
   
   const AmenityTable = (props: any) => {
     const { data = [] } = props;
@@ -56,7 +55,7 @@ import {
         Cell: ({ cell }) => <span>{cell.getValue() == null ? 'none' : cell.getValue()}</span>,
       }),
       columnHelper.accessor('iconSize', {
-        header: 'kích thước',
+        header: 'Kích thước',
         size: 220,
         Cell: ({ cell }) => <span>{cell.getValue() == null ? 'none' : cell.getValue()}</span>,
       }),
@@ -76,7 +75,7 @@ import {
       }),
   
       columnHelper.accessor('action', {
-        header: 'Hành động ',
+        header: 'Thao tác',
         size: 220,
         Cell: ({ cell }) => (
           <span

@@ -4,9 +4,17 @@
 
 /* eslint-disable radix */
 
+//  @hook
 import React, { useCallback, useEffect, useState } from 'react';
-import Container from '@mui/material/Container';
+import { useRouter } from 'next/navigation';
 import { useSettingsContext } from 'src/components/settings';
+import { useServiceContext } from 'src/auth/context/residences-context/ResidencesContext';
+import { useDropzone, Accept } from 'react-dropzone';
+
+
+
+//  @mui
+
 import {
     Backdrop,
     Button,
@@ -17,14 +25,19 @@ import {
     Divider,
     TextField,
     Typography,
+    Container,
+    Box
 } from '@mui/material';
-import Box from '@mui/material/Box';
-import { useDropzone, Accept } from 'react-dropzone';
 import { CloseRounded } from '@mui/icons-material';
-import axiosClient from 'src/utils/axiosClient';
+
+
+//  @lib
 import { formatDate } from 'src/utils/format-time';
 import toast from 'react-hot-toast';
-import { useServiceContext } from 'src/auth/context/residences-context/ResidencesContext';
+import axiosClient from 'src/utils/axiosClient';
+
+
+//  @component
 import ServiceCard from './ServiceCard';
 import Step0 from './CreateStep0';
 import Step1 from './CreateStep1';
@@ -49,6 +62,9 @@ const typeOfServices = [
 ];
 
 export default function ServiceView() {
+
+    const router=useRouter()
+
     const { serviceData, totalPage, isLoading, fetchData } = useServiceContext();
     const settings = useSettingsContext();
     // Upload Image state
@@ -397,7 +413,25 @@ export default function ServiceView() {
             <Backdrop open={isLoading || isLoading2} style={{ zIndex: 9999, color: '#fff' }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <Box display="flex" justifyContent="flex-end">
+            <Box display="flex" justifyContent="flex-end" sx={{gap:2}}>
+            <Button
+                    size="medium"
+                    onClick={()=>router.push('/dashboard/service/cancel-policy')}
+                    sx={{
+                        background:
+                            'linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(74,175,238,1) 0%, rgba(84,155,226,1) 37%, rgba(0,196,255,1) 100%)',
+                        color: 'white',
+                        '&:hover': {
+                            background:
+                                'linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(74,175,238,1) 0%, rgba(84,155,226,1) 37%, rgba(0,196,255,1) 100%)',
+                        },
+                        marginBottom: 3,
+                        paddingX: 2,
+                    }}
+                >
+                  Chính sách hủy
+                </Button>
+
                 <Button
                     size="medium"
                     onClick={handleOpen}

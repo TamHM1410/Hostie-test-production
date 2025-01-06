@@ -57,7 +57,7 @@ const RoleTable = (props: any) => {
     }),
 
     columnHelper.accessor('action', {
-      header: 'Hành động',
+      header: 'Thao tác',
       size: 220,
       Cell: ({ cell }:any) => (
         <span

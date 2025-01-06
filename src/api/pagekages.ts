@@ -29,7 +29,10 @@ const registerPackageApi = async (payload: any) => {
   const rs = axiosClient.post(`${endPoint.register_package.post}?packageId=${payload}`);
   return rs;
 };
-
+const upgrade_package = async (payload: any): Promise<any> => {
+  const rs = await axiosClient.put(endPoint.register_package.upgrade_package(payload));
+  return rs;
+};
 const extendPackageApi = async (payload: any) => {
   console.log(payload, 'payload');
   const rs = await axiosClient.put(
@@ -51,10 +54,7 @@ const getSuggestPackage = async (): Promise<any> => {
   const rs = await axiosClient.get(endPoint.register_package.suggestPackage);
   return rs;
 };
-const upgrade_package = async (payload: any): Promise<any> => {
-  const rs = await axiosClient.put(endPoint.register_package.upgrade_package(payload));
-  return rs;
-};
+
 const user_getPackage_history = async (): Promise<any> => {
   const rs = await axiosClient.get(endPoint.register_package.userGetPackageHistory);
   return rs;

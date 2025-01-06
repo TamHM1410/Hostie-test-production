@@ -1,37 +1,32 @@
 import * as React from 'react';
+//  @hook
 import { useState } from 'react';
+import { useCurrentAmenity } from 'src/zustand/store';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAmenity } from 'src/api/useAmenity';
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+
 import { Grid, Stack, Card, FormControl } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import { useCurrentAmenity } from 'src/zustand/store';
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-
-import { deleteAmentityApi } from 'src/api/amenity';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-
 const DeleteAmentityModal = (props: any) => {
+  const { deleteAmenity } = useAmenity();
   const [open, setOpen] = useState(false);
   const { currentAmenity } = useCurrentAmenity();
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) => deleteAmentityApi(payload),
+    mutationFn: (payload: any) => deleteAmenity(payload),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('Deleted success');
       queryClient.invalidateQueries(['amenityList'] as any);
     },
-    onError: (error) => {
-      toast.error('Error');
-    },
   });
-
 
   const onSubmit = async () => {
     try {
@@ -43,7 +38,11 @@ const DeleteAmentityModal = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2,  width: 130 ,color:'red'}}>
+      <Button
+        variant="outlined"
+        onClick={() => setOpen(true)}
+        sx={{ gap: 2, width: 130, color: 'red' }}
+      >
         <DeleteOutlineIcon /> Xóa
       </Button>
       <Modal
@@ -58,8 +57,8 @@ const DeleteAmentityModal = (props: any) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 500,
-            height: 230,
+            width:'auto',
+            height: 'auto',
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,

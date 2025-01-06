@@ -32,7 +32,7 @@ interface ResidenceData {
 interface ServiceDetailViewProps {
     id: any; // Assuming `id` is a number; change to string if needed.
 }
-export default function ServiceDetailView({ id }: ServiceDetailViewProps) {
+export default function ServiceDetail({ id }: ServiceDetailViewProps) {
     const [residenceData, setResidenceData] = useState<ResidenceData | null | any>(null);
     const settings = {
         dots: true,

@@ -30,6 +30,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
+import DoNotDisturbAltIcon from '@mui/icons-material/DoNotDisturbAlt';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { MenuIcon } from 'lucide-react';
@@ -272,6 +273,7 @@ export default function ServiceCardList({
             setIsLoading(false)
         }
     };
+
     const handleStep3Submit = async (data: any) => {
         setIsLoading(true)
         const payload = {
@@ -490,6 +492,9 @@ export default function ServiceCardList({
                                             </ListItemIcon>
                                             <ListItemText primary="Xóa lưu trú" />
                                         </MenuItem>
+                                        {/* { chin sach can ho} */}
+                                      
+                                     
                                         <Link
                                             href={`/dashboard/service/manage-block-residences/${selectedId}`}
                                             style={{ textDecoration: 'none', color: 'inherit' }}

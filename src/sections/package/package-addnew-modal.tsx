@@ -1,45 +1,37 @@
 import * as React from 'react';
+import * as Yup from 'yup';
+
+//  @hook
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { usePackage } from 'src/api/usePackage';
+
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import AddIcon from '@mui/icons-material/Add';
 import { Grid, Stack, Card } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-
-import AddIcon from '@mui/icons-material/Add';
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-
-import { Role } from 'src/types/users';
-import { createdRoleApi } from 'src/api/users';
 import { PackageType } from 'src/types/pagekages';
-import { create_new_package } from 'src/api/pagekages';
 
 const AddNewPAac = (props: any) => {
+  const { createNewPackage } = usePackage();
 
+  const [open, setOpen] = useState(false);
 
-  const [open,setOpen]=useState(false)
-//   const { currenUserSelected } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn:async (payload: any) => await  create_new_package(payload),
+    mutationFn: async (payload: any) => await createNewPackage(payload),
     onSuccess: () => {
-      
-        setOpen(!open)
-        toast.success('created success')
-        queryClient.invalidateQueries(['packageList']as any);
-        reset()
-
-    },
-    onError: (error) => {
-      toast.error('Error');
+      setOpen(!open);
+      queryClient.invalidateQueries(['packageList'] as any);
+      reset();
     },
   });
 
@@ -49,7 +41,7 @@ const AddNewPAac = (props: any) => {
     description: Yup.string().required('Email is required'),
   });
 
-  const defaultValues: Pick< PackageType ,'name'|'price'|'description'> = {
+  const defaultValues: Pick<PackageType, 'name' | 'price' | 'description'> = {
     name: '',
     price: 0,
     description: '',
@@ -68,7 +60,7 @@ const AddNewPAac = (props: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-        mutate(data)
+      mutate(data);
     } catch (error) {
       console.error(error);
     }
@@ -76,7 +68,7 @@ const AddNewPAac = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2}}>
+      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2 }}>
         <AddIcon /> Thêm mới gói
       </Button>
       <Modal
@@ -93,16 +85,16 @@ const AddNewPAac = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
 
             bgcolor: 'background.paper',
-            borderRadius:2,
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-           Thêm mới
+            Thêm mới
           </Typography>
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Grid md={12} xs={8}>
@@ -123,7 +115,6 @@ const AddNewPAac = (props: any) => {
                 </Box>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
-                 
                   <Button variant="contained" onClick={() => setOpen(false)}>
                     Hủy
                   </Button>

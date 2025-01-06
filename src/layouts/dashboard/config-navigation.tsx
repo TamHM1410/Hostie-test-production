@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useMemo, useEffect } from 'react'; // Thêm useEffect
 
 /// nextauth
@@ -66,10 +66,10 @@ export function useNavData() {
     () => [
       // OVERVIEW
       {
-        subheader: "Tổng quan",
+        subheader: 'Tổng quan',
         items: [
           {
-            title: "Ứng dụng",
+            title: 'Ứng dụng',
             path: paths.dashboard.root,
             icon: ICONS.dashboard,
           },
@@ -87,13 +87,18 @@ export function useNavData() {
             children: [
               { title: 'Quản lý người dùng', path: paths.dashboard.user.root },
               { title: 'Quản lý quyền ', path: paths.dashboard.user.roles },
+              { title: 'Danh sách người dùng cần duyệt ', path: '/dashboard/user-pending' },
+
             ],
           },
           {
-            title: "Cư trú",
+            title: 'Cư trú',
             path: paths.dashboard.residence.root,
             icon: ICONS.tour,
-            children: [{ title: 'Loại cư trú', path: paths.dashboard.residence.type }],
+            children: [
+              { title: 'Loại cư trú', path: paths.dashboard.residence.type },
+              { title: 'Danh sách căn hộ', path: '/dashboard/residence' },
+            ],
           },
           {
             title: 'Gói',
@@ -135,7 +140,7 @@ export function useNavData() {
   const bulterNav = useMemo(
     () => [
       {
-        subheader: "Tổng quan",
+        subheader: 'Tổng quan',
         items: [
           {
             title: 'Căn hộ đang làm việc',
@@ -161,7 +166,7 @@ export function useNavData() {
   const userNav = useMemo(
     () => [
       {
-        subheader: "Tổng quan",
+        subheader: 'Tổng quan',
         items: [
           {
             title: 'Tài khoản',
@@ -185,12 +190,12 @@ export function useNavData() {
             icon: ICONS.analytics,
           },
           {
-            title: "Đặt dịch vụ",
+            title: 'Đặt dịch vụ',
             path: paths.dashboard.general.booking,
             icon: ICONS.booking,
           },
           {
-            title: "Dịch vụ",
+            title: 'Căn hộ của bạn',
             path: paths.dashboard.service,
             icon: <Icon icon="carbon:stay-inside" style={{ width: 35, height: 35 }} />,
           },
@@ -200,11 +205,11 @@ export function useNavData() {
             icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
             children: [
               {
-                title: t('booking residence list'),
+                title: 'Danh sách đặt nơi lưu trú',
                 path: paths.dashboard.bookingList,
               },
               {
-                title: t('hold  residence list'),
+                title: 'Danh sách giữ nơi lưu trú',
                 path: paths.dashboard.hold_residence,
               },
             ],
@@ -266,7 +271,7 @@ export function useNavData() {
         subheader: 'Tổng quan',
         items: [
           {
-            title: "Phân tích",
+            title: 'Phân tích',
             path: paths.dashboard.general.analytics,
             icon: ICONS.analytics,
           },
@@ -281,11 +286,11 @@ export function useNavData() {
             icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
             children: [
               {
-                title: "Danh sách đặt",
+                title: 'Danh sách đặt',
                 path: paths.dashboard.bookingList,
               },
               {
-                title: "Danh sách giữ ",
+                title: 'Danh sách giữ ',
                 path: paths.dashboard.hold_residence,
               },
             ],
@@ -309,14 +314,14 @@ export function useNavData() {
       },
 
       {
-        subheader: "Khác",
+        subheader: 'Khác',
         items: [
           {
-            title: "Tin nhắn",
+            title: 'Tin nhắn',
             path: paths.dashboard.chat,
             icon: ICONS.chat,
           },
-          { title: "Tài khoản", path: paths.dashboard.user.account, icon: ICONS.user },
+          { title: 'Tài khoản', path: paths.dashboard.user.account, icon: ICONS.user },
           {
             title: 'Gói của bạn',
             path: '/dashboard/yourpackage',

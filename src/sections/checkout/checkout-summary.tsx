@@ -35,9 +35,7 @@ export default function CheckoutSummary({
   onEdit,
   onApplyDiscount,
 }: Props) {
-
- 
- console.log('discountdd',typeof discount)
+  console.log('discountdd', typeof discount);
   return (
     <Card sx={{ mb: 3 }}>
       <CardHeader
@@ -64,33 +62,28 @@ export default function CheckoutSummary({
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Giảm giá
             </Typography>
-            <Typography variant="subtitle2">{discount ? fCurrency(subTotal*discount) : `0`}</Typography>
+            <Typography variant="subtitle2">
+              {discount ? fCurrency(subTotal * discount) : `0`}
+            </Typography>
           </Stack>
-
-        
 
           <Divider sx={{ borderStyle: 'dashed' }} />
 
           <Stack direction="row" justifyContent="space-between">
             <Typography variant="subtitle1">Tổng </Typography>
             <Box sx={{ textAlign: 'right' }}>
-       
               <Typography variant="subtitle1" sx={{ color: 'error.main' }}>
-              {/* ${subTotal - (subTotal * (discount )) } */}
-              {new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND'
-}).format(subTotal - (subTotal * (discount )) )}
+                  {new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                  }).format(subTotal - subTotal * discount)}
               </Typography>
 
-               
-               
               {/* <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
                 (Đã bao gồm VAT)
               </Typography> */}
             </Box>
           </Stack>
-
         </Stack>
       </CardContent>
     </Card>

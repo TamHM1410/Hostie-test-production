@@ -61,7 +61,7 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
           currentRole: user?.role || 'admin',
         }}
       />
-
+  
       <Box sx={{ flexGrow: 1 }} />
 
       <NavUpgrade />
@@ -88,6 +88,7 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
           }}
         >
           {renderContent}
+          sdjsdjs
         </Stack>
       ) : (
         <Drawer

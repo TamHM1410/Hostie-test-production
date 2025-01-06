@@ -1,34 +1,37 @@
+//
 import * as React from 'react';
+
+//  @hook
+
 import { useState } from 'react';
+import { useCurrentResidenceType } from 'src/zustand/store';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useResidence } from 'src/api/useResidence';
+
+//  @mui
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Grid, Stack, Card, FormControl } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-
-import { useCurrentResidenceType } from 'src/zustand/store';
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-
-import { delete_residence_type } from 'src/api/residence';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
+
 const DeleteResidenceTypeModal = (props: any) => {
+  const { deleteResidenceType } = useResidence();
+
   const [open, setOpen] = useState(false);
+
   const { currentResidenceType } = useCurrentResidenceType();
+
   const queryClient = useQueryClient();
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload: any) => delete_residence_type(payload),
+    mutationFn: (payload: any) => deleteResidenceType(payload),
     onSuccess: () => {
       setOpen(!open);
-      toast.success('Deleted success');
       queryClient.invalidateQueries(['amenityList'] as any);
-    },
-    onError: (error) => {
-      toast.error('Error');
     },
   });
 
@@ -42,7 +45,11 @@ const DeleteResidenceTypeModal = (props: any) => {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2, width: 130,color:'red' }}>
+      <Button
+        variant="outlined"
+        onClick={() => setOpen(true)}
+        sx={{ gap: 2, width: 130, color: 'red' }}
+      >
         <DeleteOutlineIcon /> Xóa
       </Button>
       <Modal
@@ -59,7 +66,7 @@ const DeleteResidenceTypeModal = (props: any) => {
             transform: 'translate(-50%, -50%)',
             width: 'auto',
             height: 'auto',
-            minWidth:{xs:300, md:500,lg:800},
+            minWidth: { xs: 300, md: 500, lg: 800 },
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,
@@ -67,7 +74,7 @@ const DeleteResidenceTypeModal = (props: any) => {
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-           Bạn có chắc muốn xóa?
+            Bạn có chắc muốn xóa?
           </Typography>
           <FormControl onSubmit={onSubmit} sx={{ width: '100%' }}>
             <Grid md={12} xs={8}>
@@ -81,11 +88,14 @@ const DeleteResidenceTypeModal = (props: any) => {
                     sm: 'repeat(0, 1fr)',
                   }}
                 ></Box>
-                <Typography sx={{ width: '100%' }}> Hành động này không thể thự hiện lại.</Typography>
+                <Typography sx={{ width: '100%' }}>
+                  {' '}
+                  Hành động này không thể thự hiện lại.
+                </Typography>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
                   <Button variant="contained" onClick={() => setOpen(false)}>
-                    Hủy 
+                    Hủy
                   </Button>
                   <LoadingButton
                     variant="contained"

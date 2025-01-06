@@ -3,6 +3,7 @@
 // @hook
 import { useState, useCallback ,useEffect} from 'react';
 import { useQuery ,useQueries} from '@tanstack/react-query';
+import { useUserManagement } from 'src/api/useUserManagement';
 
 import { getUserInfor } from 'src/api/users';
 
@@ -45,6 +46,8 @@ const TABS = [
 // ----------------------------------------------------------------------
 
 export default function AccountView() {
+
+  const {getUserInfo}=useUserManagement()
   const settings = useSettingsContext();
 
   const { updateUserSelected } = useCurrentUser();
@@ -54,7 +57,7 @@ export default function AccountView() {
   const result=useQueries({
     queries:[{
       queryKey:['userTest'],
-      queryFn: ()=>getUserInfor()
+      queryFn: ()=>getUserInfo()
     },{
       queryKey:['bankList'],
       queryFn:()=>getBankList()
@@ -85,7 +88,6 @@ export default function AccountView() {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Người dùng', href: paths.dashboard.user.root },
-          // { name: 'Account' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

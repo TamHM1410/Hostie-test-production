@@ -8,6 +8,7 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 export default function BookingListView() {
     const settings = useSettingsContext();
+    
     const { rows, isLoading } = useBookingListContext();
 
     return (

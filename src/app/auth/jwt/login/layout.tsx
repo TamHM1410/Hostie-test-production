@@ -37,5 +37,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <AuthClassicLayout>{children}</AuthClassicLayout>;
+  return <AuthClassicLayout title='Quản lý dịch vụ Villa & homestay hiệu quả hơn với Hosite'>{children}</AuthClassicLayout>;
 }

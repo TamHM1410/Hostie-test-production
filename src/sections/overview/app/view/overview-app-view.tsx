@@ -34,11 +34,16 @@ import { getDashboardAnalytic } from 'src/api/analytics';
 import { getALlTransactionPackage } from 'src/api/pagekages';
 import { useGetUserCurrentRole } from 'src/zustand/user';
 import { useRouter } from 'next/navigation';
+
+import { useAnalytics } from 'src/api/useAnalytic';
+
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
 
   const router=useRouter()
+  
+  const {admin_analytic}=useAnalytics()
 
   const { userCurrentRole}=useGetUserCurrentRole()
 
@@ -76,7 +81,7 @@ export default function OverviewAppView() {
     queryKey: ['dashboard'],
     queryFn: async () => {
       const limit = 5;
-      const res = await getDashboardAnalytic();
+      const res = await admin_analytic();
       const newRegister = [];
       const newTotalIncome = [];
       const listTrans = [];
@@ -134,7 +139,7 @@ export default function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid xs={12} md={12}>
           <AppWelcome
-            title={`Mừng bạn trở lại  👋 \n ${session?.user.name}`}
+            title={`Mừng bạn trở lại  👋🌼 \n ${session?.user.name}`}
             description="Hãy sẵn sàng theo dõi tiến độ, tối ưu hóa quy trình và biến mọi kế hoạch thành hiện thực."
             img={<SeoIllustration />}
             action={

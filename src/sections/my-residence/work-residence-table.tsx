@@ -1,11 +1,12 @@
 //    @hook
 import { useState } from 'react';
 import { UserManagement } from 'src/types/users';
+
+/// @mui
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
-/// @mui
 
 import {
   MaterialReactTable,
@@ -14,8 +15,7 @@ import {
   createMRTColumnHelper,
 } from 'material-react-table';
 
-import { Box, Button, Chip } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Box,  Chip } from '@mui/material';
 
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import ConfirmModal from './confirm-modal';
@@ -27,14 +27,14 @@ const columnHelper = createMRTColumnHelper<UserManagement | any>();
 const statusOption = ['Từ chối', 'Đang xét duyệt', 'Chấp nhận'];
 
 const BulterWorkTable = (props: any) => {
+
   const { data = [] } = props;
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const [modalType,setModalType]=useState('')
+  const [modalType, setModalType] = useState('');
 
-  const [selectedButler,setSelectedButler]=useState<any>(null)
-
+  const [selectedButler, setSelectedButler] = useState<any>(null);
 
   const columns = [
     columnHelper.accessor('housekeeperName', {
@@ -69,27 +69,31 @@ const BulterWorkTable = (props: any) => {
       size: 220,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
-        console.log(row.status,'sds')
+        console.log(row.status, 'sds');
         if (row.status === 1) {
           return (
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Tooltip title="Duyệt">
-                <IconButton color="success" onClick={()=>{
-                  setOpen(!open)
-                  setModalType('accept')
-                  setSelectedButler(row)
-                }}>
+                <IconButton
+                  color="success"
+                  onClick={() => {
+                    setOpen(!open);
+                    setModalType('accept');
+                    setSelectedButler(row);
+                  }}
+                >
                   <CheckCircleOutlineIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Từ chối">
-                <IconButton color="error" onClick={()=>{
-                  setOpen(!open)
-                  setModalType('reject')
-                  setSelectedButler(row)
-
-
-                }}>
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    setOpen(!open);
+                    setModalType('reject');
+                    setSelectedButler(row);
+                  }}
+                >
                   <CancelIcon />
                 </IconButton>
               </Tooltip>
@@ -133,16 +137,20 @@ const BulterWorkTable = (props: any) => {
           padding: '8px',
           flexWrap: 'wrap',
         }}
-      >
-       
-      </Box>
+      ></Box>
     ),
   });
 
   return (
     <>
       <MaterialReactTable table={table} />
-      <ConfirmModal open={open} setOpen={setOpen} modalType={modalType} setModalType={setModalType} selectedButler={selectedButler}/>
+      <ConfirmModal
+        open={open}
+        setOpen={setOpen}
+        modalType={modalType}
+        setModalType={setModalType}
+        selectedButler={selectedButler}
+      />
     </>
   );
 };

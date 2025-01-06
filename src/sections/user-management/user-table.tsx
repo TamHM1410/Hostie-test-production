@@ -1,6 +1,7 @@
+//  @react
 import { useEffect, useState, useMemo } from 'react';
+//  @mui
 import Switch from '@mui/material/Switch';
-
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -8,29 +9,22 @@ import {
   createMRTColumnHelper,
 } from 'material-react-table';
 import Image from 'next/image';
-
-import { Box, Button, Chip, Menu, MenuItem } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { mkConfig, generateCsv, download } from 'export-to-csv';
-import { UserManagement } from 'src/types/users';
-import { useCurrentUser } from 'src/zustand/store';
+import { Box, Button, Chip, Menu, MenuItem, Avatar } from '@mui/material';
 
 import UserDetailModal from './view-user-detail-modal';
 import useUpdateActiveModal from '../hooks/useUpdateActiveModal';
-
 import ViewEvidenceModal from './view-evidence';
 
+//  @store
+import { UserManagement } from 'src/types/users';
+import { useCurrentUser } from 'src/zustand/store';
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 const columnHelper = createMRTColumnHelper<UserManagement | any>();
-const statusOption = ['Rejected', 'Pending', 'Accepted'];
 
 const UserTable = (props: any) => {
   const { data = [] } = props;
-
-
-  console.log('data',data)
 
   const { currenUserSelected, updateUserSelected } = useCurrentUser();
 
@@ -59,7 +53,7 @@ const UserTable = (props: any) => {
         return (
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box>
-              <Image src={urlAvatar} alt="" width={50} height={50} />
+              <Avatar src={urlAvatar} alt="" width={50} height={50} />
             </Box>
             <Box>
               <Box sx={{ fontSize: 18, fontWeight: 700 }}>{username}</Box>
@@ -76,9 +70,9 @@ const UserTable = (props: any) => {
       Cell: ({ cell }: any) => (
         <span>
           {cell.getValue() === true ? (
-            <Chip label="Đã xác thực" color="success" variant='soft'/>
+            <Chip label="Đã xác thực" color="success" variant="soft" />
           ) : (
-            <Chip label="Chưa xác thực" color="error" variant='soft'/>
+            <Chip label="Chưa xác thực" color="error" variant="soft" />
           )}
         </span>
       ),
@@ -87,10 +81,7 @@ const UserTable = (props: any) => {
       header: 'Ảnh minh  chứng ',
       Cell: ({ cell }: any) => (
         <span>
-          <ViewEvidenceModal images={cell?.getValue()}/>
-          {/* {cell?.getValue() === 0 && <Chip label={statusOption[0]} color="error" variant='soft' />}
-          {cell?.getValue() === 1 && <Chip label={statusOption[1]} color="warning" variant='soft'/>}
-          {cell?.getValue() === 2 && <Chip label={statusOption[2]} color="success" variant='soft'/>} */}
+          <ViewEvidenceModal images={cell?.getValue()} />
         </span>
       ),
     }),
@@ -121,16 +112,36 @@ const UserTable = (props: any) => {
       size: 180,
       Cell: ({ cell }: any) => (
         <span>
-          <Chip
-            label={
-              Array.isArray(cell.getValue()) && cell.getValue()[0]?.name
-                ? cell.getValue()[0].name
-                : 'Unknown'
-            }
-            variant="soft"
-            // color="success"
-            sx={{ width: 130 }}
-          />
+          {Array.isArray(cell.getValue()) &&
+            cell.getValue()[0]?.name &&
+            cell.getValue()[0]?.name === 'USER' && (
+              <Chip
+                label="Chưa đăng ký "
+                variant="soft"
+                // color="success"
+                sx={{ width: 130 }}
+              />
+            )}
+          {Array.isArray(cell.getValue()) &&
+            cell.getValue()[0]?.name &&
+            cell.getValue()[0]?.name === 'SELLER' && (
+              <Chip
+                label="Người bán"
+                variant="soft"
+                color="primary"
+                sx={{ width: 130 }}
+              />
+            )}
+          {Array.isArray(cell.getValue()) &&
+            cell.getValue()[0]?.name &&
+            cell.getValue()[0]?.name === 'HOST' && (
+              <Chip
+                label="Chủ nhà"
+                variant="soft"
+                color="warning"
+                sx={{ width: 130 }}
+              />
+            )}
         </span>
       ),
     }),
@@ -146,34 +157,14 @@ const UserTable = (props: any) => {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              // updateUserSelected(cell.row.original);
-              console.log('cc');
             }
           }}
-          // Optionally, add some styling to
         >
           <UserDetailModal open={openModal} setOpen={setOpenModal} />
         </div>
       ),
     }),
   ];
-
-  const csvConfig = mkConfig({
-    fieldSeparator: ',',
-    decimalSeparator: '.',
-    useKeysAsHeaders: true,
-  });
-
-  const handleExportRows = (rows: MRT_Row<UserManagement | any>[]) => {
-    const rowData = rows.map((row) => row.original);
-    const csv = generateCsv(csvConfig)(rowData);
-    download(csvConfig)(csv);
-  };
-
-  const handleExportData = () => {
-    const csv = generateCsv(csvConfig)(data);
-    download(csvConfig)(csv);
-  };
 
   const table = useMaterialReactTable({
     columns,
@@ -185,40 +176,6 @@ const UserTable = (props: any) => {
     muiSearchTextFieldProps: {
       placeholder: 'Tìm kiếm người dùng',
     },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Box
-        sx={{
-          display: 'flex',
-          gap: '16px',
-          padding: '8px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <Button
-          //  export all data that is currently in the table (ignore pagination, sorting, filtering, etc.)
-          onClick={handleExportData}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả dữ liệu
-        </Button>
-        <Button
-          disabled={table.getPrePaginationRowModel().rows?.length === 0}
-          //  export all rows, including from the next page, (still respects filtering and sorting)
-          onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả các dòng
-        </Button>
-        <Button
-          disabled={table.getRowModel().rows?.length === 0}
-          //  export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
-          onClick={() => handleExportRows(table.getRowModel().rows)}
-          startIcon={<FileDownloadIcon />}
-        >
-          Xuất tất cả dữ liệu trong trang
-        </Button>
-      </Box>
-    ),
   });
 
   useEffect(() => {}, [openModal, openActiveModal]);

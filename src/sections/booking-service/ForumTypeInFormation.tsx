@@ -32,7 +32,7 @@ export default function ForumTypeInFormation() {
 
     const handleAction = (type: 'book' | 'hold') => {
 
-        if (type === 'book' && !customerList.data?.length) {
+        if (type === 'book' && !customerList.data.length) {
             toast.error('Bạn chưa có khách hàng nào hãy vào trang quản lí khách hàng để tạo mới 1 khách hàng.')
             return;
         }

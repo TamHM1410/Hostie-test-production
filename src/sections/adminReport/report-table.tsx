@@ -1,6 +1,8 @@
 //@hook
 import { useState } from 'react';
 import { UserManagement } from 'src/types/users';
+import { useReport } from 'src/api/useReport';
+import { useQueryClient } from '@tanstack/react-query';
 
 ///@mui
 
@@ -11,28 +13,36 @@ import {
   createMRTColumnHelper,
 } from 'material-react-table';
 
-import { Box, Button, Chip, Divider, MenuItem } from '@mui/material';
+import { Box, Button, Chip, Divider, IconButton, Tooltip } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import BlockIcon from '@mui/icons-material/Block';
+
 ///store
 import { useCurrentReport } from 'src/zustand/report';
 ///@another
-import ReportMenu from './menu';
 import EditReportModal from './edit-modal';
 
 // import RoleActionMenu from './role-action-menu';
 const columnHelper = createMRTColumnHelper<UserManagement | any>();
 
-const statusOption = ['Đang điều tra', 'Chờ xử lý', 'Đã giải quyết','Đã đóng'];
+const statusOption = ['Cảnh báo', 'Đang xử lý', 'Đã giải quyết', 'Từ chối'];
 
 const ReportTable = (props: any) => {
+  const { acceptReport, rejectReport, warningReport } = useReport();
+
+  const queryClient = useQueryClient();
+
   const { data = [] } = props;
+
   const [open, setOpen] = useState<boolean>(false);
+
   const [selectEdit, setSelectEdit] = useState<any>({
     id: 0,
     status: '',
     adminNote: '',
   });
-
-  const { updateReport } = useCurrentReport();
 
   const columns = [
     columnHelper.accessor('residenceName', {
@@ -111,17 +121,19 @@ const ReportTable = (props: any) => {
             color: '#637381',
           }}
         >
-          {cell.getValue() === 'INVESTIGATING' && (
-            <Chip label={statusOption[0]} variant="soft" color="error" />
+          {cell.getValue() === 'WARNED' && (
+            <Chip label={statusOption[0]} variant="soft" color="warning" />
           )}
           {cell.getValue() === 'PENDING' && (
             <Chip label={statusOption[1]} variant="soft" color="warning" />
           )}
-          {cell.getValue() === 'RESOLVED' && (
+          {cell.getValue() === 'ACCEPTED' && (
             <Chip label={statusOption[2]} variant="soft" color="success" />
           )}
-         
-        
+
+          {cell.getValue() === 'REJECTED' && (
+            <Chip label={statusOption[3]} variant="soft" color="error" />
+          )}
         </span>
       ),
     }),
@@ -140,9 +152,11 @@ const ReportTable = (props: any) => {
               gap: 2,
             }}
           >
-            <Box sx={{width:120}}>{cell.getValue() !== null ? cell.getValue() : 'Chưa có ghi chú'}</Box>
+            <Box sx={{ width: 120 }}>
+              {cell.getValue() !== null ? cell.getValue() : 'Chưa có ghi chú'}
+            </Box>
 
-            <Box
+            {/* <Box
               onClick={() => {
                 const row = cell.row.original;
                 updateReport({
@@ -160,8 +174,58 @@ const ReportTable = (props: any) => {
             >
               {' '}
               <ReportMenu />
-            </Box>
+            </Box> */}
           </Box>
+        );
+      },
+    }),
+    columnHelper.accessor('status', {
+      header: 'Thao tác',
+      size: 210,
+      Cell: ({ cell }: any) => {
+        const row = cell.row.original;
+
+        return (
+          <span
+            style={{
+              color: '#637381',
+            }}
+          >
+            {row.status === 'PENDING' && (
+              <Box>
+                <Tooltip title="Đồng ý">
+                  <IconButton
+                    color="success"
+                    aria-label="delete"
+                    size="large"
+                    onClick={() => handleAccept(row.id)}
+                  >
+                    <CheckCircleOutlineIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Cảnh cáo">
+                  <IconButton
+                    color="warning"
+                    aria-label="delete"
+                    size="large"
+                    onClick={() => handleWaning(row.id)}
+                  >
+                    <ErrorOutlineIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Từ chối">
+                  <IconButton
+                    color="error"
+                    aria-label="delete"
+                    size="large"
+                    onClick={() => handleReject(row.id)}
+                  >
+                    <BlockIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )}
+          </span>
         );
       },
     }),
@@ -175,6 +239,26 @@ const ReportTable = (props: any) => {
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
   });
+
+  const handleAccept = async (id: any) => {
+    const res = await acceptReport(id);
+    if (res) {
+      queryClient.invalidateQueries(['reportList'] as any);
+    }
+  };
+
+  const handleWaning = async (id: any) => {
+    const res = await warningReport(id);
+    if (res) {
+      queryClient.invalidateQueries(['reportList'] as any);
+    }
+  };
+  const handleReject = async (id: any) => {
+    const res = await rejectReport(id);
+    if (res) {
+      queryClient.invalidateQueries(['reportList'] as any);
+    }
+  };
 
   return (
     <>

@@ -6,13 +6,15 @@ import {
 } from 'material-react-table';
 import { useState } from 'react';
 
-import { Box, Button, Chip, Menu, MenuItem } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Chip} from '@mui/material';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { UserManagement } from 'src/types/users';
-import { useCurrentRole ,useCurrentPackage} from 'src/zustand/store';
+import {useCurrentPackage} from 'src/zustand/store';
 import PackageMenu from './package-action-menu';
+
+//  options
 import { statusOption } from 'src/utils/options';
+
 const columnHelper = createMRTColumnHelper<UserManagement | any>();
 
 const PackageTable = (props: any) => {
@@ -47,10 +49,16 @@ const PackageTable = (props: any) => {
     columnHelper.accessor('price', {
       header: 'Giá',
       size: 190,
+      Cell: ({ cell }) => (
+        <span>
+          {cell.getValue().toLocaleString('vi-VN')}
+
+        </span>
+      ),
     }),
 
     columnHelper.accessor('action', {
-      header: 'Hành động ',
+      header: 'Thao tác',
       size: 220,
       Cell: ({ cell }) => (
         <span

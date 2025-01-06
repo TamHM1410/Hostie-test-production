@@ -1,22 +1,21 @@
 'use client';
 
-//
-///hook
-import { useState, useEffect } from 'react';
+//  @hook
 import { useQuery } from '@tanstack/react-query';
-import BookingDetails from '../overview/booking/booking-details';
-import { Grid, Typography, Box } from '@mui/material';
-import { getAllRolesApi } from 'src/api/users';
-import { useSession } from 'next-auth/react';
+import {  Box } from '@mui/material';
+import { usePackage } from 'src/api/usePackage';
+
+//  @component
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { LoadingScreen} from 'src/components/loading-screen';
 import PackageTable from './package-table';
-import { findAllPackage } from 'src/api/pagekages';
 import AddNewPackage from './package-addnew-modal';
+import { LoadingScreen} from 'src/components/loading-screen';
+
 // import AddNewRoleModal from './role-addnew-modal';
 export default function PackageView() {
-  const { data: session } = useSession();
+
+  const {findAllPackage}=usePackage()
   const { data, isLoading } = useQuery({
     queryKey: ['packageList'],
 

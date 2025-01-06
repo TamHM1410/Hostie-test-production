@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useUserManagement } from 'src/api/useUserManagement';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -32,23 +33,38 @@ import { useGetUserCurrentRole } from 'src/zustand/user';
 
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
-///
 
-//------------------
-const updateInfor = async (payload: any) => {
-  const res = await updateUserById(payload);
-  if (!res) {
-    throw new Error('Failed to update user');
-  }
-  return res.result;
-};
+
+
 export default function AccountGeneral(props: any) {
-  const { enqueueSnackbar } = useSnackbar();
 
+  
+
+  const {updateUserInfo}=useUserManagement()
+  const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { userData, bankName = [] } = props;
-
   const { defaultAvatar } = useDefaultAvatar();
+
+
+  const updateInfor = async (payload: any) => {
+    const res = await updateUserInfo(payload);
+   
+    return res
+  };
+
+  // Add show more/less state
+  const [visibleBanks, setVisibleBanks] = useState(2);
+  const [isShowingAll, setIsShowingAll] = useState(false);
+
+  const toggleShowMore = () => {
+    if (isShowingAll) {
+      setVisibleBanks(2);
+    } else {
+      setVisibleBanks(bankList.length);
+    }
+    setIsShowingAll(!isShowingAll);
+  };
 
   const handleChange = (event: SelectChangeEvent, index: number) => {
     setBankList((prevBankList) =>
@@ -84,9 +100,7 @@ export default function AccountGeneral(props: any) {
   );
 
   const [isEdit, setIsEdit] = useState(false);
-
   const [isEditImage, setEditImage] = useState(false);
-
   const { userCurrentRole } = useGetUserCurrentRole();
 
   const UpdateUserSchema = Yup.object().shape({
@@ -103,7 +117,6 @@ export default function AccountGeneral(props: any) {
         status: Yup.number().notRequired(),
       })
     ),
-
     bankAccounts: Yup.array().of(
       Yup.object().shape({
         accountNo: Yup.number().required('Số điện thoại chỉ được phép là chữ số'),
@@ -136,15 +149,13 @@ export default function AccountGeneral(props: any) {
   } = methods;
 
   const { mutate }: any = useMutation({
-    mutationFn: (payload) => updateInfor(payload),
+    mutationFn: (payload) => updateUserInfo(payload),
     onSuccess: () => {
       enqueueSnackbar('Cập nhật thành công!');
       setIsEdit(!isEdit);
-    },
-    onError: (error) => {
-      toast.error('C  ập nhật lỗi');
-    },
+    }
   });
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       const payload: UserInfor = {
@@ -227,7 +238,7 @@ export default function AccountGeneral(props: any) {
                         left: { md: 100, xs: 180, sm: 40 },
                         width: { md: '37%', xs: '25%', sm: '64%' },
                         height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Màu nền overlay
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
                         borderRadius: '50%',
                         opacity: 0,
                         transition: 'opacity 0.3s ease',
@@ -246,15 +257,21 @@ export default function AccountGeneral(props: any) {
                   )}
                 </Box>
                 <style>{`
-  .overlay:hover {
-      opacity: 1;
-  }
-`}</style>
+                  .overlay:hover {
+                    opacity: 1;
+                  }
+                `}</style>
               </>
             )}
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
-              {userCurrentRole}
+              {userCurrentRole ==="HOST" && "Chủ nhà"}
+              {userCurrentRole ==="SELLER" && "Người bán"}
+              {userCurrentRole ==="HOUSEKEEPER" && "Người quản gia"}
+              {userCurrentRole ==="ADMIN" && "Quản trị viên"}
+
+
+
             </Button>
             <Box sx={{ mt: 3, display: 'flex', width: '100%', justifyContent: 'center', gap: 2 }}>
               <span> Mã giới thiệu của bạn:</span>
@@ -291,11 +308,12 @@ export default function AccountGeneral(props: any) {
 
               <RHFTextField name="email" label="Email" disabled={!isEdit} />
             </Box>
+            
             <Typography sx={{ mt: 3 }}>Tài khoản ngân hàng</Typography>
             {bankList &&
               Array.isArray(bankList) &&
-              bankList.map((item, index) => (
-                <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
+              bankList.slice(0, visibleBanks).map((item, index) => (
+                <Stack key={index} spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
                   <RHFTextField
                     name={`bankAccounts[${index}].accountNo`}
                     rows={4}
@@ -317,9 +335,12 @@ export default function AccountGeneral(props: any) {
                       Array.isArray(bankName) &&
                       bankName.length > 0 &&
                       bankName.map((bank: any) => (
-                        <MenuItem value={bank.id}>{bank?.vnName}</MenuItem>
+                        <MenuItem key={bank.id} value={bank.id}>
+                          {bank?.vnName}
+                        </MenuItem>
                       ))}
                   </Select>
+
                   <RHFTextField
                     name={`bankAccounts[${index}].accountHolder`}
                     rows={4}
@@ -329,6 +350,22 @@ export default function AccountGeneral(props: any) {
                   />
                 </Stack>
               ))}
+
+            {/* Show more/less button */}
+            {bankList && bankList.length > 2 && (
+              <Button
+                onClick={toggleShowMore}
+                sx={{
+                  mt: 2,
+                  color: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {isShowingAll ? 'Ẩn bớt' : `Xem thêm (${bankList.length - 2})`}
+              </Button>
+            )}
 
             <Stack
               spacing={3}
