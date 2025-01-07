@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useEffect } from 'react'; // Thêm useEffect
+import { useSession } from 'next-auth/react';
 
 /// nextauth
 // routes
@@ -53,7 +54,10 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
+  const {data:session}=useSession()
   const { userCurrentRole } = useGetUserCurrentRole();
+
+   console.log(session?.user.roles,'role')  
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập

@@ -7,6 +7,7 @@ import Switch from '@mui/material/Switch';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { Grid } from '@mui/material';
+import { useSession } from 'next-auth/react';
 // _mock
 import { _pricingPlans } from 'src/_mock';
 //
@@ -33,6 +34,8 @@ const arrow = (
 );
 
 export default function PricingView() {
+  const {data:session}=useSession()
+  console.log(session?.user?.roles,'session')
   return (
     <Container
       sx={{

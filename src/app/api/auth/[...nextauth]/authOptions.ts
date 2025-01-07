@@ -90,6 +90,7 @@ export const authOptions: NextAuthOptions = {
         urlAvatar: jwtToken.urlAvatar,
         name: jwtToken.username,
       };
+      console.log(session,'session')
       return session;
     },
   },

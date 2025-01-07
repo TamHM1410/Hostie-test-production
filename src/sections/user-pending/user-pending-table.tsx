@@ -31,6 +31,8 @@ const UserPendingTable = (props: any) => {
   const { currenUserSelected, updateUserSelected } = useCurrentUser();
 
   const [openActiveModal, setOpenActive] = useState(false);
+  
+  const [userId,setUserId]=useState<any>(null)
 
   const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -99,14 +101,16 @@ const UserPendingTable = (props: any) => {
     columnHelper.accessor('action', {
       header: 'Thao tác ',
       size: 220,
-      Cell: ({ cell }: any) => (
+      Cell: ({ row }: any) => (
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Tooltip title="Duyệt">
             <IconButton
               color="success"
               onClick={() => {
+
                 setOpen(!open);
                 setModalType('accept');
+                setUserId(row.original.userId)
                 // setSelectedButler(row);
               }}
             >
@@ -142,6 +146,7 @@ const UserPendingTable = (props: any) => {
     },
   });
 
+
   return (
     <>
       <MaterialReactTable table={table} />
@@ -150,6 +155,7 @@ const UserPendingTable = (props: any) => {
         setOpen={setOpen}
         modalType={modalType}
         setModalType={setModalType}
+        userId={userId}
       />
     </>
   );

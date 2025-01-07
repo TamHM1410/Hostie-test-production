@@ -92,7 +92,7 @@ export const usePackage = () => {
   const registerPackageApi = useCallback(
     async (payload: any) => {
       try {
-        const response = await axiosAuth.put<any>(
+        const response = await axiosAuth.post<any>(
           `${endPoint.register_package.post}?packageId=${payload}`
         );
 
@@ -141,10 +141,7 @@ export const usePackage = () => {
     }
   }, [axiosAuth]);
 
-  // const upgrade_package = async (payload: any): Promise<any> => {
-  //   const rs = await axiosClient.put(endPoint.register_package.upgrade_package(payload));
-  //   return rs;
-  // };
+  
 
   const user_getPackage_history = useCallback(async () => {
     try {

@@ -23,32 +23,25 @@ export const useUserManagement = () => {
     [axiosAuth]
   );
 
-  const getUserInfo = useCallback(
-    async () => {
-      try {
-        const response = await axiosAuth.get<any>(
-          endPoint.user.info
-        );
-        return response;
-      } catch (error) {
-        if (error instanceof Error) {
-          toast.error(error.message);
-          throw new Error(error.message);
-        }
-        throw new Error('Đăng nhập thất bại');
+  const getUserInfo = useCallback(async () => {
+    try {
+      const response = await axiosAuth.get<any>(endPoint.user.info);
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+        throw new Error(error.message);
       }
-    },
-    [axiosAuth]
-  );
-  
+      throw new Error('Đăng nhập thất bại');
+    }
+  }, [axiosAuth]);
+
   const updateUserInfo = useCallback(
-    async (payload:any) => {
+    async (payload: any) => {
       try {
-        console.log('payload',payload)
-        const response = await axiosAuth.put<any>(
-          endPoint.user.update, payload        );
+        console.log('payload', payload);
+        const response = await axiosAuth.put<any>(endPoint.user.update, payload);
         return response;
-
       } catch (error) {
         if (error instanceof Error) {
           toast.error(error.message);
@@ -59,21 +52,16 @@ export const useUserManagement = () => {
     },
     [axiosAuth]
   );
-
 
   const getPendingUser = useCallback(
     async ({ limit = 1000, search = '' }) => {
       try {
         const response = await axiosAuth.get<any>(
-
           `/v1/api/users/pending-users-review?size=${limit}&search=${search}&sortOrder=dsc&sortField=createdAt`
         );
         return response;
-
       } catch (error) {
-
         if (error instanceof Error) {
-
           toast.error('Đã có lỗi xảy ra vui lòng thử lại sau');
 
           throw new Error(error.message);
@@ -83,12 +71,25 @@ export const useUserManagement = () => {
     },
     [axiosAuth]
   );
-  const getUserReferralLink= useCallback(
-    async () => {
+  const getUserReferralLink = useCallback(async () => {
+    try {
+      const response = await axiosAuth.get<any>(`/v1/api/users/referral-link`);
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+        throw new Error(error.message);
+      }
+      throw new Error('Đăng nhập thất bại');
+    }
+  }, [axiosAuth]);
+  const rejectUserReview = useCallback(
+    async (payload: any) => {
       try {
-        const response = await axiosAuth.get<any>(
-          `/v1/api/users/referral-link`
-        );
+        const response = await axiosAuth.post<any>('/v1/api/users/reject-user-review', {
+          userId: payload,
+        });
+        toast.error('Tài khoản đã bị từ chối');
         return response;
       } catch (error) {
         if (error instanceof Error) {
@@ -100,7 +101,33 @@ export const useUserManagement = () => {
     },
     [axiosAuth]
   );
-  
+  const approveUserReview = useCallback(
+    async (payload: any) => {
+      try {
+        const response = await axiosAuth.post<any>('/v1/api/users/approve-user-review', {
+          userId: payload,
+        });
+        toast.success('Tài khoản đã được chấp thuận');
 
-  return { getAllUsers,getUserInfo,updateUserInfo,getPendingUser,getUserReferralLink };
+        return response;
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+          throw new Error(error.message);
+        }
+        throw new Error('Đăng nhập thất bại');
+      }
+    },
+    [axiosAuth]
+  );
+
+  return {
+    getAllUsers,
+    getUserInfo,
+    updateUserInfo,
+    getPendingUser,
+    getUserReferralLink,
+    rejectUserReview,
+    approveUserReview,
+  };
 };

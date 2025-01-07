@@ -13,31 +13,32 @@ import toast from 'react-hot-toast';
 //  @component
 import { LoadingButton } from '@mui/lab';
 import { hostAcceptHouseKeeper, hostRejectHouseKeeper } from 'src/api/host';
+import { useUserManagement } from 'src/api/useUserManagement';
 
 //  @api
 
 const ConfirmModal = (props: any) => {
+
+  const {rejectUserReview,approveUserReview}=useUserManagement()
+
   const { host_accept, host_reject } = useButler();
 
-  const { open, setOpen, modalType, setModalType, selectedButler } = props;
+  const { open, setOpen, modalType, setModalType, selectedButler,userId } = props;
 
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     try {
-      const payload = {
-        houseKeeperId: selectedButler?.houseKeeperId,
-        residenceId: selectedButler?.residenceId,
-      };
+    
       if (modalType === 'accept') {
-        await host_accept(payload);
-        queryClient.invalidateQueries(['housekeeperRequest'] as any);
+        await approveUserReview(userId);
+        queryClient.invalidateQueries(['usersPendingList'] as any);
         setOpen(!open);
       }
 
       if (modalType === 'reject') {
-        await host_reject(payload);
-        queryClient.invalidateQueries(['housekeeperRequest'] as any);
+        await rejectUserReview(userId);
+        queryClient.invalidateQueries(['usersPendingList'] as any);
         setOpen(!open);
       }
     } catch (error) {

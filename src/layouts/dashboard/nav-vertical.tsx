@@ -88,7 +88,6 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
           }}
         >
           {renderContent}
-          sdjsdjs
         </Stack>
       ) : (
         <Drawer

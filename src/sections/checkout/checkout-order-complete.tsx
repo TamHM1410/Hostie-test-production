@@ -1,6 +1,6 @@
 import { m, AnimatePresence } from 'framer-motion';
-import { useRouter,useParams,useSearchParams } from 'next/navigation';
-
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRefreshedToken } from 'src/utils/hooks/useRefreshedToken';
 // @mui
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -23,11 +23,11 @@ interface Props extends DialogProps {
   onDownloadPDF: VoidFunction;
 }
 
-export default function CheckoutOrderComplete({ open}: Props|any) {
-  const router=useRouter()
-  const searchParams=useSearchParams()
-  const code =searchParams.get('vnp_TransactionNo')
-  console.log(code,'code')
+export default function CheckoutOrderComplete({ open }: Props | any) {
+  const router = useRouter();
+  const { refreshToken } = useRefreshedToken();
+  const searchParams = useSearchParams();
+  const code = searchParams.get('vnp_TransactionNo');
   const renderContent = (
     <Stack
       spacing={5}
@@ -50,7 +50,8 @@ export default function CheckoutOrderComplete({ open}: Props|any) {
         <br />
         <br />
         Chúng tôi sẽ gửi cho bạn thông báo trong vòng 5 ngày .
-        <br /> Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào, vui lòng liên hệ với chúng tôi.. <br /> <br />
+        <br /> Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào, vui lòng liên hệ với chúng tôi.. <br />{' '}
+        <br />
         Chúc bạn một ngày tốt lành,
       </Typography>
 
@@ -61,14 +62,16 @@ export default function CheckoutOrderComplete({ open}: Props|any) {
         justifyContent="space-between"
         direction={{ xs: 'column-reverse', sm: 'row' }}
       >
-       
         <Button
           fullWidth
           size="large"
           variant="contained"
           startIcon={<Iconify icon="hugeicons:dashboard-circle" />}
-          onClick={()=>router.push('/dashboard')}
+          onClick={() => {
+            refreshToken();
 
+            // router.push('/dashboard');
+          }}
         >
           Về trang quản lí
         </Button>

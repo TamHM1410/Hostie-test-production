@@ -169,8 +169,8 @@ export default function ServiceCardList({
     const fetchDataDetail = async () => {
         try {
             const response = await axiosClient.get(`${baseURL}/residences/${selectedId}`, {});
-            setResidenceData(response.data.data);
-            setSelectedAmenities(response.data.data.amenities);
+            setResidenceData(response.data);
+            setSelectedAmenities(response.data.amenities);
         } catch (error) {
             console.error('Error fetching residence data:', error);
         }

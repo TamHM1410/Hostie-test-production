@@ -95,7 +95,7 @@ export default function AccountPopover() {
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {session?.user?.name.toUpperCase() ?? 'undefined'}
+          {session?.user?.name || 'undefined'}
         </Avatar>
       </IconButton>
 
