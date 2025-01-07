@@ -71,8 +71,8 @@ const ConfirmModal = (props: any) => {
         <FormControl onSubmit={onSubmit} sx={{ width: '100%' }}>
           <Grid md={12} xs={8}>
             <Typography id="modal-title" variant="h6" component="h2">
-              {modalType === 'accept' && 'Người dùng này sẽ trở thành quản gia của bạn'}
-              {modalType === 'reject' && 'Từ chối người dùng này làm quản gia cho bạn'}
+              {modalType === 'accept' && 'Người dùng này sẽ trở thành user system'}
+              {modalType === 'reject' && 'Từ chối người dùng này  thanh user system'}
             </Typography>
 
             <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>

@@ -1,10 +1,10 @@
 'use client';
-
 import axiosClient from '../axiosClient';
 import { useSession, signIn ,signOut} from 'next-auth/react';
 import { useGetUserCurrentRole } from 'src/zustand/user';
 
 export const useRefreshedToken = () => {
+
   const { data: session } = useSession();
 
   const { set } = useGetUserCurrentRole();

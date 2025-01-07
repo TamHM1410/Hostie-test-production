@@ -6,18 +6,18 @@ import { useBookingListContext } from 'src/auth/context/booking-list-context/Boo
 import BookingListTable from './BookingListTable';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import goAxiosClient from 'src/utils/goAxiosClient';
-import { useResidence } from 'src/api/useResidence';
 import { useQuery } from '@tanstack/react-query';
 
 export default function BookingListView() {
+
   const settings = useSettingsContext();
+
   const { rows, setRows } = useBookingListContext();
 
   const { data, isLoading } = useQuery({
     queryKey: ["booking"],
     queryFn: async () => {
       const res = await goAxiosClient.get('/booking?sort=id:desc&page_size=9999&size=1');
-      // Move setRows after the return to ensure we're not causing a state update during render
       const bookingData = res?.data?.result;
       if (bookingData) {
         setRows(bookingData);

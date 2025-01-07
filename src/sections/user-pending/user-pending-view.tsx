@@ -31,7 +31,6 @@ export default function UserPendingView() {
 
    
   });
-  console.log(data,'data')
 
   return (
     <Box>

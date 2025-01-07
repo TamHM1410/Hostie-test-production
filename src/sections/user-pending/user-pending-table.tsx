@@ -35,6 +35,7 @@ const UserPendingTable = (props: any) => {
   const [userId,setUserId]=useState<any>(null)
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  
 
   const [open, setOpen] = useState<boolean>(false);
 
