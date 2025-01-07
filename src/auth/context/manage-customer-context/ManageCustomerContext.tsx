@@ -51,7 +51,7 @@ export const ManageCustomerProvider = ({ children }: { children: ReactNode }) =>
         setIsLoading(true);
         try {
             const response = await axiosClient.get(`${baseUrl}/customers`);
-            setCustomers(response.data.data.data);
+            setCustomers(response.data.data);
         } catch (error) {
             toast.error('Lỗi khi lấy dữ liệu khách hàng');
         } finally {

@@ -2,8 +2,9 @@ import { Drawer, Box, Typography, Grid, TableContainer, Table, TableHead, TableR
 import { differenceInMinutes, parseISO } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useBooking } from 'src/auth/context/service-context/BookingContext';
-
+import goAxiosClient from 'src/utils/goAxiosClient';
 import { formattedAmount } from 'src/utils/format-time';
+import { useQuery } from '@tanstack/react-query';
 
 interface BookingData {
     id: number;
@@ -38,35 +39,41 @@ interface BookingDetailSidebarProps {
     isEditing: boolean;
 }
 
+
+const getDetailbooking=async(booking_id:any)=>{
+    return await goAxiosClient.get(`/booking/${booking_id}`)
+}
 const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
     open,
     onClose,
     bookingDetails,
     onSave,
     isEditing,
+    bookingId
 }: BookingDetailSidebarProps) => {
+
+    const {data,isLoading}=useQuery({
+        queryKey:['bookingDetail',bookingId],
+        queryFn:async()=>{
+            const res= await getDetailbooking(Number(bookingId))
+            console.log(res,'datas sss')
+            if(res){
+                return res?.data
+
+
+            }
+            return ''
+        }
+    })
+   console.log(data,'data')
+
     const [editableDetails, setEditableDetails] = useState<Partial<BookingData>>({});
+
     const { customerList, fetchListCustomer }: any = useBooking();
 
-    useEffect(() => {
-        fetchListCustomer();
-        if (bookingDetails) {
-            setEditableDetails(bookingDetails);
-        } else {
-            setEditableDetails({});
-        }
-    }, [bookingDetails]);
 
-    const handleSave = () => {
-        onSave(editableDetails);
-    };
 
-    const handleCustomerChange = (event: any, newValue: any) => {
-        if (newValue) {
-            const selectedCustomerId = newValue.id;
-            setEditableDetails({ ...editableDetails, guest_id: selectedCustomerId });
-        }
-    };
+
 
     return (
         <Drawer
@@ -94,24 +101,24 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                     {/* Thông tin đặt phòng */}
                     <Grid item xs={12} md={6}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Đặt Phòng:</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>ID Đặt Phòng :</strong> {bookingDetails?.booking?.id}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Ngày Nhận Phòng :</strong> {bookingDetails?.booking?.checkin}</Typography>
-                        <Typography sx={{ marginTop: 1 }} ><strong>Ngày Trả Phòng :</strong> {bookingDetails?.booking?.checkout}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Tên Khách :</strong> {bookingDetails?.booking?.guest_name}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Khách :</strong> {bookingDetails?.booking?.guest_phone}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Chỗ Nghỉ :</strong> {bookingDetails?.booking?.residence_name}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Tổng Tiền :</strong> {formattedAmount(bookingDetails?.booking?.total_amount)}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Số Tiền Cọc :</strong> {formattedAmount(bookingDetails?.booking?.paid_amount)}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Tỷ Lệ Hoa Hồng :</strong> {bookingDetails?.booking?.commission_rate}%</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Phí Thêm Khách :</strong> {formattedAmount(bookingDetails?.booking?.extra_guest_fee)}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>ID Đặt Phòng :</strong> {data?.booking?.id}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Ngày Nhận Phòng :</strong> {data?.booking?.checkin}</Typography>
+                        <Typography sx={{ marginTop: 1 }} ><strong>Ngày Trả Phòng :</strong> {data?.booking?.checkout}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tên Khách :</strong> {data?.booking?.guest_name}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Khách :</strong> {data?.booking?.guest_phone}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Chỗ Nghỉ :</strong> {data?.booking?.residence_name}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tổng Tiền :</strong> {formattedAmount(data?.booking?.total_amount)}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Tiền Cọc :</strong> {formattedAmount(data?.booking?.paid_amount)}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tỷ Lệ Hoa Hồng :</strong> {data?.booking?.commission_rate}%</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Phí Thêm Khách :</strong> {formattedAmount(data?.booking?.extra_guest_fee)}</Typography>
                     </Grid>
 
                     {/* Thông tin chủ nhà */}
                     <Grid item xs={12} md={6}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Chủ Nhà:</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Tên Chủ Nhà :</strong> {bookingDetails?.booking?.seller_name || 'Chưa Cung Cấp'}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>ID Chủ Nhà :</strong> {bookingDetails?.booking?.seller_id || 'Chưa Cung Cấp'}</Typography>
-                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Chủ Nhà :</strong> {bookingDetails?.booking?.host_phone || 'Chưa Cung Cấp'}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Tên Chủ Nhà :</strong> {data?.booking?.seller_name || 'Chưa Cung Cấp'}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>ID Chủ Nhà :</strong> {data?.booking?.seller_id || 'Chưa Cung Cấp'}</Typography>
+                        <Typography sx={{ marginTop: 1 }}><strong>Số Điện Thoại Chủ Nhà :</strong> {data?.booking?.host_phone || 'Chưa Cung Cấp'}</Typography>
 
 
                     </Grid>
@@ -130,7 +137,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {bookingDetails?.details?.map((detail) => (
+                                {data?.details?.map((detail) => (
                                     <TableRow key={detail.id}>
                                         <TableCell sx={{ padding: '16px' }}>{new Date(detail.date).toLocaleDateString()}</TableCell> {/* Increased padding */}
                                         <TableCell align="right" sx={{ padding: '16px' }}>{formattedAmount(detail.price)}</TableCell> {/* Increased padding */}
@@ -147,19 +154,19 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                 {/* Thông Tin Bổ Sung */}
                 <Box marginTop={3}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}>Thông Tin Bổ Sung:</Typography>
-                    <Typography sx={{ marginTop: 1 }}><strong>Mô Tả :</strong> {bookingDetails?.booking?.description}</Typography>
-                    <Typography sx={{ marginTop: 1 }}><strong>Hoa Hồng :</strong> {formattedAmount(bookingDetails?.booking?.commission)}</Typography>
+                    <Typography sx={{ marginTop: 1 }}><strong>Mô Tả :</strong> {data?.booking?.description}</Typography>
+                    <Typography sx={{ marginTop: 1 }}><strong>Hoa Hồng :</strong> {formattedAmount(data?.booking?.commission)}</Typography>
                     <Typography sx={{ marginTop: 1 }}>
                         <strong>Ngày Hết Hạn :</strong>
-                        {bookingDetails?.booking?.expire ? (
+                        {data?.booking?.expire ? (
                             (() => {
                                 const now = new Date();
-                                const expireDate = parseISO(bookingDetails?.booking?.expire);
+                                const expireDate = parseISO(data?.booking?.expire);
                                 const minutesLeft = differenceInMinutes(expireDate, now);
-                                if (bookingDetails?.booking?.status === 0) {
+                                if (data?.booking?.status === 0) {
                                     return 'Đã bị từ chối'
                                 }
-                                if (bookingDetails?.booking?.is_seller_transfer === true) {
+                                if (data?.booking?.is_seller_transfer === true) {
                                     return 'Đã thanh toán thành công'
                                 }
                                 if (minutesLeft > 0) {
@@ -170,17 +177,17 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                             })()
                         ) : 'Đã hết hạn'}
                     </Typography>
-                    {bookingDetails?.booking?.reason_reject && <Typography sx={{ marginTop: 1 }}><strong>Lý do từ chối  :</strong> {bookingDetails?.booking?.reason_reject || 'Không có lý do rõ ràng'}</Typography>}
+                    {data?.booking?.reason_reject && <Typography sx={{ marginTop: 1 }}><strong>Lý do từ chối  :</strong> {data?.booking?.reason_reject || 'Không có lý do rõ ràng'}</Typography>}
                 </Box>
-                {bookingDetails?.booking?.housekeeper_transaction && (
+                {data?.booking?.housekeeper_transaction && (
                     <Box mt={4} width="100%" textAlign="center">
                         <Typography variant="h6" mb={2}>
                             Hình ảnh giao dịch của quản gia khi khách tới
                         </Typography>
                         <Box
                             component="img"
-                            src={bookingDetails?.booking?.housekeeper_transaction}
-                            alt={`Transaction ${bookingDetails?.booking?.housekeeper_transaction}`}
+                            src={data?.booking?.housekeeper_transaction}
+                            alt={`Transaction ${data?.booking?.housekeeper_transaction}`}
                             sx={{
                                 maxWidth: '100%',
                                 height: '20%',
@@ -191,15 +198,15 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                     </Box>
 
                 )}
-                {bookingDetails?.booking?.additional_transaction && (
+                {data?.booking?.additional_transaction && (
                     <Box mt={4} width="100%" textAlign="center">
                         <Typography variant="h6" mb={2}>
                             Hình ảnh giao dịch thêm của quản gia khi khách rời đi
                         </Typography>
                         <Box
                             component="img"
-                            src={bookingDetails?.booking?.additional_transaction}
-                            alt={`Transaction ${bookingDetails?.booking?.additional_transaction}`}
+                            src={data?.booking?.additional_transaction}
+                            alt={`Transaction ${data?.booking?.additional_transaction}`}
                             sx={{
                                 maxWidth: '100%',
                                 height: 'auto',

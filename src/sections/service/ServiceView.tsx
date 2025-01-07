@@ -66,6 +66,8 @@ export default function ServiceView() {
     const router=useRouter()
 
     const { serviceData, totalPage, isLoading, fetchData } = useServiceContext();
+
+    console.log(serviceData,'service')
     const settings = useSettingsContext();
     // Upload Image state
     const [images, setImages] = React.useState<File[]>([]);

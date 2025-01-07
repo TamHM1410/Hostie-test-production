@@ -58,7 +58,6 @@ export default function ServiceDetailView() {
   
   if (isLoading) return <LoadingScreen />;
 
-  console.log(data,'data')
 
   return (
     <>

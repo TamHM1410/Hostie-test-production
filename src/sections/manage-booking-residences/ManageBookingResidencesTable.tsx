@@ -35,48 +35,6 @@ import { CalendarMonthRounded } from '@mui/icons-material';
 import { formattedAmount } from 'src/utils/format-time';
 import toast from 'react-hot-toast';
 
-const logsData = [
-    {
-        date: "2024-11-23T16:07:26.76524Z",
-        event_type: "BOOKING_CREATED",
-        user_id: 1,
-        username: "seller",
-        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
-        data_change: [
-            { field: "id", old_value: null, new_value: 408 },
-            { field: "residence_id", old_value: null, new_value: 192 },
-            { field: "guest_name", old_value: null, new_value: "Hoàng Thiên" },
-            { field: "total_amount", old_value: null, new_value: 1100 },
-        ],
-    },
-    {
-        date: "2024-11-23T16:09:27.928592Z",
-        event_type: "HOST_ACCEPTED_BOOKING",
-        user_id: 3,
-        username: "host",
-        user_avatar: "https://hostie-image.s3.amazonaws.com/c0e9b6dd-ed1e-4042-b16c-d5770094f5c8.jpg",
-        data_change: [
-            { field: "paid_amount", old_value: 0, new_value: 440 },
-            { field: "is_host_accept", old_value: false, new_value: true },
-        ],
-    },
-    {
-        date: "2024-11-23T16:11:38.892049Z",
-        event_type: "SELLER_TRANSFERRED",
-        user_id: 1,
-        username: "seller",
-        user_avatar: "https://hostie-image.s3.amazonaws.com/6dc68e7f-3345-42ed-b42f-da600c194082.jpg",
-        data_change: [{ field: "updated_at", old_value: "2024-11-23T16:09:27.928592Z", new_value: "2024-11-23T16:11:38.892049Z" }],
-    },
-    {
-        date: "2024-11-23T16:24:28.036904Z",
-        event_type: "BOOKING_SYSTEM_CANCELLED",
-        user_id: 2,
-        username: "admin",
-        user_avatar: "https://hostie-image.s3.amazonaws.com/b5e98741-ee7d-4eec-b88b-e66e2a14effe.png",
-        data_change: null,
-    },
-];
 
 interface HoldData {
     id: number;
@@ -95,6 +53,7 @@ interface HoldData {
 }
 
 const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) => {
+
     const [openDialog, setOpenDialog] = React.useState(false);
     const [actionType, setActionType] = React.useState<'accept' | 'cancel' | 'confirmPayment' | 'notPayment'>(
         'accept'
@@ -103,7 +62,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
     const { confirmBooking, cancelBooking, confirmReceiveMoney, bankList, fetchBookingLogs, logs, confirmNotReceiveMoney, fetchPriceQuotation, priceQuotation } =
         useManageBookingResidencesContext();
 
-
+    console.log(priceQuotation,'priceQuotatation')
 
     const { detail, fetchDataDetail } = useBookingListContext();
     const [openSidebar, setOpenSidebar] = React.useState(false);
@@ -143,7 +102,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         bank: Yup.string().required('Vui lòng chọn ngân hàng'),
         commission: Yup.number()
             .required('Vui lòng nhập hoa hồng')
-            .min(priceQuotation?.commission_rate - 1, `Lớn hơn hoặc bằng ${priceQuotation?.commission_rate}`)
+            .min(priceQuotation - 1, `Lớn hơn hoặc bằng ${priceQuotation}`)
             .max(100, 'Không vượt quá 100'),
     });
     const handleDialogClose = () => {
@@ -433,7 +392,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
 
                     {actionType !== 'cancel' && actionType === 'accept' && (
                         <Formik
-                            initialValues={{ bank: '', commission: priceQuotation?.commission_rate }}
+                            initialValues={{ bank: '', commission: priceQuotation }}
                             validationSchema={validationSchema}
                             onSubmit={(values: any) => handleConfirmAction(values)}
                         >

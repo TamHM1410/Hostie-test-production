@@ -265,6 +265,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
             }
 
             setCustomerList(response.data.data);
+            return response.data.data
         } catch (err: any) {
             console.log(err);
         } finally {

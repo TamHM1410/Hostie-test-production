@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import axiosClient from 'src/utils/axiosClient';
+import goAxiosClient from 'src/utils/goAxiosClient';
 
 interface ServiceContextType {
     serviceData: any[];
@@ -20,16 +21,15 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const fetchData = async (page: number, searchTerm: string) => {
         setIsLoading(true);
         try {
-            const response = await axiosClient.get(`https://core-api.thehostie.com/residences/`, {
+            const response = await  goAxiosClient.get(`https://core-api.thehostie.com/residences/`, {
                 params: {
                     page,
                     q: searchTerm,
                     page_size: 6
                 }
             });
-
-            setServiceData(response.data.data.residences);
-            setTotalPage(response.data.data.total_pages);
+            setServiceData(response?.data?.residences);
+            setTotalPage(response.data.total_pages);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {

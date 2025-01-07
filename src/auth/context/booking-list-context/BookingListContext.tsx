@@ -5,11 +5,13 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import axiosClient from 'src/utils/axiosClient';
+import { useQuery ,useQueryClient} from '@tanstack/react-query';
 
 const BookingListContext = createContext<BookingListContextProps | undefined>(undefined);
 
 interface BookingListContextProps {
     rows: any[];
+    setRows: React.Dispatch<React.SetStateAction<any>>;
     totalRecords: number;
     isLoading: boolean;
     page: number;
@@ -29,7 +31,12 @@ const ROWS_PER_PAGE = 9999;
 
 const baseURl = `https://core-api.thehostie.com`;
 
+
 export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+
+    const queryClient=useQueryClient()
+
+  
     const [rows, setRows] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState(0);
     const [page, setPage] = useState(1);
@@ -37,6 +44,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [detail, setDetail] = useState();
     const [qr, setQR] = useState()
     const [logs, setLogs] = useState()
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,6 +63,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
         };
         fetchData();
+        queryClient.invalidateQueries(["booking"]as any)
     }, [page]);
 
     const fetchBookingLogs = async (id: any) => {
@@ -63,7 +73,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 `${baseURl}/booking/${id}/logs`, {
             }
             );
-            setLogs(response.data.data);
+
+            setLogs(response.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -136,8 +147,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     const response = await axiosClient.get(`${baseURl}/booking`, {
                         params: { page, page_size: ROWS_PER_PAGE },
                     });
-                    setRows(response.data.data.result);
-                    setTotalRecords(response.data.data.pagination.total_pages);
+                    setRows(response.data.result);
+                    setTotalRecords(response.data.pagination.total_pages);
                 } catch (error) {
                     console.error('Error fetching booking data:', error);
                 } finally {
@@ -187,6 +198,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const providerValue = useMemo(
         () => ({
             rows,
+            setRows,
             totalRecords,
             isLoading,
             page,

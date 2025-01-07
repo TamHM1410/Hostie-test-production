@@ -89,9 +89,9 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             const response = await axiosClient.get(`${baseURl}/booking/host`, {
                 params: { page, page_size: ROWS_PER_PAGE, id: 'asc' },
             });
-            setRows(response.data.data.result);
+            setRows(response.data?.result);
 
-            setTotalRecords(response.data.data.pagination.total_pages); // Consider using total_records if that's the correct field
+            setTotalRecords(response.data.pagination.total_pages); // Consider using total_records if that's the correct field
         } catch (error) {
             toast.error('Đã xảy ra lỗi khi tải dữ liệu đặt chỗ.');
         } finally {
@@ -122,7 +122,7 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
                 `${baseURl}/booking/${id}/logs`, {
             }
             );
-            setLogs(response.data.data);
+            setLogs(response?.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -232,12 +232,10 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
                     booking_id
                 }
             );
-
-            if (response.status !== 200) {
-                throw new Error('Unable to fetch price quotation');
-            }
-            const newData = response.data?.data?.find((d: any) => d.residence_id === id)
-            setPriceQuotation(newData);
+            
+            const newData = response.data?.find((d: any) => d.residence_id === id)
+            console.log(newData?.commission_rate)
+            setPriceQuotation(newData?.commission_rate);
         } catch (err: any) {
             console.log(err);
 

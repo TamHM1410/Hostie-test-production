@@ -39,8 +39,8 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 params: { page, page_size: ROWS_PER_PAGE },
 
             });
-            setRows(response.data.data.result);
-            setTotalRecords(response.data.data.pagination.total_pages);
+            setRows(response.data.result);
+            setTotalRecords(response.data.pagination.total_pages);
         } catch (error) {
             console.error('Error fetching booking data:', error);
         } finally {
@@ -51,7 +51,7 @@ export const HoldListProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsLoading(true);
         try {
             const response = await axiosClient.get(`${baseUrl}/booking/hold/${id}`, {});
-            setDetail(response.data.data);
+            setDetail(response.data);
         } catch (error) {
             console.error('Error fetching booking data:', error);
         } finally {

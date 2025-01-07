@@ -49,8 +49,8 @@ export const ManageHoldResidencesProvider = ({ children }: { children: ReactNode
                     `${baseUrl}/booking/hold/host?page=${page}&page_size=${ROWS_PER_PAGE}`,
                     {}
                 );
-                setRows(response.data.data.result);
-                setTotalRecords(response.data.data.pagination.total_pages);
+                setRows(response.data?.result);
+                setTotalRecords(response.data?.pagination.total_pages);
             } catch (error) {
                 toast.error('Lỗi khi lấy dữ liệu đặt chỗ');
             } finally {
@@ -78,8 +78,8 @@ export const ManageHoldResidencesProvider = ({ children }: { children: ReactNode
                         `${baseUrl}/booking/hold/host?page=${page}&page_size=${ROWS_PER_PAGE}`,
                         {}
                     );
-                    setRows(response.data.data.result);
-                    setTotalRecords(response.data.data.pagination.total_pages);
+                    setRows(response.data?.result);
+                    setTotalRecords(response.data?.pagination.total_pages);
                 } catch (error) {
                     toast.error('Lỗi khi lấy dữ liệu đặt chỗ');
                 } finally {
@@ -118,8 +118,8 @@ export const ManageHoldResidencesProvider = ({ children }: { children: ReactNode
                         `${baseUrl}/booking/hold/host?page=${page}&page_size=${ROWS_PER_PAGE}`,
                         {}
                     );
-                    setRows(response.data.data.result);
-                    setTotalRecords(response.data.data.pagination.total_pages);
+                    setRows(response.data?.result);
+                    setTotalRecords(response.data?.pagination.total_pages);
                 } catch (error) {
                     toast.error('Lỗi khi lấy dữ liệu đặt chỗ');
                 } finally {

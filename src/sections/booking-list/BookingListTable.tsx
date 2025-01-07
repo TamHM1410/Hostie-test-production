@@ -33,14 +33,13 @@ import {
 } from '@mui/material';
 import { useBookingListContext } from 'src/auth/context/booking-list-context/BookingListContext';
 import CancelIcon from '@mui/icons-material/Cancel';
-import EditIcon from '@mui/icons-material/Edit';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table';
 import { MRT_Localization_VI } from 'material-react-table/locales/vi'; // Import Vietnamese localization
 import QRDialog from './QrCode';
 import BookingDetailSidebar from './BookingDetailSideBar';
-import { CalendarMonthRounded, ReportOffRounded, ReportRounded } from '@mui/icons-material';
+import { CalendarMonthRounded, ReportRounded } from '@mui/icons-material';
 import { useReportListContext } from 'src/auth/context/report-list-context/ReportListContext';
 import ReportForm from './ReportForm';
 import BookingLogsModal from './BookingLogs';
@@ -100,6 +99,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const [residenceId, setResidenceId] = useState();
 
   const [bookingId2, setBookingId] = useState();
+
+  
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
 
@@ -306,6 +307,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           const open = Boolean(anchorEl);
           const id = open ? 'action-popover' : undefined;
 
+
           return (
             <>
               <IconButton onClick={handleOpen}>
@@ -330,6 +332,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                             fetchDataDetail(row.original.id);
                             handleViewBooking(row.original.id);
                             handleClose();
+                            setBookingId(row.original.id);
+
                           }}
                         >
                           <ListItemIcon>
@@ -341,9 +345,11 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
+                            console.log(row.original.id,'row id')
                             handleOpenReportDialog();
                             handleClose();
-                            setBookingId(row.original.id);
+                      
+                            
                             setResidenceId(row.original.residence_id);
                           }}
                         >
@@ -376,6 +382,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                             fetchDataDetail(row.original.id);
                             handleViewBooking(row.original.id);
                             handleClose();
+                            setBookingId(row.original.id);
+
                           }}
                         >
                           <ListItemIcon>
@@ -387,6 +395,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
+                            console.log(row.original.id,'row id')
+
                             handleOpenConfirmationDialog(row.original.id);
                             handleClose();
                             setBookingId(row.original.id);
@@ -403,7 +413,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <ListItemButton
                             onClick={() => {
                               handleOpenReportDialog();
-                              setBookingId(row.original.id);
                               setResidenceId(row.original.residence_id);
                               handleClose();
                             }}
@@ -415,22 +424,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           </ListItemButton>
                         </ListItem>
                       )}
-                      {/* {!row.original.is_host_accept && (
-                                                <ListItem disablePadding>
-                                                    <ListItemButton
-                                                        onClick={() => {
-                                                            fetchDataDetail(row.original.id);
-                                                            handleEditBooking(row.original.id);
-                                                            handleClose();
-                                                        }}
-                                                    >
-                                                        <ListItemIcon>
-                                                            <EditIcon color="success" />
-                                                        </ListItemIcon>
-                                                        <ListItemText primary="Sửa Đặt Nơi Lưu Trú" />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            )} */}
+
                       {row.original.is_host_accept && !row.original.is_seller_transfer && (
                         <ListItem disablePadding>
                           <ListItemButton
@@ -470,11 +464,12 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     get_refund_api(bookingId2);
   }, [bookingId2]);
 
-  
+  console.log('detail chanege',bookingId2)
+
   return (
     <>
       <MaterialReactTable
-        columns={columns}
+        columns={columns} 
         data={rows || []}
         enablePagination
         enableSorting
@@ -646,6 +641,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           handleUpdateBookingSubmit(updatedDetails);
         }}
         isEditing={isEdit}
+        bookingId={bookingId2}
       />
     </>
   );

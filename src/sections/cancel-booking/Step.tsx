@@ -1,5 +1,4 @@
-'use client'
-
+'use client';
 
 //  @hook
 import * as React from 'react';
@@ -15,28 +14,28 @@ import Typography from '@mui/material/Typography';
 
 //  @api
 import { get_refund } from 'src/api/cancelPolicy';
+import { get_all_policy } from 'src/api/cancelPolicy';
 
 //  @component
 import CancelDetail from './cancel-detail';
+import CancelBookingCard from './Confirm-cancel';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-const steps = ['Chi tiết hủy đặt phòng', 'Tạo mã QR chuyển tiền'];
-
-
+const steps = ['Chi tiết hủy đặt phòng', 'Chính sách hủy', 'Xác nhận hủy đặt'];
 
 export default function HorizontalLinearStepper() {
-  const {id}=useParams()
+  const { id } = useParams();
 
-  const {data,isLoading}=useQuery({
-    queryKey:['detailCancelBooking'],
-    queryFn:async()=> {
-        const res = await get_refund(id);
-        return res.data;
-
-    }})
-  console.log('data',data)
+  const { data, isLoading } = useQuery({
+    queryKey: ['detailCancelBooking'],
+    queryFn: async () => {
+      const res = await get_refund(id);
+      return res.data;
+    },
+  });
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
+  const [open,setOpen]=React.useState(false)
 
   const isStepOptional = (step: number) => {
     return step === 1;
@@ -47,11 +46,17 @@ export default function HorizontalLinearStepper() {
   };
 
   const handleNext = () => {
+    if(activeStep==2){
+      setOpen(!open)
+      return
+    }
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
       newSkipped.delete(activeStep);
     }
+
+  
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
@@ -80,7 +85,9 @@ export default function HorizontalLinearStepper() {
     setActiveStep(0);
   };
 
-  if(isLoading) return <LoadingScreen/>
+  if (isLoading) return <LoadingScreen />;
+
+  console.log(activeStep,'active step')
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -90,7 +97,7 @@ export default function HorizontalLinearStepper() {
           const labelProps: {
             optional?: React.ReactNode;
           } = {};
-         
+
           if (isStepSkipped(index)) {
             stepProps.completed = false;
           }
@@ -103,30 +110,19 @@ export default function HorizontalLinearStepper() {
       </Stepper>
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
+          <Typography sx={{ mt: 2, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
           </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
-        {activeStep===0 &&<CancelDetail refunded={data}/> } 
-        {activeStep===1 && ' step 1' }
- 
-
-
+            {activeStep === 0 && <CancelDetail refunded={data} />}
+            {activeStep === 2 && <CancelBookingCard open={open} setOpen={setOpen}/>}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
+            <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
               Trở về
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
@@ -135,8 +131,8 @@ export default function HorizontalLinearStepper() {
                 Skip
               </Button>
             )} */}
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? 'Hoàn thành' : 'Tiếp'}
+            <Button onClick={handleNext} >
+              {(activeStep === steps.length - 1)&& activeStep<2 ? 'Hoàn thành' : 'Tiếp'}
             </Button>
           </Box>
         </React.Fragment>
