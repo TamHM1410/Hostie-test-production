@@ -122,7 +122,7 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
         formState: { errors },
     } = useForm<FormData>({
         resolver: yupResolver(validationSchema),
-        defaultValues: dataPrices.default_price === 0 ? defaultValues : initialValues
+        defaultValues: dataPrices?.default_price === 0 ? defaultValues : initialValues
     });
 
     const weekend_price = watch('weekend_price');
