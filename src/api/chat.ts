@@ -46,8 +46,6 @@ export function useGetContacts() {
 export function useGetConversations() {
   const URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
 
-  const {data:session}=useSession()
-  console.log(session?.user,'seesuon')
   let user_id=1
   const {data,isLoading,error,isFetching}=useQuery({
     queryKey:['listConversation'],

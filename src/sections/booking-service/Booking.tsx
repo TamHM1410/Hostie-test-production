@@ -1,10 +1,10 @@
-'use client';
+'use client'
 /* eslint-disable radix */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable object-shorthand */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-lonely-if */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MenuItem,
   Select,
@@ -27,7 +27,6 @@ import { formattedAmount } from 'src/utils/format-time';
 import toast from 'react-hot-toast';
 import ColorNotes from './ColorNote';
 import Card from '@mui/material/Card';
-import { LoadingScreen } from 'src/components/loading-screen';
 
 const BookingDashboard = ({
   selectedMonth,
@@ -60,23 +59,6 @@ const BookingDashboard = ({
 
   // const [selectedMonth, setSelectedMonth] = useState(month);
   const [daysInMonth, setDaysInMonth] = useState<{ day: number; dayOfWeek: string }[]>([]);
-
-  const daysInMonthRef = useRef<{ day: number; dayOfWeek: string }[]>([]);
-
-  const bookingDataRef = useRef<any>([]);
-
-  const loaderRef = useRef(null); // Ref để quan sát cuộn
-
-  const firstLoading = useRef(0); // Ref để quan sát cuộn
-
-  const fetchingMonth = useRef(1); /// lay ref de format tahhng
-
-  const firstFetchData = useRef(0); // Ref để quan sát cuộn
-
-  const selectedMonthRef = useRef(selectedMonth);
-
-  const horizontalLoaderRef = useRef(null); //Ngang
-
   // Trạng thái mới để theo dõi khoảng chọn
 
   const [selectionRange, setSelectionRange] = useState<{
@@ -95,9 +77,6 @@ const BookingDashboard = ({
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [actionType, setActionType] = useState<'book' | 'hold' | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [calendar, setCalendar] = useState<any>([]);
-  const [calendarData, setCalendarData] = useState<any>([]);
 
   // Trạng thái cho biểu mẫu đặt chỗ và giữ chỗ
   const [startDate, setStartDate] = useState<string>('');
@@ -114,6 +93,67 @@ const BookingDashboard = ({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [selectedVillaName, setSelectedVillaName] = useState('');
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Đảm bảo chạy trong môi trường client
+      const savedParams = localStorage.getItem('searchParams');
+      if (savedParams) {
+        const parsedParams = JSON.parse(savedParams);
+        // Destructure saved data
+        const {
+          selectedProvince,
+          selectedAccommodationType,
+          startDate1,
+          endDate1,
+          priceRange,
+          iconFilter, // Lấy dữ liệu priceRange từ params
+        } = parsedParams;
+
+        // Map minPrice và maxPrice từ priceRange
+        const minPrice = priceRange[0];
+        const maxPrice = priceRange[1];
+
+        // Use the loaded values in your API calls
+        fetchBookingData(
+          currentPage,
+          year,
+          selectedMonth,
+          selectedProvince,
+          selectedAccommodationType,
+          [startDate1, endDate1],
+          maxPrice,
+          minPrice,
+          iconFilter
+        );
+      } else {
+        // If no saved data, fetch with default values
+        fetchBookingData(currentPage, year, selectedMonth);
+      }
+
+    }
+    // Load saved search parameters from localStorage
+
+
+
+
+
+    // Fetch customer list as well (assuming this doesn't depend on the search parameters)
+    fetchListCustomer();
+  }, [selectedMonth, currentPage, year]); // Dependencies to re-fetch on change
+
+  useEffect(() => {
+    const daysInCurrentMonth = new Date(year, selectedMonth, 0).getDate();
+    const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
+      const date = new Date(year, selectedMonth - 1, i + 1);
+      return {
+        day: i + 1,
+        dayOfWeek: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][(date.getUTCDay() + 7) % 7],
+      };
+    });
+    setDaysInMonth(daysArray);
+  }, [selectedMonth, year]);
 
   const handleCellClick = (
     villaName: string,
@@ -206,30 +246,26 @@ const BookingDashboard = ({
   };
   const handleActionSelect = async (action: 'book' | 'hold') => {
     await fetchPriceQuotation(
-      `${String(selectionRange?.start).padStart(2, '0')}-${
-        selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+      `${String(selectionRange?.start).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
       }-${year}`,
-      `${String(selectionRange?.end).padStart(2, '0')}-${
-        selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+      `${String(selectionRange?.end).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
       }-${year}`,
       parseInt(selectionRange?.residence_id)
     );
     setActionType(action);
     setStartDate(
-      `${String(selectionRange?.start).padStart(2, '0')}-${
-        selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+      `${String(selectionRange?.start).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
       }-${year}`
     );
     // Set End Date in DD-MM-YYYY format
     setEndDate(
-      `${String(selectionRange?.end).padStart(2, '0')}-${
-        selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
+      `${String(selectionRange?.end).padStart(2, '0')}-${selectedMonth < 10 ? `0${selectedMonth}` : selectedMonth
       }-${year}`
     );
     handleContextMenuClose();
 
     if (action === 'book') {
-      if (!customerList.data.length) {
+      if (!customerList?.data?.length) {
         toast.error(
           'Bạn chưa có khách hàng nào hãy vào trang quản lí khách hàng để tạo mới 1 khách hàng.'
         );
@@ -245,7 +281,7 @@ const BookingDashboard = ({
     if (!selectionRange) return;
 
     handleBookingSubmit(values);
-
+    const savedParams = localStorage.getItem('searchParams');
     if (savedParams) {
       const parsedParams = JSON.parse(savedParams);
       // Destructure saved data
@@ -287,7 +323,7 @@ const BookingDashboard = ({
 
     // Pass all necessary values to the submission handler
     handleHoldingSubmit(selectionRange.residence_id, startDate, endDate, expire);
-
+    const savedParams = localStorage.getItem('searchParams');
     if (savedParams) {
       const parsedParams = JSON.parse(savedParams);
       // Destructure saved data
@@ -323,165 +359,6 @@ const BookingDashboard = ({
     // Close the dialog after successful submission
     setIsHoldingForm(false);
   };
-  const handleSelectMonth = (e: any) => {
-    setSelectedMonth(e.target.value);
-
-    const daysInCurrentMonth = new Date(year, e.target.value, 0).getDate();
-    const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
-      const date = new Date(year, selectedMonth - 1, i + 1);
-      return {
-        day: i + 1,
-        dayOfWeek: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][(date.getUTCDay() + 7) % 7],
-      };
-    });
-    setDaysInMonth(daysArray);
-    fetchingMonth.current = 1;
-
-    daysInMonthRef.current = daysArray;
-  };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Đảm bảo chạy trong môi trường client
-      const savedParams = localStorage.getItem('searchParams');
-      if (savedParams) {
-        const parsedParams = JSON.parse(savedParams);
-        // Destructure saved data
-        const {
-          selectedProvince,
-          selectedAccommodationType,
-          startDate1,
-          endDate1,
-          priceRange,
-          iconFilter, // Lấy dữ liệu priceRange từ params
-        } = parsedParams;
-
-        // Map minPrice và maxPrice từ priceRange
-        const minPrice = priceRange[0];
-        const maxPrice = priceRange[1];
-
-        // Use the loaded values in your API calls
-        fetchBookingData(
-          currentPage,
-          year,
-          selectedMonth,
-          selectedProvince,
-          selectedAccommodationType,
-          [startDate1, endDate1],
-          maxPrice,
-          minPrice,
-          iconFilter
-        );
-      } else {
-        // If no saved data, fetch with default values
-        fetchBookingData(currentPage, year, selectedMonth);
-      }
-    }
-    // Load saved search parameters from localStorage
-
-    // Fetch customer list as well (assuming this doesn't depend on the search parameters)
-    fetchListCustomer();
-  }, [selectedMonth, currentPage, year]); // Dependencies to re-fetch on change
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting) {
-          observer.unobserve(entry.target);
-          setIsLoading(true); // Bắt đầu trạng thái loading
-
-          if (firstLoading.current !== 0) {
-            selectedMonthRef.current = Number(selectedMonth) + 1;
-            setSelectedMonth(selectedMonthRef.current);
-            fetchingMonth.current = fetchingMonth.current + 1;
-          }
-          firstLoading.current = 1;
-
-          // Tính toán số ngày trong tháng và cập nhật
-          const daysInCurrentMonth = new Date(year, selectedMonthRef.current, 0).getDate();
-          const daysArray = Array.from({ length: daysInCurrentMonth }, (_, i) => {
-            const date = new Date(year, selectedMonth-1, i + 1);
-            return {
-              day: i + 1,
-              dayOfWeek: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][(date.getUTCDay() + 7) % 7],
-            };
-          });
-
-          setDaysInMonth(daysArray);
-          daysInMonthRef.current = [...daysInMonthRef.current, ...daysArray];
-
-          // Kết thúc trạng thái loading
-          setIsLoading(false);
-          firstFetchData.current = 0;
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (horizontalLoaderRef.current) {
-      observer.observe(horizontalLoaderRef.current);
-    }
-
-    return () => {
-      if (horizontalLoaderRef.current) {
-        observer.unobserve(horizontalLoaderRef.current);
-      }
-    };
-  }, [bookingData]);
-
-  useEffect(() => {
-    if (firstFetchData.current === 0) {
-      if (Array.isArray(bookingDataRef.current) && bookingDataRef.current.length === 0) {
-        bookingDataRef.current = [...bookingData];
-        return;
-      }
-      let data = [...bookingDataRef.current, ...bookingData];
-      const mergedMap = new Map();
-
-      data.forEach((item, index) => {
-        if (mergedMap.has(item.id)) {
-          // Nếu ID đã tồn tại, gộp calendar
-          const existingItem = mergedMap.get(item.id);
-          existingItem.calendar = [...(existingItem.calendar || []), ...(item.calendar || [])];
-
-          // Loại bỏ các ngày trùng lặp trong calendar
-          const uniqueDatesMap = new Map();
-          existingItem.calendar.forEach((calendarItem: any) => {
-            if (!uniqueDatesMap.has(calendarItem.date)) {
-              uniqueDatesMap.set(calendarItem.date, calendarItem);
-            }
-          });
-
-          // Cập nhật lại calendar với các ngày không trùng lặp và sắp xếp theo ngày
-          existingItem.calendar = Array.from(uniqueDatesMap.values()).sort(
-            (a: any, b: any) => new Date(a.date) - new Date(b.date)
-          );
-        } else {
-          // Nếu là ID mới, thêm vào Map
-          mergedMap.set(item.id, {
-            ...item,
-            calendar: item.calendar || [],
-          });
-        }
-      });
-
-      bookingDataRef.current = Array.from(mergedMap.values());
-
-      firstFetchData.current = 1;
-      return;
-    }
-    // bookingDataRef.current=bookingData
-  }, [bookingData, firstFetchData]);
-
-  useEffect(() => {
-    setCalendar(daysInMonthRef.current);
-    setCalendarData(bookingDataRef.current);
-  }, [daysInMonthRef.current, bookingDataRef.current]);
-
-  if (Array.isArray(bookingData) && bookingData.length === 0) return <LoadingScreen />;
-
-  console.log('booing data', daysInMonth);
 
   return (
     <div className="booking-dashboard" onContextMenu={(e) => e.preventDefault()}>
@@ -496,203 +373,177 @@ const BookingDashboard = ({
         </Alert>
       </Snackbar>
       <Card sx={{ width: '100%' }}>
-        <div className="table-container" style={{ maxHeight: 650 }}>
+        <div className="table-container">
           <table className="table">
-            <div>
-              <thead>
-                <tr>
-                  <th className="sticky-header">
-                    <Grid container spacing={2}>
-                      {/* Month Selector */}
-                      <Grid item xs={6}>
-                        <FormControl fullWidth>
-                          <Select
-                            value={selectedMonth}
-                            onChange={(e) => {
-                              handleSelectMonth(e);
-                            }}
-                          >
-                            {Array.from({ length: 12 }, (_, i) => {
-                              const month = String(i + 1).padStart(2, '0'); // Adds leading zero for months < 10
-                              const month2 = parseInt(month);
-                              return (
-                                <MenuItem key={month} value={month2}>
-                                  {month}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      {/* Year Selector */}
-                      <Grid item xs={6}>
-                        <FormControl fullWidth>
-                          <Select value={year} onChange={(e) => setYears(Number(e.target.value))}>
-                            {Array.from({ length: 10 }, (_, i) => {
-                              const year1 = new Date().getFullYear() - 5 + i; // Range: 5 years before and after the current year
-                              return (
-                                <MenuItem key={year1} value={year1}>
-                                  {year1}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                    </Grid>
-                  </th>
-                  {calendar.map((day: any, index: any) => (
-                    <th
-                      key={index}
-                      className={`sticky-header-label day-header ${
-                        ['T7', 'CN', 'T6'].includes(day.dayOfWeek) ? 'weekend-header' : ''
-                      }`}
-                    >
-                      <div>{day.dayOfWeek}</div>
-                      <div className="weekend-text">{day.day}</div>
-                    </th>
-                  ))}
-
-                  {isLoading === false && (
-                    <th
-                      colSpan={100}
-                      rowSpan={100}
-                      style={{ marginLeft: 200 }}
-                      ref={horizontalLoaderRef}
-                    ></th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {!bookingData ? (
-                  <tr>
-                    <td colSpan={daysInMonth.length + 1}>Không có dữ liệu</td>
-                  </tr>
-                ) : (
-                  calendarData?.map((villa: any, index: number) => (
-                    <tr key={index}>
-                      <td className="villa-name">
-                        <div
-                          className="villa-name-cell"
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => {
-                            fetchResidenceInfor(villa.id);
-                            fetchPolicy(villa.id);
-                            fetchImages(villa.id);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              fetchResidenceInfor(villa.id);
-                            }
-                          }}
-                          style={{ color: 'rgb(76 84 90)' }}
+            <thead style={{ position: 'relative' }}>
+              <tr>
+                <th className="sticky-header">
+                  <Grid container spacing={2}>
+                    {/* Month Selector */}
+                    <Grid item xs={6}>
+                      <FormControl fullWidth>
+                        <Select
+                          value={selectedMonth}
+                          onChange={(e) => setSelectedMonth(e.target.value)}
                         >
-                          {villa.name}
-                        </div>
-                      </td>
-                      {calendar.map((day: any, index: any) => {
-
-                        // Tính toán ngày tháng một lần và tái sử dụng
-                        const utcPlus7Date = new Date(
-                          Date.UTC(year, selectedMonth - fetchingMonth.current, day.day)
-                        );
-                        utcPlus7Date.setUTCHours(7, 0, 0, 0);
-                        const formattedDate = utcPlus7Date.toISOString().split('T')[0];
-
-                        // Tìm thông tin booking
-                        const bookingInfo = villa?.calendar.find((item: any) =>
-                          item.date.startsWith(formattedDate)
-                        );
-
-
-                        // Các trạng thái
-                        const isHostAccepted = bookingInfo?.waiting_down_payment;
-                        const isBooked = bookingInfo?.is_booked;
-                        const isSelected = isCellSelected(villa.name, day.day);
-
-                        // Xác định tên người bán
-                        const sellerName =
-                          bookingInfo?.seller_id === parseInt(user_name)
-                            ? 'Bạn'
-                            : bookingInfo?.seller_username || 'Seller';
-
-                        return (
-                          <td
-                            key={index}
-                            className={`day-cell clickable ${
-                              isHostAccepted ? 'host-accepted' : ''
-                            } ${isBooked ? 'booked' : ''}`}
-                            style={{
-                              backgroundColor: bookingInfo?.background_color || 'inherit',
-                            }}
-                            onClick={(e) =>
-                              handleCellClick(
-                                villa.name,
-                                day.day,
-                                villa.id,
-                                e,
-                                bookingInfo?.disabled,
-                                bookingInfo?.hold_status,
-                                bookingInfo?.is_booked
-                              )
-                            }
-                            onContextMenu={(e) => handleCellClick(villa.name, day.day, villa.id, e)}
-                          >
-                            {isSelected && <div className="selected" />}
-
-                            <div
-                              className="corner-number"
-                              style={{ color: 'rgb(0 0 0)', fontWeight: 400, fontSize: 14 }}
-                            >
-                              {bookingInfo ? formattedAmount(bookingInfo.price) : 'N/A'}
-                            </div>
-
-                            {/* Start point với avatar */}
-                            {bookingInfo?.start_point && (
-                              <div className="rectangle start-point">
-                                <img
-                                  src={
-                                    bookingInfo.avatar_seller ||
-                                    'https://images.pexels.com/photos/825904/pexels-photo-825904.jpeg'
-                                  }
-                                  alt="Avatar"
-                                  className="avatar"
-                                />
-                              </div>
-                            )}
-
-                            {/* Middle point với tên người bán ngắn */}
-                            {bookingInfo?.middle_point && (
-                              <div className="rectangle middle-point">
-                                {bookingInfo.seller_username?.length <= 3 && (
-                                  <div className="seller-name">{sellerName}</div>
-                                )}
-                              </div>
-                            )}
-
-                            {/* End point với tên người bán */}
-                            {bookingInfo?.end_point && (
-                              <div className="rectangle end-point">
-                                <div className="seller-name">{sellerName}</div>
-                              </div>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))
-                )}
-                <tr ref={loaderRef}>
-                  <td colSpan={100} style={{ marginLeft: 200 }}>
-                    Loading..........................
-                  </td>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const month = String(i + 1).padStart(2, '0'); // Adds leading zero for months < 10
+                            const month2 = parseInt(month);
+                            return (
+                              <MenuItem key={month} value={month2}>
+                                {month}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    {/* Year Selector */}
+                    <Grid item xs={6}>
+                      <FormControl fullWidth>
+                        <Select value={year} onChange={(e) => setYears(Number(e.target.value))}>
+                          {Array.from({ length: 10 }, (_, i) => {
+                            const year1 = new Date().getFullYear() - 5 + i; // Range: 5 years before and after the current year
+                            return (
+                              <MenuItem key={year1} value={year1}>
+                                {year1}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </th>
+                {daysInMonth.map((day) => (
+                  <th
+                    key={day.day}
+                    className={`day-header ${['T7', 'CN', 'T6'].includes(day.dayOfWeek) ? 'weekend-header' : ''
+                      }`}
+                  >
+                    <div>{day.dayOfWeek}</div>
+                    <div className="weekend-text">{day.day}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {!bookingData ? (
+                <tr>
+                  <td colSpan={daysInMonth.length + 1}>Không có dữ liệu</td>
                 </tr>
-              </tbody>
-            </div>
+              ) : (
+                bookingData?.map((villa) => (
+                  <tr key={villa.name}>
+                    <td className="villa-name">
+                      <div
+                        className="villa-name-cell"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          fetchResidenceInfor(villa.id);
+                          fetchPolicy(villa.id);
+                          fetchImages(villa.id);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            fetchResidenceInfor(villa.id);
+                          }
+                        }}
+                        style={{ color: 'rgb(76 84 90)' }}
+
+                      >
+                        {villa.name}
+                      </div>
+                    </td>
+                    {daysInMonth.map((day) => {
+                      const utcPlus7Date = new Date(Date.UTC(year, selectedMonth - 1, day.day));
+                      utcPlus7Date.setUTCHours(7, 0, 0, 0);
+                      const formattedDate = utcPlus7Date.toISOString().split('T')[0];
+                      const bookingInfo = villa.calendar.find((item) =>
+                        item.date.startsWith(formattedDate)
+                      );
+
+                      const isHostAccepted = bookingInfo && bookingInfo.waiting_down_payment === true;
+                      const isBooked = bookingInfo && bookingInfo.is_booked === true;
+
+                      return (
+                        <td
+                          key={day.day}
+                          className={`day-cell clickable ${isHostAccepted ? 'host-accepted' : ''} ${isBooked ? 'booked' : ''
+                            }`}
+                          style={{
+                            backgroundColor: bookingInfo?.background_color || 'inherit',
+                          }}
+                          onClick={(e) =>
+                            handleCellClick(
+                              villa.name,
+                              day.day,
+                              villa.id,
+                              e,
+                              bookingInfo.disabled,
+                              bookingInfo.hold_status,
+                              bookingInfo.is_booked
+                            )
+                          }
+                          onContextMenu={(e) => handleCellClick(villa.name, day.day, villa.id, e)}
+                        >
+                          {isCellSelected(villa.name, day.day) && <div className="selected"></div>}
+                          <div className="corner-number" style={{ color: 'rgb(0 0 0)', fontWeight: 400, fontSize: 14 }}
+                          >
+                            {bookingInfo ? `${formattedAmount(bookingInfo.price)}` : 'N/A'}
+                          </div>
+                          {bookingInfo && bookingInfo.start_point && (
+                            <div className="rectangle start-point">
+                              <img
+                                src={
+                                  bookingInfo.avatar_seller !== null
+                                    ? bookingInfo.avatar_seller
+                                    : 'https://images.pexels.com/photos/825904/pexels-photo-825904.jpeg?cs=srgb&dl=pexels-olly-825904.jpg&fm=jpg'
+                                }
+                                alt="Avatar"
+                                className="avatar"
+                              />
+                            </div>
+                          )}
+                          {bookingInfo && bookingInfo.middle_point && (
+                            <div className="rectangle middle-point">
+                              {bookingInfo.seller_username?.length <= 3 ? (
+                                <div className="seller-name">
+                                  {bookingInfo.seller_username || 'Seller'}
+                                </div>
+                              ) : (
+                                <div></div>
+                              )}
+                            </div>
+                          )}
+                          {bookingInfo && bookingInfo.end_point && (
+                            <div className="rectangle end-point">
+                              <div className="seller-name">
+                                {parseInt(user_name) === bookingInfo?.seller_id
+                                  ? 'Bạn'
+                                  : bookingInfo.seller_username || 'Seller'}
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))
+              )}
+            </tbody>
           </table>
         </div>
+
       </Card>
+
+      {/* <Pagination
+        count={totalPages}
+        page={currentPage}
+        onChange={(event, value) => setCurrentPage(value)}
+        sx={{ mt: 5, display: 'flex', justifyContent: 'center' }}
+      /> */}
       {/* Menu Ngữ Cảnh */}
       <Menu anchorEl={anchorEl} open={contextMenuOpen} onClose={handleContextMenuClose}>
         <MenuItem onClick={() => handleActionSelect('book')}>Đặt Chỗ</MenuItem>

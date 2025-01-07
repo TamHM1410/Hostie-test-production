@@ -1,6 +1,7 @@
 import { m, AnimatePresence } from 'framer-motion';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useRefreshedToken } from 'src/utils/hooks/useRefreshedToken';
+import { useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -25,9 +26,25 @@ interface Props extends DialogProps {
 
 export default function CheckoutOrderComplete({ open }: Props | any) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   const { refreshToken } = useRefreshedToken();
   const searchParams = useSearchParams();
   const code = searchParams.get('vnp_TransactionNo');
+
+  const handleSubmit = async () => {
+    if (isLoading) return; // Ngăn gửi nhiều lần
+    setIsLoading(true);
+  
+    try {
+      await refreshToken(); // Chờ hàm refresh token hoàn tất
+      router.push('/dashboard'); // Điều hướng sau khi refresh token thành công      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const renderContent = (
     <Stack
       spacing={5}
@@ -67,10 +84,13 @@ export default function CheckoutOrderComplete({ open }: Props | any) {
           size="large"
           variant="contained"
           startIcon={<Iconify icon="hugeicons:dashboard-circle" />}
-          onClick={() => {
-            refreshToken();
-
-            // router.push('/dashboard');
+          onClick={async () => {
+            try {
+              handleSubmit()
+            
+            } catch (error) {
+              console.error('Error refreshing token:', error);
+            }
           }}
         >
           Về trang quản lí

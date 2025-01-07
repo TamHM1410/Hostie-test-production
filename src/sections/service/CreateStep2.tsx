@@ -116,7 +116,7 @@ export default function Step2({
                 >
                     {icons.map((option) => (
                         <MenuItem key={option.id} value={option.id}>
-                            <img src={option.icon} alt={option.name} width={20} style={{ marginRight: 8 }} />
+                            <img src={option.icon} alt={option.name} width={20} style={{ marginRight: 8 }} /> {option?.name}
                         </MenuItem>
                     ))}
                 </TextField>

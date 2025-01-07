@@ -25,7 +25,7 @@ interface JWTToken {
   status?: string;
   urlAvatar?: string;
 }
-
+var flg=0
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -76,21 +76,25 @@ export const authOptions: NextAuthOptions = {
       return jwtToken;
     },
     async session({ session, token }) {
-      // Type the token as JWTToken
-
       const jwtToken = token as JWTToken | any;
 
-      session.user = {
-        ...session.user,
-        id: jwtToken.id,
-        isActive: jwtToken.isActive,
-        roles: jwtToken.roles,
-        token: jwtToken.token,
-        status: jwtToken.status,
-        urlAvatar: jwtToken.urlAvatar,
-        name: jwtToken.username,
-      };
-      console.log(session,'session')
+      // Type the token as JWTToken
+      if (jwtToken) {
+        session.user = {
+          ...session.user,
+          id: jwtToken.id,
+          isActive: jwtToken.isActive,
+          roles: jwtToken.roles,
+          token: jwtToken.token,
+          status: jwtToken.status,
+          urlAvatar: jwtToken.urlAvatar,
+          name: jwtToken.username,
+        };
+      }
+    
+    
+     console.log(session,'session tue')
+
       return session;
     },
   },

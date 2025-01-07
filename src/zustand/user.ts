@@ -31,21 +31,20 @@ const currentRole = async () => {
 };
 
 // Store Zustand - gọi hàm `currentRole` để lấy vai trò ngay khi khởi tạo
-export const useGetUserCurrentRole = create((set) => ({
-  isLoading: true,
-  userCurrentRole: null,
-  updateUserRole: (role: any) => set({ userCurrentRole: role }),
-  fetchUserRole: async () => {
-    set({ isLoading: true });
-    try {
-      const role = await currentRole();
-      set({
-        userCurrentRole: role,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-      set({ isLoading: false });
-    }
-  },
-}));
+export const useGetUserCurrentRole = create<any>(async (set) => {
+  set({ isLoading: true, userCurrentRole: null }); // Đặt trạng thái loading và userCurrentRole là null khi khởi tạo
+
+  const role = await currentRole(); // Lấy vai trò người dùng từ API
+
+  set({ 
+    userCurrentRole: role,  // Cập nhật vai trò vào store
+    isLoading: false,       // Đặt trạng thái loading là false khi hoàn tất
+  });
+
+  return {
+    userCurrentRole: role,  // Trả về vai trò người dùng
+    isLoading: false,       // Đảm bảo isLoading là false sau khi hoàn thành
+    updateUserRole: (role: any) => set({ userCurrentRole: role }), // Cập nhật vai trò người dùng
+    set
+  };
+});

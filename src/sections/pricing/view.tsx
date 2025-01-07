@@ -35,7 +35,6 @@ const arrow = (
 
 export default function PricingView() {
   const {data:session}=useSession()
-  console.log(session?.user?.roles,'session')
   return (
     <Container
       sx={{
