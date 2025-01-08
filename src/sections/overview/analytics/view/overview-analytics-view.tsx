@@ -40,7 +40,8 @@ import { label } from 'yet-another-react-lightbox';
 export default function OverviewAnalyticsView() {
   const settings = useSettingsContext();
 
-  const { userCurrentRole } = useGetUserCurrentRole();
+  const {data:session}=useSession()
+
 
   const [thisYear, setThisYear] = useState<any>(null);
   const [lastYear, setLastYear] = useState<any>(null);
@@ -57,13 +58,13 @@ export default function OverviewAnalyticsView() {
   const results = useQueries({
     queries: [
       {
-        queryKey: [userCurrentRole === 'HOST' ? 'hostAnalytic' : 'sellerAnalytic', userCurrentRole],
+        queryKey: [session?.user?.roles === 'HOST' ? 'hostAnalytic' : 'sellerAnalytic', session?.user?.roles],
         queryFn: async () => {
-          const res = userCurrentRole === 'HOST'  ? await getHostAnalytic() : await getSellerAnalytic();
+          const res = session?.user?.roles === 'HOST'  ? await getHostAnalytic() : await getSellerAnalytic();
           console.log('resss',res)
 
 
-          if (res?.data && userCurrentRole === 'HOST' ) {
+          if (res?.data && session?.user?.roles === 'HOST' ) {
             const this_year = res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.this_year;
             });
@@ -78,7 +79,7 @@ export default function OverviewAnalyticsView() {
             setThisYear(this_year);
             setLastYear(last_year);
           }
-          if( res?.data && userCurrentRole === 'SELLER' ){
+          if( res?.data && session?.user?.roles === 'SELLER' ){
             const this_year = res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.this_year;
             });
@@ -131,7 +132,7 @@ export default function OverviewAnalyticsView() {
       {
         queryKey:['topSeller'],
         queryFn:async()=>{
-          if(userCurrentRole === 'HOST'){
+          if(session?.user?.roles === 'HOST'){
             const res =await getTopSeller()
             if(res?.data){
               setTopSeller(res?.data)
@@ -158,7 +159,6 @@ export default function OverviewAnalyticsView() {
   if (results.loading) {
     return <LoadingScreen />;
   }
-  console.log(totalRevenue,'sold')
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -172,26 +172,26 @@ export default function OverviewAnalyticsView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={userCurrentRole === 'HOST' ? 3 : 4}>
+        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
           <AnalyticsWidgetSummary
-            title={userCurrentRole === 'HOST' ? 'Tổng căn hộ' : ' Tổng villa & homestay đã bán'}
+            title={session?.user?.roles === 'HOST' ? 'Tổng căn hộ' : ' Tổng villa & homestay đã bán'}
             total={totalResidence}
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={userCurrentRole === 'HOST' ? 3 : 4}>
+        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
           <AnalyticsWidgetSummary
-            title={userCurrentRole === 'HOST' ? 'Quản gia ' : ' Tổng doanh thu cho chủ nhà '}
-            total={userCurrentRole === 'HOST' ? totalButler: totalRevenue}
+            title={session?.user?.roles === 'HOST' ? 'Quản gia ' : ' Tổng doanh thu cho chủ nhà '}
+            total={session?.user?.roles === 'HOST' ? totalButler: totalRevenue}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
-        <Grid xs={12} sm={6} md={userCurrentRole === 'HOST' ? 3 : 4}>
+        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
           <AnalyticsWidgetSummary
             title={
-              userCurrentRole === 'HOST'
+              session?.user?.roles === 'HOST'
                 ? 'Hoa hồng cho seller'
                 : 'Hoa hồng của bạn '
             }
@@ -201,7 +201,7 @@ export default function OverviewAnalyticsView() {
           />
         </Grid>
 
-        {userCurrentRole === 'HOST' && (
+        {session?.user?.roles === 'HOST' && (
           <Grid xs={12} sm={6} md={3}>
             <AnalyticsWidgetSummary
               title="Tổng thu"
@@ -217,24 +217,24 @@ export default function OverviewAnalyticsView() {
             title="Thu nhập từng tháng "
             chart={{
               labels: [
-                '01/01/2024',
-                '02/01/2024',
-                '03/01/2024',
-                '04/01/2024',
-                '05/01/2024',
-                '06/01/2024',
-                '07/01/2024',
-                '08/01/2024',
-                '09/01/2024',
-                '10/01/2024',
-                '11/01/2024',
-                '11/01/2024',
-                '12/01/2024',
+                '01/01/2025',
+                '02/01/2025',
+                '03/01/2025',
+                '04/01/2025',
+                '05/01/2025',
+                '06/01/2025',
+                '07/01/2025',
+                '08/01/2025',
+                '09/01/2025',
+                '10/01/2025',
+                '11/01/2025',
+                '11/01/2025',
+                '12/01/2025',
               ],
               series: [
                 {
                   name:
-                    userCurrentRole === 'HOST'
+                    session?.user?.roles === 'HOST'
                       ? 'Tổng thu theo tháng (Đã khấu trừ hoa hồng)'
                       : 'Hoa hồng',
                   type: 'column',
@@ -242,7 +242,7 @@ export default function OverviewAnalyticsView() {
                   data: Array.isArray(thisYear) ? thisYear : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 },
                 {
-                  name: userCurrentRole === 'HOST' ? 'Tổng thu năm trước' : 'Hoa hồng năm trước',
+                  name: session?.user?.roles === 'HOST' ? 'Tổng thu năm trước' : 'Hoa hồng năm trước',
                   type: 'area',
                   fill: 'gradient',
                   data: Array.isArray(lastYear) ? lastYear : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -253,16 +253,16 @@ export default function OverviewAnalyticsView() {
         </Grid>
 
       
-      {userCurrentRole === 'HOST' && <Grid xs={12} md={6} lg={8}>
+      {session?.user?.roles === 'HOST' && <Grid xs={12} md={6} lg={8}>
           <AppTopAuthors title="Top seller của bạn" list={Array.isArray(topSeller )? topSeller :[]}/>
         </Grid>}   
         <Grid xs={12} md={6} lg={4}>
           <AnalyticsOrderTimeline title="Hoạt động gần đây" list={Array.isArray(listSoldResidence) ? listSoldResidence :[]} />
         </Grid>
-        <Grid xs={12} md={userCurrentRole === 'HOST'? 12:8} lg={userCurrentRole === 'HOST' ?12:8}>
+        <Grid xs={12} md={session?.user?.roles === 'HOST'? 12:8} lg={session?.user?.roles === 'HOST' ?12:8}>
           <AnalyticsConversionRates
             title={
-              userCurrentRole === 'HOST' ? 'Tổng  thu từng căn' : 'Căn Villa & homestay đã bán'
+              session?.user?.roles === 'HOST' ? 'Tổng  thu từng căn' : 'Căn Villa & homestay đã bán'
             }
             chart={{
               series:Array.isArray(listTopResidence) ? listTopResidence : [
