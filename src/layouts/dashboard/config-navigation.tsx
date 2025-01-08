@@ -10,6 +10,8 @@ import { useLocales } from 'src/locales';
 
 import { useRouter } from 'next/navigation';
 
+
+
 import { useGetUserCurrentRole } from 'src/zustand/user';
 // components
 
@@ -55,8 +57,8 @@ export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
   const { userCurrentRole } = useGetUserCurrentRole();
+  const {data:session}=useSession()
 
-  console.log(userCurrentRole,'curr')
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
@@ -336,7 +338,7 @@ export function useNavData() {
     [t]
   );
 
-  switch (userCurrentRole) {
+  switch (session?.user?.roles) {
     case 'HOUSEKEEPER':
       return bulterNav;
     case 'ADMIN':

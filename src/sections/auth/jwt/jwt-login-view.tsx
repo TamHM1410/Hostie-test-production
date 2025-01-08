@@ -72,7 +72,7 @@ export default function JwtLoginView() {
           username: res?.username,
           id: res?.userId,
           email: res?.email,
-          isActive: res?.isActice,
+          isActive: res?.isActive,
           roles: res?.roles,
           token: res?.token,
           status: res?.status,

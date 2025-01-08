@@ -45,14 +45,14 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
         switch (status) {
             case 2:
                 return (
-                    <Chip label="Đã xác nhận" color="success" variant="outlined" sx={{ borderRadius: 30 }} />
+                    <Chip label="Đã xác nhận" color="success" variant="soft"  />
                 );
             case 1:
                 return (
-                    <Chip label="Chờ xác nhận" color="warning" variant="outlined" sx={{ borderRadius: 30 }} />
+                    <Chip label="Chờ xác nhận" color="warning" variant="soft"  />
                 );
             default:
-                return <Chip label="Đã hủy" color="error" variant="outlined" sx={{ borderRadius: 30 }} />;
+                return <Chip label="Đã hủy" color="error" variant="soft"  />;
         }
     };
 

@@ -24,6 +24,9 @@ interface ReportData {
 interface ReportListTableProps {
     rows: ReportData[];
 }
+
+const statusOption = ['Cảnh cáo', 'Đang xử lý', 'Đã giải quyết', 'Từ chối'];
+
 const translateReportType = (type: string) => {
     switch (type) {
         case 'PAYMENT_ISSUE':
@@ -76,7 +79,7 @@ const ReportListTable: React.FC<ReportListTableProps> = ({ rows }) => {
         () => [
             {
                 accessorKey: 'bookingId',
-                header: 'Mã Đặt Nơi Lưu Trú',
+                header: 'Mã Đặt ',
                 size: 100,
                 Cell: ({ cell }: any) => <Typography>{cell.getValue()}</Typography>,
             },
@@ -96,16 +99,25 @@ const ReportListTable: React.FC<ReportListTableProps> = ({ rows }) => {
                 accessorKey: 'status',
                 header: 'Trạng Thái',
                 size: 150,
-                Cell: ({ cell }: any) => {
-                    const translatedStatus = translateStatus(cell.getValue());
-                    const color =
-                        cell.getValue() === 'PENDING'
-                            ? 'warning'
-                            : cell.getValue() === 'RESOLVED'
-                                ? 'success'
-                                : 'error';
-                    return <Chip label={translatedStatus} color={color} variant="outlined" sx={{ borderRadius: 30 }} />;
-                },
+                Cell: ({ cell }: any) => ( <span
+                    style={{
+                      color: '#637381',
+                    }}
+                  >
+                    {cell.getValue() === 'WARNED' && (
+                      <Chip label={statusOption[0]} variant="soft" color="warning" />
+                    )}
+                    {cell.getValue() === 'PENDING' && (
+                      <Chip label={statusOption[1]} variant="soft" color="warning" />
+                    )}
+                    {cell.getValue() === 'ACCEPTED' && (
+                      <Chip label={statusOption[2]} variant="soft" color="success" />
+                    )}
+          
+                    {cell.getValue() === 'REJECTED' && (
+                      <Chip label={statusOption[3]} variant="soft" color="error" />
+                    )}
+                  </span>),
             }
             ,
             {

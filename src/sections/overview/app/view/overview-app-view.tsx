@@ -112,7 +112,6 @@ export default function OverviewAppView() {
     },
   });
 
-  console.log('list', listPackage);
   const { data: session } = useSession();
 
   const theme = useTheme();
@@ -123,16 +122,17 @@ export default function OverviewAppView() {
     myRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
   
-  if(userCurrentRole==='USER'){
+  if(session?.user?.roles==='USER'){
     router.push('/pricing')
   }
-  if(userCurrentRole==='HOUSEKEEPER'){
+  if(session?.user?.roles==='HOUSEKEEPER'){
     router.push('/dashboard/housekeepers')
   }
-  if(userCurrentRole==='HOST' || userCurrentRole==='SELLER'){
+  if(session?.user?.roles==='HOST' || session?.user?.roles==='SELLER'){
     router.push('/dashboard/analytics')
   }
   if (isLoading) return <LoadingScreen />;
+
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>

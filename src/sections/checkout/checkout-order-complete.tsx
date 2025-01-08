@@ -37,8 +37,8 @@ export default function CheckoutOrderComplete({ open }: Props | any) {
     setIsLoading(true);
   
     try {
-      // await refreshToken(); // Chờ hàm refresh token hoàn tất
-      router.push('/dashboard'); // Điều hướng sau khi refresh token thành công      console.log(response.data);
+      await refreshToken(); // Chờ hàm refresh token hoàn tất
+      router.push('/dashboard')
     } catch (error) {
       console.error(error);
     } finally {

@@ -154,7 +154,7 @@ export default function ServiceView() {
             try {
                 const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
                 });
-                setIdService(response.data.data.id);
+                setIdService(response.data?.id);
                 nextStep();
                 toast.success('Hoàn thành bước 1')
             } catch (error) {
@@ -182,7 +182,7 @@ export default function ServiceView() {
                 const response = await axiosClient.post('https://core-api.thehostie.com/residences', payload, {
 
                 });
-                setIdService(response.data.data.id);
+                setIdService(response.data?.id);
                 nextStep();
                 toast.success('Hoàn thành bước 1')
             } catch (error) {

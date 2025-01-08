@@ -156,25 +156,7 @@ const ReportTable = (props: any) => {
               {cell.getValue() !== null ? cell.getValue() : 'Chưa có ghi chú'}
             </Box>
 
-            {/* <Box
-              onClick={() => {
-                const row = cell.row.original;
-                updateReport({
-                  id: row?.id,
-                  status: row?.status,
-                  adminNote: row?.adminNote,
-                });
-                setSelectEdit({
-                  id: row?.id,
-                  status: row?.status,
-                  adminNote: row?.adminNote,
-                });
-                setOpen(!open);
-              }}
-            >
-              {' '}
-              <ReportMenu />
-            </Box> */}
+         
           </Box>
         );
       },

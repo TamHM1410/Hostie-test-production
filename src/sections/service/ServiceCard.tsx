@@ -184,14 +184,9 @@ export default function ServiceCardList({
                     last_id: 0,
                 },
             });
-
-            const data = response.data;
-            if (data.success) {
-                const fetchedImages = data.data.images.map((image: { image: string }) => image.image);
-                setImages(data.data.images);
-            } else {
-                console.error(data.msg);
-            }
+            setImages(response?.data?.images)
+           console.log(response?.data?.images,'res')
+            
         } catch (error) {
             console.error('Error fetching images:', error);
         }
@@ -199,7 +194,7 @@ export default function ServiceCardList({
     const fetchPrices = async () => {
         try {
             const response = await axiosClient.get(`${baseURL}/residences/${selectedId}/prices`, {});
-            setPrices(response.data.data)
+            setPrices(response.data)
         } catch (error) {
             console.error('Error fetching residence data:', error);
         }
@@ -210,7 +205,7 @@ export default function ServiceCardList({
     const fetchPolicy = async () => {
         try {
             const response = await axiosClient.get(`${baseURL}/residences/${selectedId}/policy`, {});
-            setPolicy(response.data.data.files)
+            setPolicy(response.data.files)
         } catch (error) {
             console.error('Error fetching residence data:', error);
         }

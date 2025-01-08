@@ -77,7 +77,6 @@ export const useUserManagement = () => {
       return response;
     } catch (error) {
       if (error instanceof Error) {
-        toast.error(error.message);
         throw new Error(error.message);
       }
       throw new Error('Đăng nhập thất bại');
