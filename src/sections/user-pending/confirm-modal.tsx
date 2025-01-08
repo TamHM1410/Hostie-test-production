@@ -1,6 +1,6 @@
 //  @hook
 import * as React from 'react';
-
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useButler } from 'src/api/useButler';
 //  @mui
@@ -25,10 +25,14 @@ const ConfirmModal = (props: any) => {
 
   const { open, setOpen, modalType, setModalType, selectedButler,userId } = props;
 
+  const [isLoading,setIsLoading]=useState(false)
+
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     try {
+
+      setIsLoading(true)
     
       if (modalType === 'accept') {
         await approveUserReview(userId);
@@ -43,6 +47,8 @@ const ConfirmModal = (props: any) => {
       }
     } catch (error) {
       console.error(error);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -71,8 +77,8 @@ const ConfirmModal = (props: any) => {
         <FormControl onSubmit={onSubmit} sx={{ width: '100%' }}>
           <Grid md={12} xs={8}>
             <Typography id="modal-title" variant="h6" component="h2">
-              {modalType === 'accept' && 'Người dùng này sẽ trở thành user system'}
-              {modalType === 'reject' && 'Từ chối người dùng này  thanh user system'}
+              {modalType === 'accept' && 'Xác nhận quyền truy cập của người dùng này vào hệ thống.'}
+              {modalType === 'reject' && 'Từ chối quyền truy cập của người dùng này vào hệ thống.'}
             </Typography>
 
             <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
@@ -90,6 +96,7 @@ const ConfirmModal = (props: any) => {
                 color="error"
                 type="submit"
                 onClick={() => onSubmit()}
+                loading={isLoading}
               >
                 xác nhận
               </LoadingButton>

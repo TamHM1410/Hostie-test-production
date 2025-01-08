@@ -43,15 +43,7 @@ export default function UserPendingView() {
         }}
       />
       <UserPendingTable data={data}/>
-      
-      {/* <UserFilter filter={filter} setFilter={setFilter} value={value} setValue={setValue} />
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <Box sx={{ py: 5, px: 5 }}>
-          <UserTable data={data} />
-        </Box>
-      )} */}
+   
     </Box>
   );
 }

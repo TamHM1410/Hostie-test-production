@@ -185,7 +185,6 @@ export default function ServiceCardList({
                 },
             });
             setImages(response?.data?.images)
-           console.log(response?.data?.images,'res')
             
         } catch (error) {
             console.error('Error fetching images:', error);

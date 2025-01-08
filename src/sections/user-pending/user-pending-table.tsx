@@ -124,6 +124,8 @@ const UserPendingTable = (props: any) => {
               onClick={() => {
                 setOpen(!open);
                 setModalType('reject');
+                setUserId(row.original.userId)
+
                 // setSelectedButler(row);
               }}
             >
