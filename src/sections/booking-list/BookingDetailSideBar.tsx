@@ -69,6 +69,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
       const res = await getDetailbooking(Number(bookingId));
 
       if (res) {
+      console.log(res.data,'res data')
         return res?.data;
       }
       return '';

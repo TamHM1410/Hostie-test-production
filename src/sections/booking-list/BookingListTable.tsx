@@ -46,6 +46,7 @@ import BookingLogsModal from './BookingLogs';
 import { MoreVerticalIcon } from 'lucide-react';
 import { formattedAmount } from '../../utils/format-time';
 import ServicePolicyList from '../service/service-detail/service-policy-list';
+import { useSession } from 'next-auth/react';
 //  @api
 import { get_refund } from 'src/api/cancelPolicy';
 import { get_all_policy } from 'src/api/cancelPolicy';
@@ -70,7 +71,6 @@ interface BookingListTableProps {
   rows: BookingData[];
 }
 
-
 const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -89,7 +89,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     logs,
     fetchBookingLogs,
   } = useBookingListContext();
-
+  
+  const {data:session}=useSession()
   const { createReport } = useReportListContext();
 
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -225,7 +226,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
 
         Cell: ({ cell, row }: any) => {
           if (row.original.status === 0)
-            return <Chip label="Đã huỷ " variant="soft" color="error" />;
+            return (
+              <Chip
+                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                variant="soft"
+                color="error"
+              />
+            );
 
           return cell.getValue() === false ? (
             <Chip label="Chưa nhận" variant="soft" color="warning" />
@@ -240,7 +247,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 100,
         Cell: ({ cell, row }: any) => {
           if (row.original.status === 0)
-            return <Chip label="Đã huỷ " variant="soft" color="error" />;
+            return (
+              <Chip
+                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                variant="soft"
+                color="error"
+              />
+            );
 
           return cell.getValue() === false ? (
             <Chip label="Chưa trả " variant="soft" color="warning" />
@@ -255,7 +268,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 120,
         Cell: ({ cell, row }: any) => {
           if (row.original.status === 0)
-            return <Chip label="Đã huỷ " variant="soft" color="error" />;
+            return (
+              <Chip
+                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                variant="soft"
+                color="error"
+              />
+            );
 
           return cell.getValue() === false ? (
             <Chip label="Chưa trả " variant="soft" color="default" />
@@ -270,7 +289,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 120,
         Cell: ({ cell, row }: any) => {
           if (row.original.status === 0)
-            return <Chip label="Đã huỷ " variant="soft" color="error" />;
+            return (
+              <Chip
+                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                variant="soft"
+                color="error"
+              />
+            );
 
           return cell.getValue() === false ? (
             <Chip label="Chưa trả " variant="soft" color="default" />
@@ -345,6 +370,22 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <ListItemText primary="Báo cáo vấn đề" />
                         </ListItemButton>
                       </ListItem>
+                      {!row.original.is_refund && session?.user.roles==='HOST' && (
+                        <ListItem disablePadding>
+                          <ListItemButton
+                            onClick={() => {
+                              // handleOpenReportDialog();
+                              // handleClose();
+                              // setResidenceId(row.original.residence_id);
+                            }}
+                          >
+                            <ListItemIcon>
+                              <AttachMoneyIcon color="success" />
+                            </ListItemIcon>
+                            <ListItemText primary="Hoàn tiền" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
                     </>
                   ) : (
                     <>
@@ -446,12 +487,11 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     return res;
   };
 
-
-const get_policy = async (residenceId:any) => {
-  const res = await get_all_policy(residenceId);
-  setPolicyData(res);
-  return res;
-};
+  const get_policy = async (residenceId: any) => {
+    const res = await get_all_policy(residenceId);
+    setPolicyData(res);
+    return res;
+  };
 
   useEffect(() => {
     get_refund_api(bookingId2);
@@ -500,13 +540,15 @@ const get_policy = async (residenceId:any) => {
           </DialogContentText>
           <Divider sx={{ my: 2 }} />
 
-          <Box onClick={()=>setViewPolicy(!viewPolicy)} sx={{color:'blue',cursor:'pointer'}}>Chính sách hủy?</Box>
-          {
-            viewPolicy && policyData!==null &&  <ServicePolicyList data={policyData} type="h" />
-          } 
-          {
-             viewPolicy && policyData===null && <Box sx={{py:2}}>Phí hủy mặc định là 100%</Box>
-          }
+          <Box onClick={() => setViewPolicy(!viewPolicy)} sx={{ color: 'blue', cursor: 'pointer' }}>
+            Chính sách hủy?
+          </Box>
+          {viewPolicy && policyData !== null && (
+            <Box>
+              <ServicePolicyList data={policyData} type="cancelview" />
+            </Box>
+          )}
+          {viewPolicy && policyData === null && <Box sx={{ py: 2 }}>Phí hủy mặc định là 100%</Box>}
           <Divider sx={{ my: 2 }} />
 
           <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>

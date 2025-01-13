@@ -231,6 +231,7 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
             data={currentSelected}
             isSelected={isSelected}
             setIsSelected={setIsSelected}
+            type={type}
           />
         )}
         {!isAddNew && !isSelected && (
@@ -239,15 +240,16 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
               uniqueObjects.length > 0 &&
               uniqueObjects.map((item: any, index: any) => {
                 return (
-                  <Grid item xs={12} sm={6} md={3} key={index}>
+                  <Grid item xs={12} sm={type==='cancelview' ? 12:6} md={type==='cancelview' ?12 :3} key={index}>
                     <Card
                       sx={{
-                        maxWidth: 345,
+                        maxWidth: 500,
                         transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out', // Hiệu ứng khi hover
                         '&:hover': {
                           transform: 'scale(1.05)', // Phóng to card khi hover
                           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // Tạo bóng khi hover
                         },
+                        width:'auto'
                       }}
                     >
                       <CardContent>

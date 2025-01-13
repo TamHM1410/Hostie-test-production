@@ -54,7 +54,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 const response = await axiosClient.get(`${baseURl}/booking?sort=id:desc`, {
                     params: { page, page_size: ROWS_PER_PAGE, },
                 });
-                setRows(response.data?.data?.result);
+                setRows(response?.data?.result);
                 setTotalRecords(response.data?.data?.pagination.total_pages);
             } catch (error) {
                 console.error('Error fetching booking data:', error);
@@ -74,7 +74,9 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
             );
 
-            setLogs(response.data);
+            setLogs(response.data);     
+               queryClient.invalidateQueries(["booking"]as any)
+
         } catch (error) {
             console.log(error);
         } finally {
@@ -87,6 +89,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         try {
             const response = await axiosClient.get(`${baseURl}/booking/${id}`, {});
             setDetail(response.data);
+            queryClient.invalidateQueries(["booking"]as any)
+
             
         } catch (error) {
             console.error('Error fetching booking data:', error);
@@ -120,6 +124,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                         params: { page, page_size: ROWS_PER_PAGE },
                     });
                     setRows(response.data.data.result);
+                    
                     setTotalRecords(response.data.data.pagination.total_pages);
                 } catch (error) {
                     console.error('Error fetching booking data:', error);
@@ -128,6 +133,9 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 }
             };
             fetchData();
+
+            queryClient.invalidateQueries(["booking"]as any)
+
         } catch (error) {
             toast.error('Đã xảy ra lỗi, vui lòng thử lại.');
         }
@@ -149,6 +157,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     });
                     setRows(response.data.result);
                     setTotalRecords(response.data.pagination.total_pages);
+                    queryClient.invalidateQueries(["booking"]as any)
+
                 } catch (error) {
                     console.error('Error fetching booking data:', error);
                 } finally {
@@ -181,6 +191,8 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
             const response = await axiosClient.put(`${baseURl}/booking/`, payload, {});
             if (response.status === 200) {
                 toast.success('Cập nhật thông tin đặt nơi lưu trú thành công');
+                queryClient.invalidateQueries(["booking"]as any)
+
             } else {
                 toast.error('Cập nhật thông tin đặt nơi lưu trú thất bại. Vui lòng thử lại.');
             }

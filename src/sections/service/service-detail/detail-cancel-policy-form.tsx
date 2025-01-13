@@ -29,7 +29,7 @@ const timeUnits = [
   { value: 'days', label: 'Ngày' },
 ];
 
-const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected }: any) => {
+const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, type = '' }: any) => {
   const queryClient = useQueryClient();
 
   const [isEdit, setEdit] = useState(false);
@@ -313,7 +313,7 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected }: a
           paddingX: 5,
         }}
       >
-        {isEdit ? (
+        {isEdit && type !== 'cancelview' ? (
           <>
             <Button type="button" variant="contained" onClick={() => setIsSelected(!isSelected)}>
               Trở về
@@ -331,12 +331,16 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected }: a
           </>
         ) : (
           <>
-            <Button type="button" variant="contained" onClick={() => setEdit(!isEdit)}>
-              Hủy bỏ
-            </Button>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? 'Đang xử lý...' : 'Lưu chính sách'}
-            </Button>
+            {type !== 'cancelview' && (
+              <>
+                <Button type="button" variant="contained" onClick={() => setEdit(!isEdit)}>
+                  Hủy bỏ
+                </Button>
+                <Button type="submit" variant="contained" disabled={isSubmitting}>
+                  {isSubmitting ? 'Đang xử lý...' : 'Lưu chính sách'}
+                </Button>
+              </>
+            )}
           </>
         )}
       </Box>
