@@ -22,7 +22,6 @@ const CreatePolicy: React.FC<PolicyProps> = ({ onSave, previousStep, currentStep
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-    console.log(uploadedFiles.length);
 
     // Handle file drop
     const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {

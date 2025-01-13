@@ -46,7 +46,6 @@ const CancelBookingCard: React.FC = ({ open, setOpen }: any) => {
 
   const handleConfirm = () => {
     // Thực hiện hủy đặt căn hộ ở đây
-    console.log('Đã hủy đặt căn hộ');
     setOpen(false);
   };
 

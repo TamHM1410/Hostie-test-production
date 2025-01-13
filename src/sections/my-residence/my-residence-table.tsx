@@ -59,7 +59,6 @@ const BulterTable = (props: any) => {
       Cell: ({ cell }: any) => (
         <span
           onClick={(e) => {
-            console.log(cell.row.original, 'daaaa');
           }}
         >
         </span>

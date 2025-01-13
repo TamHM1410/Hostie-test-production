@@ -69,7 +69,6 @@ const BulterWorkTable = (props: any) => {
       size: 220,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
-        console.log(row.status, 'sds');
         if (row.status === 1) {
           return (
             <Box sx={{ display: 'flex', gap: 2 }}>

@@ -18,15 +18,7 @@ export default function PickerDateRange() {
 
   return (
     <>
-      <Stack sx={{ typography: 'body2', mb: 3, color: 'text.secondary' }}>
-        <div>This is the custom component from minimal.</div>
-        <div>You can use more advanced components by MUI.</div>
-
-        <Link href="https://mui.com/x/react-date-pickers/date-range-picker/">
-          https://mui.com/x/react-date-pickers/date-range-picker/{' '}
-        </Link>
-      </Stack>
-
+     
       <Box
         gap={3}
         display="grid"

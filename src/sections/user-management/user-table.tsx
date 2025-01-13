@@ -93,7 +93,6 @@ const UserTable = (props: any) => {
           role="button" // Makes it clear that the div acts like a button
           tabIndex={0} // Makes the div focusable
           onClick={() => {
-            console.log(cell.row.original);
             updateUserSelected(cell.row.original);
             setOpenActive(!openActiveModal);
           }}

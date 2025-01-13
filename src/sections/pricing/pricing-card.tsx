@@ -42,7 +42,6 @@ export default function PricingCard({ card, sx, ...other }: Props | any) {
   const router = useRouter();
 
   const basic = 'basic';
-  console.log(typeof session,status ,'session')
   const handleChoosePackage = () => {
     if(status==="unauthenticated"){
       router.push('/auth/jwt/login')

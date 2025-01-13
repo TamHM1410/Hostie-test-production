@@ -112,7 +112,6 @@ export default function UserGeneral(props: any) {
       setIsEdit(!isEdit);
     },
     onError: (error) => {
-      console.log('The mutation is fall!', error);
 
       toast.error('Update error');
     },

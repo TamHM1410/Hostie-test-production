@@ -345,7 +345,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
-                            console.log(row.original.id,'row id')
                             handleOpenReportDialog();
                             handleClose();
                       

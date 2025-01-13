@@ -90,7 +90,6 @@ const ManageCustomerTable: React.FC<ManageCustomerProps> = ({ rows }) => {
   };
 
   const handleDelete = async () => {
-    console.log(selectedRow);
 
     if (selectedRow) {
       await deleteCustomer(selectedRow.id);

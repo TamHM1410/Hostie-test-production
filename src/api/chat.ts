@@ -70,7 +70,6 @@ export function useGetConversations() {
     };
   }, [data, error, isLoading, isFetching]);
 
-  console.log(memoizedValue)
   return memoizedValue;
 }
 
@@ -86,7 +85,6 @@ const {data,isLoading,error,isFetching}=useQuery({
 
 })
 
-console.log(data,'data deital')
  
 
   const memoizedValue = useMemo(

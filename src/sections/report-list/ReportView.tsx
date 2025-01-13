@@ -14,7 +14,6 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 export default function ReportView() {
     const settings = useSettingsContext();
     const { rows, isLoading } = useReportListContext();
-    console.log(rows);
 
 
     return (

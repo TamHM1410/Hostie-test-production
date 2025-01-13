@@ -79,11 +79,9 @@ export default function BookingHistoryOfServiceView() {
 
 
     const handleEdit = (id: string) => {
-        console.log('Edit booking with ID:', id);
     };
 
     const handleDelete = (id: string) => {
-        console.log('Delete booking with ID:', id);
     };
 
     return (

@@ -73,7 +73,6 @@ const getAllUserApi = async ({ limit = 1000, search = '' }) => {
 };
 
 const updateUserActive = async (id: any, isActive: any) => {
-  console.log(endPoint.admin.updateActiveById(id, isActive), 'url');
   const res = await axiosClient.put(endPoint.admin.updateActiveById(id, isActive));
   return res;
 };

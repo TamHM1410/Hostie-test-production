@@ -46,7 +46,6 @@ export default function MyResidenceView() {
         queryKey: ['housekeeperRequest', filter],
         queryFn: async () => {
           const res = await getButlerRequest();
-          console.log(res, 'res');
           switch (filter) {
             case 'all':
               return res;

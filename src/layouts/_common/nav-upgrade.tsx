@@ -34,7 +34,6 @@ export default function NavUpgrade() {
     queryFn: () => getUserReferralLink(),
   });
 
-  console.log(data, 'data');
 
   return (
     <Stack

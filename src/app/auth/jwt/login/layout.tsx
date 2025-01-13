@@ -11,7 +11,6 @@ export async function generateMetadata() {
   if (session?.user?.roles) {
     const role :any= session.user.roles;
 
-    console.log('roles',role)
     
     const roleRedirects :any= {
       'USER': '/pricing',

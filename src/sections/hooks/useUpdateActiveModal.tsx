@@ -64,7 +64,6 @@ const useUpdateActiveModal = ({ open, setOpen ,type}: any) => {
        }
        mutate(payload)
     } catch (error) {
-      console.log('hihi');
     }
   };
 

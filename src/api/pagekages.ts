@@ -34,7 +34,6 @@ const upgrade_package = async (payload: any): Promise<any> => {
   return rs;
 };
 const extendPackageApi = async (payload: any) => {
-  console.log(payload, 'payload');
   const rs = await axiosClient.put(
     `${endPoint.register_package.extendPackage}?packageId=${payload}`
   );

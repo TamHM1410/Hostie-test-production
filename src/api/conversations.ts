@@ -15,7 +15,6 @@ const getListGroupMessage = async (id: any, page: any) => {
     },
   });
 
-  console.log(res, 'res');
   return res;
 };
 

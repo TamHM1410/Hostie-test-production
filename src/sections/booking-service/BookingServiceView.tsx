@@ -6,11 +6,15 @@ import ForumTypeFilter from "./ForumTypeFilter"
 import ForumTypeInFormation from "./ForumTypeInFormation"
 import BookingDashboard from "./Booking"
 import { useSettingsContext } from "src/components/settings"
-import { log } from "console"
 import ColorNotes from "./ColorNote"
 
 
+//  @store 
+import { useCurrentDate } from "src/zustand/pickDate"
+
+
 const ForumTypeView = () => {
+    const {month}=useCurrentDate()
     const [view, setView] = useState(false)
     const showSearch = () => {
         setView(!view)
@@ -22,6 +26,7 @@ const ForumTypeView = () => {
     const [months, setMonths] = useState(current1)
     const [years, setYears] = useState(year)
 
+
     return (
 
         <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -30,6 +35,10 @@ const ForumTypeView = () => {
                 flexDirection="column"
 
             >
+              
+                <ForumTypeInFormation />
+                <ColorNotes />
+
                 <Box display="flex" justifyContent="end" mb={2} width="100%">
                     <Button
                         variant="contained"
@@ -46,9 +55,8 @@ const ForumTypeView = () => {
                     </Button>
                 </Box>
                 <ForumTypeFilter setMonth={setMonths} setYears={setYears} searchVisible={view} month={months} year={years} setClose={setView} />
-                <ForumTypeInFormation />
-                <ColorNotes />
-                <BookingDashboard year={years} setYears={setYears} selectedMonth={months} setSelectedMonth={setMonths} />
+
+                <BookingDashboard year={years} setYears={setYears} selectedMonth={month} setSelectedMonth={setMonths} />
 
             </Box>
 

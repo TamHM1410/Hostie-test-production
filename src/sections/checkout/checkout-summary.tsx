@@ -35,7 +35,6 @@ export default function CheckoutSummary({
   onEdit,
   onApplyDiscount,
 }: Props) {
-  console.log('discountdd', typeof discount);
   return (
     <Card sx={{ mb: 3 }}>
       <CardHeader

@@ -12,7 +12,6 @@ export const useRefreshedToken = () => {
     const res = await axiosClient.post('/v1/api/auth/refresh-token', {
       token: session?.user.token,
     });
-    console.log(res,'res')
 
     if (session) {
       session.user.token = res?.data?.result.token;

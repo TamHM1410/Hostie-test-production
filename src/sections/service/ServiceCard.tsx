@@ -349,7 +349,6 @@ export default function ServiceCardList({
             toast.success('Cập nhật hình ảnh nơi lưu trú thành công');
             setIsLoading(false)
         } catch (error) {
-            console.log(error);
             setIsLoading(false)
             if (error.status === 413) {
                 toast.error('Tệp hình quá nặng không thể upload lên server')

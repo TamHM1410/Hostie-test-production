@@ -18,22 +18,18 @@ import { useUserManagement } from 'src/api/useUserManagement';
 //  @api
 
 const ConfirmModal = (props: any) => {
+  const { rejectUserReview, approveUserReview } = useUserManagement();
 
-  const {rejectUserReview,approveUserReview}=useUserManagement()
+  const { open, setOpen, modalType, setModalType, selectedButler, userId } = props;
 
-  const { host_accept, host_reject } = useButler();
-
-  const { open, setOpen, modalType, setModalType, selectedButler,userId } = props;
-
-  const [isLoading,setIsLoading]=useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     try {
+      setIsLoading(true);
 
-      setIsLoading(true)
-    
       if (modalType === 'accept') {
         await approveUserReview(userId);
         queryClient.invalidateQueries(['usersPendingList'] as any);
@@ -46,9 +42,9 @@ const ConfirmModal = (props: any) => {
         setOpen(!open);
       }
     } catch (error) {
-      console.error(error);
-    }finally{
-      setIsLoading(false)
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 

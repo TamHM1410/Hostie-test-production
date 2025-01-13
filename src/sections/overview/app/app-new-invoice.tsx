@@ -89,7 +89,6 @@ type AppNewInvoiceRowProps = {
 function AppNewInvoiceRow({ row }: AppNewInvoiceRowProps | any) {
   const popover = usePopover();
 
-  console.log('row', row);
 
   const handleDownload = () => {
     popover.onClose();

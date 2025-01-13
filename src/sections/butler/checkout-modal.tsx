@@ -110,7 +110,6 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       // const res = await checkInUploadFile(formData);
       setLoadingFile(false);
     } catch (error) {
-      console.log(error, 'err');
       setLoadingFile(false);
       toast.error('Lỗi tải ảnh');
     }
@@ -165,7 +164,6 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       }
       mutate(butler?.id);
     } catch (error) {
-      console.log(error,'err')
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   });

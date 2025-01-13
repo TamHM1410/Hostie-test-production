@@ -84,7 +84,6 @@ export default function JwtLoginView() {
       toast.success('Đăng nhập thành công!');
     } catch (error) {
       // toast.error(error);
-      console.log('axios', error);
     }
   });
 

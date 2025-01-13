@@ -91,9 +91,9 @@ export default function CustomDateRangePicker({
             </>
           ) : (
             <>
-              <DatePicker label="Start date" value={startDate} onChange={onChangeStartDate} />
+              <DatePicker label="Ngày bắt đầu" value={startDate} onChange={onChangeStartDate} />
 
-              <DatePicker label="End date" value={endDate} onChange={onChangeEndDate} />
+              <DatePicker label="Ngày kết thúc" value={endDate} onChange={onChangeEndDate} />
             </>
           )}
         </Stack>
@@ -107,11 +107,11 @@ export default function CustomDateRangePicker({
 
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
+        Hủy bỏ
         </Button>
 
         <Button disabled={error} variant="contained" onClick={onClose}>
-          Apply
+        Áp dụng
         </Button>
       </DialogActions>
     </Dialog>

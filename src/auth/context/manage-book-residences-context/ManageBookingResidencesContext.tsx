@@ -234,7 +234,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             );
             
             const newData = response.data?.find((d: any) => d.residence_id === id)
-            console.log(newData?.commission_rate)
             setPriceQuotation(newData?.commission_rate);
         } catch (err: any) {
             console.log(err);

@@ -43,9 +43,28 @@ export const formatDateToDDMMYYYY = (date: string) => {
 
   return `${day}-${month}-${year}`;
 };
-export const formattedAmount = (amount: any): any => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-  }).format(amount);
+export const formattedAmountCalender = (amount: number): string => {
+  if (amount >= 1000) {
+    const thousands=Math.floor(amount / 1000)
+    return `${thousands.toLocaleString('vi-VN')} k`;
+
+  }
+  return `${amount} k`;
+};
+
+
+export const formattedAmount = (amount: number): string => {
+  const formattedPrice = new Intl.NumberFormat('vi-VN').format(amount);
+
+  return `${formattedPrice} VND`;
+};
+
+
+export const fDateVn = (date: any) => {
+  const day = date.getDate().toString().padStart(2, '0'); // Đảm bảo luôn có 2 chữ số
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Đảm bảo luôn có 2 chữ số
+  const year = date.getFullYear();
+
+  const formattedDate = `${day}-${month}-${year}`;
+  return formattedDate;
 };

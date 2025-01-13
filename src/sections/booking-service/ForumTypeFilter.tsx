@@ -93,7 +93,7 @@ const ForumTypeFilter = ({ searchVisible, month, year, setClose, setMonth, setYe
 
         fetchBookingData(1, year, month, selectedProvince, selectedAccommodationType, [startDate1, endDate1], maxPrice, minPrice, [iconFilter]);
 
-        localStorage.setItem("searchParams", JSON.stringify(data));
+        // localStorage.setItem("searchParams", JSON.stringify(data));
         setSnackbarMessage("Tìm kiếm thành công!");
         setSnackbarOpen(true);
     };

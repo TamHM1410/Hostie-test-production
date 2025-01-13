@@ -67,7 +67,6 @@ export default function ServiceView() {
 
     const { serviceData, totalPage, isLoading, fetchData } = useServiceContext();
 
-    console.log(serviceData,'service')
     const settings = useSettingsContext();
     // Upload Image state
     const [images, setImages] = React.useState<File[]>([]);
@@ -245,7 +244,6 @@ export default function ServiceView() {
 
     const handleStep4Submit = async (data: any) => {
         setIsLoading2(true)
-        console.log(typeof data.weekendSurcharge);
         const payload = {
             step: 4,
             id: parseInt(idService),

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
 }
 
 .table-container {
@@ -47,6 +47,8 @@
   position: sticky;
   left: 0;
   z-index: 99;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
 }
 
 .day-header {
@@ -232,4 +234,96 @@ body {
   left: 0; /* Cố định cột đầu tiên */
   background-color: #f9f9f9;
   z-index: 100; /* Đảm bảo cột nằm dưới header */
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+}.table-container {
+  overflow: auto;
+  white-space: nowrap;
+  height: 80vh;  /* Use viewport height instead of fixed height */
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background-color: #f9f9f9;
+}
+
+.table .sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background-color: #f9f9f9;
+}
+
+.table .villa-name {
+  position: sticky;
+  left: 0;
+  background-color: #f9f9f9;
+  z-index: 100;
+}
+
+/* Ensure proper z-index stacking for the corner cell */
+.table thead .villa-name {
+  z-index: 300;
+}
+
+tbody {
+  overflow: auto;
+}
+
+
+.skeleton-loading {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.15) 37%,
+    rgba(0, 0, 0, 0.06) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.table-container {
+  overflow: auto;
+  white-space: nowrap;
+  height: 80vh;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Ensure smooth scrolling */
+.table-container {
+  scroll-behavior: smooth;
+}
+.villa-name-cell:hover {
+  background-color: #f0f8ff; /* Màu nền khi hover */
+  color: #0056b3; /* Màu chữ khi hover */
+  cursor: pointer; /* Thay đổi con trỏ thành dạng pointer */
 }

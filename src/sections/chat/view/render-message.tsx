@@ -134,7 +134,6 @@ const Chat = () => {
 
             setDetailMessage(sortedMessages);
             // updateMsg(sortedMessages,group_id);
-            console.log(sortedMessages,'sort')
             messageRef.current = sortedMessages;
             if (sortedMessages.length === 0) setHasMore(false);
             return res;
@@ -156,7 +155,6 @@ const Chat = () => {
 
   const { reset, handleSubmit } = methods;
 
-  console.log('list',listConversation[0]?.users)
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {

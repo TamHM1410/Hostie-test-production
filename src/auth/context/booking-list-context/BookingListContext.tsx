@@ -86,7 +86,6 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsLoading(true);
         try {
             const response = await axiosClient.get(`${baseURl}/booking/${id}`, {});
-            console.log(response,'response')
             setDetail(response.data);
             
         } catch (error) {
@@ -101,7 +100,6 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         try {
             const response = await axiosClient.get(`${baseURl}/booking/${id}/qr`, {});
             setQR(response.data);
-            console.log(response.data,'qr');
 
         } catch (error) {
             console.error('Error fetching booking data:', error);

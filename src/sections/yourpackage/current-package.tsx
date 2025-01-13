@@ -34,7 +34,6 @@ export default function CurrentPackage({ card, sx, ...other }: Props | any) {
 
   const { price, caption, name, description, duration, id } = card;
 
-  console.log(other.expireAt, 'ex', other.startAt, 'day', other.daysLeft);
   const router = useRouter();
 
   const handleOnclick = () => {

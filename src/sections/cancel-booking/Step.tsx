@@ -87,7 +87,6 @@ export default function HorizontalLinearStepper() {
 
   if (isLoading) return <LoadingScreen />;
 
-  console.log(activeStep,'active step')
 
   return (
     <Box sx={{ width: '100%' }}>

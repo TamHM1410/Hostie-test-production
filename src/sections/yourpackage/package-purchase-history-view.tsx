@@ -20,7 +20,6 @@ const statusOption = ['Hết hạn', 'Đang xử lý,', 'Thành công', 'Thất 
 const PurchaseHistory = (props: any) => {
   const { data = [] } = props;
 
-  console.log('data', data);
   const columns = [
     columnHelper.accessor('packageName', {
       header: ' Tên gói',

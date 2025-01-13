@@ -161,7 +161,6 @@ export default function ChatNav({
     </>
   );
  
-  console.log(conversations,'conver')
   const renderList = (
     <>
       {/* {conversations.allIds.map((conversationId,index) => (

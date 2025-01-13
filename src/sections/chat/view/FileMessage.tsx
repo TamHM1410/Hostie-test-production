@@ -17,7 +17,6 @@ export default function FileMessage({ files = [] }: any) {
     setCurrentImage(value)
   }
   const render_file = files.map((file: any) => {
-    //  console.log(file.file_name.endsWith('png'),'endwith',`https://hostie-image.s3.ap-southeast-2.amazonaws.com/chat/${file?.file_name}`)
     if (file?.file_type === 'image') {
       return (
         <Box sx={{py:0.5 }} onClick={()=>handleClick(file?.file_name)}>

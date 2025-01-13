@@ -23,7 +23,6 @@ export default function ResidenceManagementView() {
 
   if(isLoading) return <LoadingScreen/>
 
-  console.log('data',data)
     return (
     <Box>
       <CustomBreadcrumbs

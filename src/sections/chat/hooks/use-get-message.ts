@@ -20,7 +20,6 @@ export default function useGetMessage({ message, participants, currentUserId }: 
     ? participants.find((participant) => participant.id == idParams)
     : null;
 
-  console.log('sender', sender);
   const senderDetails =
     sender?.id == currentUserId
       ? {

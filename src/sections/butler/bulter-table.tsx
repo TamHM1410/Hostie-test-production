@@ -44,7 +44,6 @@ const ButlerTable = (props: any) => {
       size: 250,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
-        console.log(row, 'row data');
         return (
           <Box sx={{ display: 'flex', gap: 3 }}>
             <Box>

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { m } from 'framer-motion';
 // @mui
 import { alpha } from '@mui/material/styles';
@@ -9,12 +9,13 @@ import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { Chip } from '@mui/material';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 // hooks
 import { useMockedUser } from 'src/hooks/use-mocked-user';
-import { useSession,signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 // components
@@ -32,8 +33,7 @@ const OPTIONS = [
   {
     label: 'Tài khoản',
     linkTo: '/dashboard/user/account/',
-  }
- 
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -43,7 +43,7 @@ export default function AccountPopover() {
 
   const { user } = useMockedUser();
 
-  const {data:session}=useSession()
+  const { data: session } = useSession();
 
   const { logout } = useAuthContext();
 
@@ -67,7 +67,6 @@ export default function AccountPopover() {
     router.push(path);
   };
 
-
   return (
     <>
       <IconButton
@@ -87,7 +86,10 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={session?.user?.urlAvatar ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaotZTcu1CLMGOJMDl-f_LYBECs7tqwhgpXA&s'}
+          src={
+            session?.user?.urlAvatar ??
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaotZTcu1CLMGOJMDl-f_LYBECs7tqwhgpXA&s'
+          }
           alt={user?.displayName}
           sx={{
             width: 36,
@@ -98,6 +100,23 @@ export default function AccountPopover() {
           {session?.user?.name || 'undefined'}
         </Avatar>
       </IconButton>
+      <Box sx={{ position: 'relative', top: -20, left: -25 }}>
+        {session?.user?.roles === 'HOST' && (
+          <Chip label={'Chủ nhà'} sx={{ height: 20 }} color="primary" variant="soft" />
+        )}
+
+        {session?.user?.roles === 'SELLER' && (
+          <Chip label={'Người bán'} sx={{ height: 20 }} color="primary" variant="soft" />
+        )}
+
+        {session?.user?.roles === 'ADMIN' && (
+          <Chip label={'Admin'} sx={{ height: 20 }} color="primary" variant="soft" />
+        )}
+
+        {session?.user?.roles === 'HOUSEKEEPER' && (
+          <Chip label={'quản gia'} sx={{ height: 20 }} color="primary" variant="soft" />
+        )}
+      </Box>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
@@ -123,12 +142,14 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem
-          onClick={()=>signOut({
-            redirect:true
-          })}
+          onClick={() =>
+            signOut({
+              redirect: true,
+            })
+          }
           sx={{ m: 1, fontWeight: 'fontWeightBold', color: 'error.main' }}
         >
-        Đăng xuất
+          Đăng xuất
         </MenuItem>
       </CustomPopover>
     </>

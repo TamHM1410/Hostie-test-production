@@ -74,7 +74,6 @@ const EditReportModal = (props: any) => {
     try {
       const payload = { adminNote: data?.adminNote, status: data?.status };
       const id = data?.id;
-      console.log(payload, 'payload');
       mutate({ payload, id });
     } catch (error) {
       console.error(error);

@@ -39,7 +39,6 @@ export const useUserManagement = () => {
   const updateUserInfo = useCallback(
     async (payload: any) => {
       try {
-        console.log('payload', payload);
         const response = await axiosAuth.put<any>(endPoint.user.update, payload);
         return response;
       } catch (error) {

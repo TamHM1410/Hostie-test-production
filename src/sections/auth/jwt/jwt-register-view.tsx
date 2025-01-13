@@ -186,7 +186,6 @@ export default function JwtRegisterView() {
   };
 
   const onSubmit = handleSubmit(async (data: any) => {
-    console.log(data,'data')
     const formData = new FormData();
     try {
       delete data['isChecked'];

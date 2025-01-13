@@ -95,6 +95,16 @@ const ColorNotes = () => {
                         >
                             <Typography>Ô này đã có người giữ, bạn không thể thay đổi trạng thái.</Typography>
                         </Box>
+
+                        <Box
+                        sx={{
+                            py:2
+                        }}
+                           
+                        >
+                            <Typography>Đơn vị hiển thị trên lịch :<br/>  k = 1.000 vnd</Typography>
+                            
+                        </Box>
                     </Box>
                 </Box>
             </Popover>

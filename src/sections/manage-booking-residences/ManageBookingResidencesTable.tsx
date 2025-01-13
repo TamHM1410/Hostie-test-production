@@ -338,7 +338,6 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
     />
   );
 
-  console.log(detail,'detail')
 
   return (
     <>

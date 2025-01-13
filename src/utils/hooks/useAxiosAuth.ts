@@ -48,16 +48,10 @@ const useAxiosAuth =  () => {
         if (session?.user?.token) {
           // Set Authorization header
           config.headers['Authorization'] = `Bearer ${session?.user.token}`;
-          console.log('Token set:', session.user.token);
         } else {
-          console.log('No token available in session');
         }
 
-        console.log('Request config:', {
-          url: config.url,
-          method: config.method,
-          headers: config.headers
-        });
+       
 
         return config;
       },
@@ -146,12 +140,7 @@ const useAxiosAuth =  () => {
     );
 
     // Log session state when effect runs
-    console.log('Session state:', {
-      hasSession: !!session,
-      hasToken: !!session?.user?.token,
-      token: session?.user?.token ? 'Token exists' : 'No token'
-    });
-
+   
     return () => {
       axiosClient.interceptors.request.eject(requestInterceptor);
       axiosClient.interceptors.response.eject(responseInterceptor);

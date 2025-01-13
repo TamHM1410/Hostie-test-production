@@ -69,7 +69,6 @@ const UserEditModal = (props: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-      console.log(data);
        mutate(data)
     } catch (error) {
       console.error(error);

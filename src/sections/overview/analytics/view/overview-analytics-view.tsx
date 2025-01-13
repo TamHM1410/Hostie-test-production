@@ -61,7 +61,6 @@ export default function OverviewAnalyticsView() {
         queryKey: [session?.user?.roles === 'HOST' ? 'hostAnalytic' : 'sellerAnalytic', session?.user?.roles],
         queryFn: async () => {
           const res = session?.user?.roles === 'HOST'  ? await getHostAnalytic() : await getSellerAnalytic();
-          console.log('resss',res)
 
 
           if (res?.data && session?.user?.roles === 'HOST' ) {
@@ -120,7 +119,6 @@ export default function OverviewAnalyticsView() {
         queryKey:['topSoldResidences'],
         queryFn:async()=>{
           const res =await getListSoldResidences()
-          console.log('croeoen',res?.data)
 
           if(res?.data && res?.data?.sold_residence){
             setListSoldResidence(res?.data?.sold_residence)

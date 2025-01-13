@@ -69,7 +69,6 @@ export default function CheckoutView() {
         queryKey: ['discount'],
         queryFn: async () => {
           const rs = await getUserDiscount();
-          console.log(rs,'rs')
           if (typeof rs !== 'number') {
             return rs?.result;
           }

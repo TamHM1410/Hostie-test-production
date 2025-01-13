@@ -16,6 +16,5 @@ export const getChatSuggest= async()=>{
             },
         }
     );
-    console.log('response',response)
     return 
 }

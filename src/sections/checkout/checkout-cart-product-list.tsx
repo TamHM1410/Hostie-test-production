@@ -39,7 +39,6 @@ export default function CheckoutCartProductList({
   onIncreaseQuantity,
   onDecreaseQuantity,
 }: Props) {
-  console.log(products,'product')
  
   return (
     <TableContainer sx={{ overflow: 'unset' }}>

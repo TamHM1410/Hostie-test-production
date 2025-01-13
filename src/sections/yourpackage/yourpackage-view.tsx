@@ -57,7 +57,6 @@ export default function YourPackageView() {
   });
 
   if (results.pending) return <LoadingScreen />;
-  console.log('result', results.data[2]);
   return (
     <Box>
       <Box sx={{ px: 5 }}>

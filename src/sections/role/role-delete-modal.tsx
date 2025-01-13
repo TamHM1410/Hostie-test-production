@@ -36,7 +36,6 @@ const DeleteRoleModal = (props: any) => {
       queryClient.invalidateQueries(['roleList'] as any);
     },
     onError: (error) => {
-      console.log(error,'err')
       toast.error('Error');
     },
   });

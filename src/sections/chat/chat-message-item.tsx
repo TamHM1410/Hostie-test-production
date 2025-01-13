@@ -26,9 +26,7 @@ type Props = {
 
 export default function ChatMessageItem({ message, participants, onOpenLightbox }: Props) {
   const { user } = useMockedUser();
-  console.log('user',message ,
-    participants
-  )
+
   const searchParams = useSearchParams()
   
   const idParams = searchParams.get('id')

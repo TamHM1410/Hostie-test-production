@@ -29,7 +29,6 @@ const CheckinModal = (props: any) => {
 
   const { mutate }: any = useMutation({
     mutationFn: (payload: any) => {
-      console.log(payload, 'payload');
       return confirm_checkin(payload);
     },
     onSuccess: () => {
