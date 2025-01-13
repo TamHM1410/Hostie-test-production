@@ -45,9 +45,10 @@ import ReportForm from './ReportForm';
 import BookingLogsModal from './BookingLogs';
 import { MoreVerticalIcon } from 'lucide-react';
 import { formattedAmount } from '../../utils/format-time';
-
+import ServicePolicyList from '../service/service-detail/service-policy-list';
 //  @api
 import { get_refund } from 'src/api/cancelPolicy';
+import { get_all_policy } from 'src/api/cancelPolicy';
 
 interface BookingData {
   id: number;
@@ -68,6 +69,7 @@ interface BookingData {
 interface BookingListTableProps {
   rows: BookingData[];
 }
+
 
 const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -100,7 +102,9 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
 
   const [bookingId2, setBookingId] = useState();
 
-  
+  const [viewPolicy, setViewPolicy] = useState(false);
+
+  const [policyData, setPolicyData] = useState<any>(null);
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
 
@@ -173,20 +177,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     confirmTransfer(id, checkin, checkout, commission_rate);
     handleCloseDialog();
   };
-
-  const renderBooleanChip = (
-    value: boolean,
-    trueLabel: string,
-    falseLabel: string,
-    isCanceled: boolean
-  ) => (
-    <Chip
-      label={isCanceled ? 'Hủy' : value ? trueLabel : falseLabel}
-      color={isCanceled ? 'error' : value ? 'success' : 'warning'}
-      variant="outlined"
-      sx={{ borderRadius: 30 }}
-    />
-  );
 
   const formatCurrencyVND = (amount: number): string => {
     return new Intl.NumberFormat('vi-VN', {
@@ -307,7 +297,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           const open = Boolean(anchorEl);
           const id = open ? 'action-popover' : undefined;
 
-
           return (
             <>
               <IconButton onClick={handleOpen}>
@@ -333,7 +322,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                             handleViewBooking(row.original.id);
                             handleClose();
                             setBookingId(row.original.id);
-
                           }}
                         >
                           <ListItemIcon>
@@ -347,8 +335,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           onClick={() => {
                             handleOpenReportDialog();
                             handleClose();
-                      
-                            
+
                             setResidenceId(row.original.residence_id);
                           }}
                         >
@@ -382,7 +369,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                             handleViewBooking(row.original.id);
                             handleClose();
                             setBookingId(row.original.id);
-
                           }}
                         >
                           <ListItemIcon>
@@ -394,7 +380,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
-                            console.log(row.original.id,'row id')
+                            setResidenceId(row.original.residence_id);
 
                             handleOpenConfirmationDialog(row.original.id);
                             handleClose();
@@ -412,6 +398,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <ListItemButton
                             onClick={() => {
                               handleOpenReportDialog();
+
                               setResidenceId(row.original.residence_id);
                               handleClose();
                             }}
@@ -459,16 +446,24 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     return res;
   };
 
+
+const get_policy = async (residenceId:any) => {
+  const res = await get_all_policy(residenceId);
+  setPolicyData(res);
+  return res;
+};
+
   useEffect(() => {
     get_refund_api(bookingId2);
   }, [bookingId2]);
-
-  console.log('detail chanege',bookingId2)
+  useEffect(() => {
+    get_policy(residenceId);
+  }, [residenceId]);
 
   return (
     <>
       <MaterialReactTable
-        columns={columns} 
+        columns={columns}
         data={rows || []}
         enablePagination
         enableSorting
@@ -503,6 +498,16 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           <DialogContentText>
             Bạn có chắc chắn muốn hủy đặt này? Hành động này sẽ không thể hoàn tác.
           </DialogContentText>
+          <Divider sx={{ my: 2 }} />
+
+          <Box onClick={()=>setViewPolicy(!viewPolicy)} sx={{color:'blue',cursor:'pointer'}}>Chính sách hủy?</Box>
+          {
+            viewPolicy && policyData!==null &&  <ServicePolicyList data={policyData} type="h" />
+          } 
+          {
+             viewPolicy && policyData===null && <Box sx={{py:2}}>Phí hủy mặc định là 100%</Box>
+          }
+          <Divider sx={{ my: 2 }} />
 
           <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
             <CardContent>

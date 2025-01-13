@@ -201,6 +201,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
     }
 
+    console.log(rangeDate)
+
     if (typeOfDate === 'range') {
       apiQuery = `?page_size=${pageSize}&page=${page}&from=${rangeDate.from}&to=${rangeDate.to}`;
     }
