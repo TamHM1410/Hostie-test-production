@@ -55,11 +55,13 @@ interface BookingContextProps {
   handleBookingSubmit: (values: any) => Promise<void>;
   fetchCalendarFilter: (params: CalendarFilterParams) => Promise<void>;
   fetchProvince: () => void;
+  fetchUsersOnline: () => void;
   provinceList: any;
   fetchPolicy: (id: any) => void;
   policy: any;
   fetchImages: (id: any) => void;
   images: any;
+  mapUsersOnline: Map<number, boolean>
 }
 
 const BookingContext = createContext<BookingContextProps | undefined>(undefined);
@@ -82,7 +84,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     rangeDate: zustandState.rangeDate,
   });
 
-  const { month, typeOfDate, rangeDate ,pageSize,updateHasMore} = useCurrentDate();
+  const { month, typeOfDate, rangeDate, pageSize, updateHasMore } = useCurrentDate();
 
   const bookingDataRef = useRef<any>([]);
 
@@ -98,6 +100,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [priceQuotation, setPriceQuotation] = useState();
   const [policy, setPolicy] = useState();
   const [images, setImages] = useState();
+  const [mapUsersOnline, setMapUsersOnline] = useState(new Map<number, boolean>());
 
   const fetchPolicy = async (id: any) => {
     setLoading(true);
@@ -201,7 +204,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
     }
 
-    console.log(rangeDate)
+    console.log(rangeDate);
 
     if (typeOfDate === 'range') {
       apiQuery = `?page_size=${pageSize}&page=${page}&from=${rangeDate.from}&to=${rangeDate.to}`;
@@ -241,7 +244,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       const data = response;
-      updateHasMore(response.data.data.total_pages,response.data.data.current_page)
+      updateHasMore(response.data.data.total_pages, response.data.data.current_page);
       bookingDataRef.current = [...bookingDataRef.current, ...data.data.data.calendars];
       setBookingData(data.data.data.calendars);
       setTotalPages(data.data.data.total_pages);
@@ -253,6 +256,31 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const [provinceList, setProviceList] = useState();
+
+  const fetchUsersOnline = async () => {
+    try {
+      const response = await axiosClient2.get(`${API_BASE_URL}/residences/user-online`, {});
+      if (!response) {
+        throw new Error('Unable to fetch user online');
+      }
+
+      const usersOnline  = response?.data?.data || []
+      const newMap = new Map<number, boolean>();
+      console.log("usersOnline: ",usersOnline)
+
+      // Populate the map with user IDs and set the value to true (indicating online status)
+      for (let i = 0; i < usersOnline.length; i+=1) {
+        console.log("usersOnline[i]: ",usersOnline[i])
+        newMap.set(usersOnline[i], true);
+      }
+
+      console.log("newmap: ",newMap)
+      // Update the state with the new map
+      setMapUsersOnline(newMap);
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
 
   const fetchProvince = async () => {
     setLoading(true);
@@ -300,7 +328,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setError(null);
 
     try {
-
       const response = await axiosClient2.post(`${API_BASE_URL}/booking/price_quotation`, {
         residence_ids: [parseInt(id)],
         checkin,
@@ -308,14 +335,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         guest_count,
       });
 
-      console.log(response,'res')
+      console.log(response, 'res');
 
-      
       const newData = response.data?.data?.find((d: any) => d.residence_id === id);
       setPriceQuotation(newData);
     } catch (err: any) {
-            console.log(err,'res')
-
+      console.log(err, 'res');
     } finally {
       setLoading(false);
     }
@@ -467,30 +492,41 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     fetchProvince();
+    fetchUsersOnline();
   }, []);
   useEffect(() => {
     const prevState = prevStateRef.current;
-    
-    // Check if relevant values have changed
-    if (prevState.month !== zustandState.month || 
-        prevState.typeOfDate !== zustandState.typeOfDate ||
-        prevState.rangeDate.from !== zustandState.rangeDate.from ||
-        prevState.rangeDate.to !== zustandState.rangeDate.to) {
-        
-        // Update the reference
-        prevStateRef.current = {
-            month: zustandState.month,
-            typeOfDate: zustandState.typeOfDate,
-            rangeDate: zustandState.rangeDate
-        };
 
-        // Trigger a re-fetch if we have the necessary data
-        if ((zustandState.typeOfDate === 'month' && zustandState.month) ||
-            (zustandState.typeOfDate === 'range' && zustandState.rangeDate.from && zustandState.rangeDate.to)) {
-            fetchBookingData(currentPage, 2025, zustandState.month);
-        }
+    // Check if relevant values have changed
+    if (
+      prevState.month !== zustandState.month ||
+      prevState.typeOfDate !== zustandState.typeOfDate ||
+      prevState.rangeDate.from !== zustandState.rangeDate.from ||
+      prevState.rangeDate.to !== zustandState.rangeDate.to
+    ) {
+      // Update the reference
+      prevStateRef.current = {
+        month: zustandState.month,
+        typeOfDate: zustandState.typeOfDate,
+        rangeDate: zustandState.rangeDate,
+      };
+
+      // Trigger a re-fetch if we have the necessary data
+      if (
+        (zustandState.typeOfDate === 'month' && zustandState.month) ||
+        (zustandState.typeOfDate === 'range' &&
+          zustandState.rangeDate.from &&
+          zustandState.rangeDate.to)
+      ) {
+        fetchBookingData(currentPage, 2025, zustandState.month);
+      }
     }
-}, [zustandState.month, zustandState.typeOfDate, zustandState.rangeDate.from, zustandState.rangeDate.to]);
+  }, [
+    zustandState.month,
+    zustandState.typeOfDate,
+    zustandState.rangeDate.from,
+    zustandState.rangeDate.to,
+  ]);
 
   const value = useMemo(
     () => ({
@@ -518,6 +554,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       policy,
       fetchImages,
       images,
+      fetchUsersOnline,
+      mapUsersOnline
     }),
     [
       bookingData,
@@ -531,6 +569,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       priceQuotation,
       provinceList,
       policy,
+      mapUsersOnline
     ]
   );
 

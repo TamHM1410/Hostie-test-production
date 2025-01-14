@@ -84,6 +84,7 @@ const BookingDashboard = ({
     fetchPriceQuotation,
     priceQuotation,
     fetchImages,
+    mapUsersOnline
   } = useBooking() as any;
 
   const { typeOfDate, rangeDate, month, pageSize, monthRange } = useCurrentDate();
@@ -513,6 +514,7 @@ const BookingDashboard = ({
           handleCellClick={handleCellClick}
           isLoading={isLoading}
           onLoadMore={loadMore}
+          mapUsersOnline={mapUsersOnline}
         />
       </Card>
       {/* Menu Ngữ Cảnh */}

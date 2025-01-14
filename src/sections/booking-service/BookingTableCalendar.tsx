@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Grid, FormControl, Select, MenuItem, Tooltip } from '@mui/material';
-
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 //  @util
 import { formattedAmountCalender } from 'src/utils/format-time';
 
@@ -116,7 +116,7 @@ export default function BookingTableCalendar({
   isCellSelected,
   user_name,
   year,
-
+  mapUsersOnline,
   isLoading, // Loading state
   pageSize = 20, // Number of items per page
 }: any) {
@@ -221,7 +221,16 @@ export default function BookingTableCalendar({
                       }}
                       style={{ color: 'rgb(76 84 90)', textAlign: 'center', minWidth: 300 }}
                     >
-                      {villa.name}{' '}
+                      {mapUsersOnline.get(villa.host_id) ? 
+                       <Tooltip title="Chủ nhà hiện đang online">
+                       <FiberManualRecordIcon color='success'/>
+                     </Tooltip>
+                     : 
+                     <Tooltip title="Chủ nhà hiện đang offline">
+                       <FiberManualRecordIcon color='disabled'/>
+                     </Tooltip>
+                     }
+                      {villa.name }{' '}
                       <Tooltip title="Hoa hồng cho căn hộ này">
                         <span style={{fontStyle:'italic',fontSize:14,color:'red'}}> ( {villa?.commission?.commission_rate}%)</span>
                       </Tooltip>
