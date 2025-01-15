@@ -142,7 +142,6 @@ const ReportTable = (props: any) => {
       header: 'Ghi chú của quản trị viên ',
       size: 220,
       Cell: ({ cell }: any) => {
-        console.log('cell', cell.getValue());
         return (
           <Box
             sx={{

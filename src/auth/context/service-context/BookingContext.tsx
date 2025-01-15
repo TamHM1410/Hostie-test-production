@@ -204,14 +204,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
     }
 
-    console.log(rangeDate);
 
     if (typeOfDate === 'range') {
       apiQuery = `?page_size=${pageSize}&page=${page}&from=${rangeDate.from}&to=${rangeDate.to}`;
     }
 
-    // Initialize the base query string
-    // let apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
+    
 
     // Add parameters to the query only if they are not null or undefined
     if (formattedCheckinDate) {
@@ -249,7 +247,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setBookingData(data.data.data.calendars);
       setTotalPages(data.data.data.total_pages);
     } catch (err: any) {
-      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -266,19 +263,15 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       const usersOnline  = response?.data?.data || []
       const newMap = new Map<number, boolean>();
-      console.log("usersOnline: ",usersOnline)
 
       // Populate the map with user IDs and set the value to true (indicating online status)
       for (let i = 0; i < usersOnline.length; i+=1) {
-        console.log("usersOnline[i]: ",usersOnline[i])
         newMap.set(usersOnline[i], true);
       }
 
-      console.log("newmap: ",newMap)
       // Update the state with the new map
       setMapUsersOnline(newMap);
     } catch (err: any) {
-      console.log(err);
     }
   };
 
@@ -293,7 +286,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       setProviceList(response.data.data);
     } catch (err: any) {
-      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -312,7 +304,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCustomerList(response.data.data);
       return response.data.data;
     } catch (err: any) {
-      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -335,12 +326,10 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         guest_count,
       });
 
-      console.log(response, 'res');
 
       const newData = response.data?.data?.find((d: any) => d.residence_id === id);
       setPriceQuotation(newData);
     } catch (err: any) {
-      console.log(err, 'res');
     } finally {
       setLoading(false);
     }
@@ -357,7 +346,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setBookingData(data.data.data.calendars);
       setTotalPages(data.data.data.total_pages);
     } catch (error) {
-      console.log(error);
+   
     } finally {
       setLoading(false);
     }
