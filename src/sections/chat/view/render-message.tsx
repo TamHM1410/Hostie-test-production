@@ -176,11 +176,10 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    if (id||group_id) {
+    if (id || group_id) {
       socket.emit('subscribe', { room_id: session?.user?.id });
 
       socket.on('common.chat.receive_message', (msg) => {
-
         if (msg?.sender_id !== Number(session.user.id)) {
           messageRef.current.push(msg);
           setDetailMessage([...messageRef.current]);
@@ -202,18 +201,16 @@ const Chat = () => {
         socket.off('common.chat.receive_message');
       };
     }
-  }, [id, session?.user?.id,group_id]);
+  }, [id, session?.user?.id, group_id]);
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-
-
     if (!isLoadingMore && nearestMessageEndRef.current) {
       nearestMessageEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      nearestMessageEndRef.current = null; 
+      nearestMessageEndRef.current = null;
     }
     if (!isLoadingMore) {
       scrollToBottom();

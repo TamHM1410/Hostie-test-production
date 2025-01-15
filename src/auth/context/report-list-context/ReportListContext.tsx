@@ -106,7 +106,6 @@ export const ReportListProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
     };
     const createReport = async (residenceId: any, bookingId: any, reportType: any, severity: any, title: any, description: any, images: any) => {
-        console.log(images);
 
         try {
             setIsLoading(true);

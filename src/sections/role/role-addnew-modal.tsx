@@ -41,7 +41,7 @@ const AddNewRoleModal = (props: any) => {
     },
     onSuccess: () => {},
     onError: (error) => {
-      console.log(error, 'err');
+    
     },
   });
 

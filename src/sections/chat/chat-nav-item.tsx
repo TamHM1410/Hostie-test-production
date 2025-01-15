@@ -38,7 +38,6 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
 
   const router = useRouter();
    
-  console.log(conversation,'conversationsss')
   const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
     useGetNavItem({
       conversation,

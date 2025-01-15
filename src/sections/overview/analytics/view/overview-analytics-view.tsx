@@ -92,7 +92,6 @@ export default function OverviewAnalyticsView() {
 
           const seller_res = await getSellerAnalytic();
 
-          console.log(seller_res, 'res sel');
 
           if (seller_res?.data) {
             const this_year = seller_res?.data?.income_by_month[0].data.map((item: any) => {
@@ -171,7 +170,6 @@ export default function OverviewAnalyticsView() {
     return <LoadingScreen />;
   }
 
-  console.log(sellThisYear, sellLastYear, 'last year this ');
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Typography

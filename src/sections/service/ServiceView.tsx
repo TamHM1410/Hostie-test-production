@@ -297,7 +297,6 @@ export default function ServiceView() {
             toast.success('Tạo nơi lưu trú thành công.');
 
         } catch (error) {
-            console.log(error);
 
             if (error.status === 413) {
                 toast.error('Tệp hình quá nặng không thể upload lên server')

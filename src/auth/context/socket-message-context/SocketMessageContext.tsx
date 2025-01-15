@@ -318,7 +318,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
                 setCustomerList(response.data.data);
             } catch (err: any) {
-                console.log(err);
             } finally {
                 setIsLoading(false);
             }
@@ -337,7 +336,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
             } catch (error) {
-                console.log(error);
             } finally {
                 setIsLoading(false);
             }

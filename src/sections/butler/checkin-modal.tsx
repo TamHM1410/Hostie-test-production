@@ -54,7 +54,6 @@ const CheckinModal = (props: any) => {
         setFiles(acceptedFiles);
       }
     } catch (error) {
-      console.log(error, 'err');
     }
   };
   const handleRemoveFile = (index: number) => {

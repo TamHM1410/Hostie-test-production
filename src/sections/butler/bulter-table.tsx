@@ -84,26 +84,7 @@ const ButlerTable = (props: any) => {
       ),
     }),
 
-    // columnHelper.accessor('action', {
-    //   header: ' ',
-    //   size: 220,
-    //   Cell: ({ cell }: any) => (
-    //     <div
-    //       role="button" // This indicates that the div behaves like a button
-    //       tabIndex={cell.row.id} // Makes the div focusable
-    //       onClick={() => {
-    //         if (openModal === false) updateUserSelected(cell.row.original);
-    //       }}
-    //       onKeyDown={(e) => {
-    //         if (e.key === 'Enter' || e.key === ' ') {
-    //           console.log('cc');
-    //         }
-    //       }}
-    //     >
-    //       Xem chi tiết
-    //     </div>
-    //   ),
-    // }),
+  
   ];
 
   const csvConfig = mkConfig({

@@ -27,7 +27,6 @@ interface Props extends CardProps {
 export default function AnalyticsWebsiteVisits({ title, subheader, chart, ...other }: Props) {
   const { labels, colors, series, options } = chart;
   
-  console.log('label',labels)
   const chartOptions = useChart({
     colors,
     plotOptions: {

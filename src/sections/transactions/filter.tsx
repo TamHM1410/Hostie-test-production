@@ -29,7 +29,6 @@ const Filter = ({ filter, setFilter,value,setValue,handleSearch }: any) => {
   const handleClick = (): void => {
     // TODO: Clear the search input
     setValue('')
-    console.log("clicked the clear icon...");
   };
 
 

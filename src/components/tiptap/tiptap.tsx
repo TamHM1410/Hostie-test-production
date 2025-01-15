@@ -1,7 +1,19 @@
 'use client';
 
+
+//  @hook
 import { useState, useRef, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useForm } from 'react-hook-form';
+import { icons } from 'src/utils/chatIcon';
+import { v4 as uuidv4 } from 'uuid';
+import { sendNewMessage } from 'src/api/conversations';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+
+
+//  @Component
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import PermMediaIcon from '@mui/icons-material/PermMedia';
@@ -14,16 +26,9 @@ import Box from '@mui/material/Box';
 import Placeholder from '@tiptap/extension-placeholder';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ImageL from 'next/image';
-import { useForm } from 'react-hook-form';
-import { icons } from 'src/utils/chatIcon';
-import { v4 as uuidv4 } from 'uuid';
-import { sendNewMessage } from 'src/api/conversations';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import { useQueryClient } from '@tanstack/react-query';
 
 const CustomImage = Image.configure({
   HTMLAttributes: {
@@ -48,22 +53,24 @@ const customPlaceholder = Placeholder.configure({
 });
 
 const Tiptap = ({
-  onChange,
-  isUploadImage,
+ 
   setIsUploadImage,
   group_id,
   id,
   setDetailMessage,
-  detailMessage,
   messageRef,
   listNewMessageRef,
   checkNewGroup,
 }: any) => {
+
   const { data: session } = useSession();
+
   const router = useRouter();
+  
+  const queryClient = useQueryClient();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const queryClient = useQueryClient();
 
   const isExistingGroup = useMemo(() => {
     if (Array.isArray(checkNewGroup.users) && checkNewGroup.users.length > 0 && id) {

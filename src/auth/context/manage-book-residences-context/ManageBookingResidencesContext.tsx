@@ -110,7 +110,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             );
             setBankList(response.data.result);
         } catch (error) {
-            console.log(error);
         } finally {
             setIsLoading(false);
         }
@@ -124,7 +123,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             );
             setLogs(response?.data);
         } catch (error) {
-            console.log(error);
         } finally {
             setIsLoading(false);
         }
@@ -236,7 +234,6 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
             const newData = response.data?.find((d: any) => d.residence_id === id)
             setPriceQuotation(newData?.commission_rate);
         } catch (err: any) {
-            console.log(err);
 
         } finally {
             setIsLoading(false);
