@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef,useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -20,11 +20,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendNewMessage } from 'src/api/conversations';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useQueryClient } from '@tanstack/react-query';
+
 const CustomImage = Image.configure({
   HTMLAttributes: {
     style: `
@@ -60,33 +60,18 @@ const Tiptap = ({
   checkNewGroup,
 }: any) => {
   const { data: session } = useSession();
-
-  const router=useRouter()
-
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-
   const queryClient = useQueryClient();
-  const isExistingGroup=useMemo(()=>{
-    if(Array.isArray(checkNewGroup.users)&& checkNewGroup.users.length>0 &&id){
-      const  check =checkNewGroup.users.filter((item:any)=>{
-        return  item?.id===Number(id)
-      })
-      if(Array.isArray(check)&&check.length>0){
-        return true
-        
-      }
-    
 
+  const isExistingGroup = useMemo(() => {
+    if (Array.isArray(checkNewGroup.users) && checkNewGroup.users.length > 0 && id) {
+      const check = checkNewGroup.users.filter((item: any) => item?.id === Number(id));
+      return Array.isArray(check) && check.length > 0;
     }
-    return false
-
-  },[checkNewGroup])
-
-
-
-
+    return false;
+  }, [checkNewGroup]);
 
   const {
     handleSubmit,
@@ -108,7 +93,7 @@ const Tiptap = ({
           display: flex;
           flex-direction: column;
           padding: 4px;
-          padding-left:12px;
+          padding-left: 12px;
           max-height: 80px;
           overflow-y: scroll;
           border: 0px solid #e0e0e0;
@@ -117,9 +102,7 @@ const Tiptap = ({
             outline: none !important;
             border: none !important;
           }
-        `
-          .replace(/\s+/g, ' ')
-          .trim(),
+        `.replace(/\s+/g, ' ').trim(),
       },
       handlePaste: (view, event) => {
         const items = Array.from(event.clipboardData?.items || []);
@@ -173,26 +156,30 @@ const Tiptap = ({
         const reader = new FileReader();
         reader.onload = (e) => {
           const result = e.target?.result;
-          const rs = {
-            file_name: e.target?.result,
-            file_type: type,
-            thumb_name: file.name,
-          };
-          if (typeof result === 'string') {
+          if (result && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+            const rs = {
+              file_name: result,
+              file_type: type,
+              thumb_name: file.name,
+            };
             setImagePreviews((prev) => [...prev, rs]);
             setIsUploadImage(true);
+          } else {
+            console.error('Invalid image type:', file.type);
           }
         };
         reader.readAsDataURL(file);
       });
     }
   };
+
   const handleRemove = (index: number) => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     if (imagePreviews.length === 1) {
       setIsUploadImage(false);
     }
   };
+
   const clearEditor = () => {
     editor?.commands.clearContent();
     reset();
@@ -203,10 +190,10 @@ const Tiptap = ({
   const onSubmit = async (data: any) => {
     try {
       const uuid = uuidv4();
-
       const form = new FormData();
-      if (data.message !== undefined) {
-        form.append('message', data?.message);
+
+      if (data.message) {
+        form.append('message', data.message);
       }
       if (id) {
         form.append('receiver_id', id);
@@ -214,15 +201,12 @@ const Tiptap = ({
       if (group_id) {
         form.append('group_id', group_id);
       }
-
       form.append('uuid', uuid);
-      for (const base64Image of imagePreviews) {
-        const response = await fetch(base64Image);
+
+      for (const image of imagePreviews) {
+        const response = await fetch(image.file_name);
         const blob = await response.blob();
-        const name_blob =
-          base64Image?.file_type === 'image'
-            ? `${uuid}-${Date.now()}.png`
-            : `${uuid}-${Date.now()}.doc`;
+        const name_blob = `${uuid}-${Date.now()}.png`;
         const file = new File([blob], name_blob, { type: blob.type });
         form.append('files', file);
       }
@@ -234,7 +218,7 @@ const Tiptap = ({
           sender_id: +session?.user?.id,
           sender_avatar: '',
           receiver_id: id ? id : null,
-          message: data?.message,
+          message: data.message,
           created_at: 'Đang gửi',
           files: imagePreviews,
         };
@@ -249,15 +233,15 @@ const Tiptap = ({
       }
 
       clearEditor();
-      // Xử lý submit form ở đây
     } catch (error) {
       console.error('Error submitting form:', error);
     }
   };
 
-  if(isExistingGroup){
-    router.push(`/dashboard/chat/?group_id=${checkNewGroup?.id}`)
+  if (isExistingGroup) {
+    router.push(`/dashboard/chat/?group_id=${checkNewGroup?.id}`);
   }
+
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: 2 }}>
       <Box sx={{ display: 'flex', width: '100%' }}>
@@ -396,7 +380,7 @@ const Tiptap = ({
                           width: 180,
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
-                          textOverflow: ' ellipsis',
+                          textOverflow: 'ellipsis',
                           display: 'flex',
                           alignItems: 'center',
                           fontSize: 18,

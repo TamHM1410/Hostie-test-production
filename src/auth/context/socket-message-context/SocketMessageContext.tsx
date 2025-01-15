@@ -5,8 +5,6 @@ import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 import axiosClient from 'src/utils/axiosClient';
 import toast from 'react-hot-toast';
-import axios from 'axios';
-import axiosInstance from 'src/utils/axios';
 
 const notificationSound = typeof window !== 'undefined' ? new Audio('/assets/level-up-191997.mp3') : null;
 
@@ -85,6 +83,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         socket.on('host.receive_seller_transfered', handleNotification);
         socket.on('host.receive_booking_request', handleNotification);
         socket.on('host.receive_hold_request', handleNotification);
+        // refunded
+
+        socket.on("seller.host_refunded",handleNotification)
+        socket.on("seller.host_not_refunded",handleNotification)
+
 
         socket.on('disconnect', () => {
 

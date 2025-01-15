@@ -47,6 +47,9 @@ import { MoreVerticalIcon } from 'lucide-react';
 import { formattedAmount } from '../../utils/format-time';
 import ServicePolicyList from '../service/service-detail/service-policy-list';
 import { useSession } from 'next-auth/react';
+
+import RefundDialog from './RefundedDialog';
+import SellerConfirmRefunded from './SellerConfirmReceiveDialog';
 //  @api
 import { get_refund } from 'src/api/cancelPolicy';
 import { get_all_policy } from 'src/api/cancelPolicy';
@@ -89,13 +92,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     logs,
     fetchBookingLogs,
   } = useBookingListContext();
-  
-  const {data:session}=useSession()
+
+  const { data: session } = useSession();
   const { createReport } = useReportListContext();
 
   const [openSidebar, setOpenSidebar] = useState(false);
 
-  const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingData | null|any>(null);
 
   const [isEdit, setIsEdit] = useState(false);
 
@@ -108,6 +111,10 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const [policyData, setPolicyData] = useState<any>(null);
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
+
+  const [openRefundedDialog, setOpenRefundedDialog] = useState(false);
+
+  const [openSellerConfirmRefunded,setOpenSellerConfirmRefunded]= useState(false);
 
   const [refunded, setRefunded] = useState<any>(null);
 
@@ -340,6 +347,22 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 <List>
                   {row.original.status === 0 ? (
                     <>
+                    {!row.original.is_host_refunded && (
+                        <ListItem disablePadding>
+                          <ListItemButton
+                            onClick={() => {
+                              setOpenSellerConfirmRefunded(!openSellerConfirmRefunded)
+                              setBookingId(row.original.id);
+                            }}
+                          >
+                            <ListItemIcon>
+                              <AttachMoneyIcon color="success" />
+                            </ListItemIcon>
+                            <ListItemText primary="Xác nhận đã nhận tiền" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
@@ -370,13 +393,14 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <ListItemText primary="Báo cáo vấn đề" />
                         </ListItemButton>
                       </ListItem>
-                      {!row.original.is_refund && session?.user.roles==='HOST' && (
+                      {!row.original.is_refund && session?.user.roles === 'HOST' && (
                         <ListItem disablePadding>
                           <ListItemButton
                             onClick={() => {
-                              // handleOpenReportDialog();
+                              setOpenRefundedDialog(!openRefundedDialog)
                               // handleClose();
-                              // setResidenceId(row.original.residence_id);
+                              setSelectedBooking(row.original)
+                              setResidenceId(row.original.residence_id);
                             }}
                           >
                             <ListItemIcon>
@@ -451,6 +475,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           </ListItemButton>
                         </ListItem>
                       )}
+
 
                       {row.original.is_host_accept && !row.original.is_seller_transfer && (
                         <ListItem disablePadding>
@@ -679,6 +704,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         </DialogActions>
       </Dialog>
 
+      <RefundDialog open={openRefundedDialog} setOpen={setOpenRefundedDialog}  bookingSelected={selectedBooking}/>
       <BookingDetailSidebar
         open={openSidebar}
         onClose={() => setOpenSidebar(false)}
@@ -689,6 +715,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         isEditing={isEdit}
         bookingId={bookingId2}
       />
+
+      <SellerConfirmRefunded open={openSellerConfirmRefunded} setOpen={setOpenSellerConfirmRefunded} booking_id={bookingId2}/>
     </>
   );
 };

@@ -45,14 +45,22 @@ export default function OverviewAnalyticsView() {
 
   const [thisYear, setThisYear] = useState<any>(null);
   const [lastYear, setLastYear] = useState<any>(null);
+
+  const [sellThisYear, setSellThisYear] = useState<any>(null);
+
+  const [sellLastYear, setSellLastYear] = useState<any>(null);
+
   const [listTopResidence, setListTopResidence] = useState<any>(null);
   const [listSoldResidence, setListSoldResidence] = useState<any>(null);
   const [topSeller, setTopSeller] = useState<any>(null);
 
   const [totalResidence, setTotalResidence] = useState(0);
+  const [totalSellResidence, setTotalSellResidence] = useState(0);
   const [totalButler, setTotalButler] = useState(0);
   const [commission, setTotalCommission] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0.1);
+  const [totalSellRevenue, setTotalSellRevenue] = useState(0);
+  const [totalSellCommission, setTotalSellCommission] = useState(0);
 
   const results = useQueries({
     queries: [
@@ -62,46 +70,58 @@ export default function OverviewAnalyticsView() {
           session?.user?.roles,
         ],
         queryFn: async () => {
-          const res =
-            session?.user?.roles === 'HOST' ? await getHostAnalytic() : await getSellerAnalytic();
+          if (session?.user?.roles === 'HOST') {
+            const res = await getHostAnalytic();
 
-          if (res?.data && session?.user?.roles === 'HOST') {
-            const this_year = res?.data?.income_by_month[0].data.map((item: any) => {
+            if (res && res?.data && session?.user?.roles === 'HOST') {
+              const this_year = res?.data?.income_by_month[0].data.map((item: any) => {
+                return item?.this_year;
+              });
+              const last_year = res?.data?.income_by_month[0].data.map((item: any) => {
+                return item?.last_year;
+              });
+              setTotalResidence(res?.data?.total_residence);
+              setTotalButler(res?.data?.total_butler);
+              setTotalCommission(res?.data?.total_commission);
+              setTotalRevenue(res?.data?.total_revenue);
+
+              setThisYear(this_year);
+              setLastYear(last_year);
+            }
+          }
+
+          const seller_res = await getSellerAnalytic();
+
+          console.log(seller_res, 'res sel');
+
+          if (seller_res?.data) {
+            const this_year = seller_res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.this_year;
             });
-            const last_year = res?.data?.income_by_month[0].data.map((item: any) => {
+            const last_year = seller_res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.last_year;
             });
-            setTotalResidence(res?.data?.total_residence);
-            setTotalButler(res?.data?.total_butler);
-            setTotalCommission(res?.data?.total_commission);
-            setTotalRevenue(res?.data?.total_revenue);
 
-            setThisYear(this_year);
-            setLastYear(last_year);
+            setTotalSellResidence(seller_res?.data?.total_sold);
+
+            setSellThisYear(this_year);
+            setSellLastYear(last_year);
+            setTotalCommission(seller_res?.data?.total_commission);
+            // setTotalResidence(res?.data?.total_sold);
+            setTotalSellRevenue(seller_res?.data?.total_revenue);
+            setTotalSellCommission(seller_res?.data?.total_commission);
+            // setTotalRevenue(res?.data?.total_revenue);
           }
-          if (res?.data && session?.user?.roles === 'SELLER') {
-            const this_year = res?.data?.income_by_month[0].data.map((item: any) => {
-              return item?.this_year;
-            });
-            const last_year = res?.data?.income_by_month[0].data.map((item: any) => {
-              return item?.last_year;
-            });
-            setThisYear(this_year);
-            setLastYear(last_year);
-            setTotalCommission(res?.data?.total_commission);
-            setTotalResidence(res?.data?.total_sold);
-            setTotalRevenue(res?.data?.total_revenue);
-          }
-          return res?.data;
+          return seller_res?.data;
         },
       },
       {
         queryKey: ['topResidence'],
         queryFn: async () => {
           const res = await getTopResidence();
-          if (res?.data && Array.isArray(res?.data)) {
-            const data = res?.data.map((item) => {
+
+          if (res?.data && Array.isArray(res?.data?.items)) {
+            const data = res?.data?.items.map((item) => {
               return {
                 label: item?.residence_name,
                 value: item?.total_value,
@@ -151,6 +171,7 @@ export default function OverviewAnalyticsView() {
     return <LoadingScreen />;
   }
 
+  console.log(sellThisYear, sellLastYear, 'last year this ');
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Typography
@@ -163,32 +184,37 @@ export default function OverviewAnalyticsView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
-          <AnalyticsWidgetSummary
-            title={
-              session?.user?.roles === 'HOST' ? 'Tổng căn hộ' : ' Tổng villa & homestay đã bán'
-            }
-            total={totalResidence}
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
-          />
-        </Grid>
-
-        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
-          <AnalyticsWidgetSummary
-            title={session?.user?.roles === 'HOST' ? 'Quản gia ' : ' Tổng doanh thu cho chủ nhà '}
-            total={session?.user?.roles === 'HOST' ? totalButler : totalRevenue}
-            color="info"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
-          <AnalyticsWidgetSummary
-            title={session?.user?.roles === 'HOST' ? 'Hoa hồng cho seller' : 'Hoa hồng của bạn '}
-            total={commission}
-            color="error"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
-          />
-        </Grid>
+        {session?.user?.roles === 'HOST' && (
+          <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
+            <AnalyticsWidgetSummary
+              title={
+                session?.user?.roles === 'HOST' ? 'Tổng căn hộ' : ' Tổng villa & homestay đã bán'
+              }
+              total={totalResidence}
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+            />
+          </Grid>
+        )}
+        {session?.user?.roles === 'HOST' && (
+          <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
+            <AnalyticsWidgetSummary
+              title={session?.user?.roles === 'HOST' ? 'Quản gia ' : ' Tổng doanh thu cho chủ nhà '}
+              total={session?.user?.roles === 'HOST' ? totalButler : totalRevenue}
+              color="info"
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            />
+          </Grid>
+        )}
+        {session?.user?.roles === 'HOST' && (
+          <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
+            <AnalyticsWidgetSummary
+              title={session?.user?.roles === 'HOST' ? 'Hoa hồng cho seller' : 'Hoa hồng của bạn '}
+              total={commission}
+              color="error"
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+            />
+          </Grid>
+        )}
 
         {session?.user?.roles === 'HOST' && (
           <Grid xs={12} sm={6} md={3}>
@@ -201,26 +227,26 @@ export default function OverviewAnalyticsView() {
           </Grid>
         )}
 
-        <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 4 : 4}>
-          <AnalyticsWidgetSummary
-            title={' Tổng villa & homestay đã bán'}
-            total={totalResidence}
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
-          />
-        </Grid>
-
         <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title={' Tổng doanh thu cho chủ nhà '}
-            total={session?.user?.roles === 'HOST' ? totalButler : totalRevenue}
+            total={totalSellRevenue}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
         <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
+            title={' Tổng villa & homestay đã bán'}
+            total={totalSellResidence}
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+          />
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4}>
+          <AnalyticsWidgetSummary
             title={'Hoa hồng của bạn '}
-            total={commission}
+            total={totalSellCommission}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />
@@ -253,14 +279,14 @@ export default function OverviewAnalyticsView() {
                       : 'Hoa hồng',
                   type: 'column',
                   fill: 'solid',
-                  data: Array.isArray(thisYear) ? thisYear : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  data: session?.user?.roles === 'HOST' ? thisYear : sellThisYear,
                 },
                 {
                   name:
                     session?.user?.roles === 'HOST' ? 'Tổng thu năm trước' : 'Hoa hồng năm trước',
                   type: 'area',
                   fill: 'gradient',
-                  data: Array.isArray(lastYear) ? lastYear : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  data: session?.user?.roles === 'HOST' ? lastYear : sellLastYear,
                 },
               ],
             }}
@@ -288,9 +314,7 @@ export default function OverviewAnalyticsView() {
           lg={session?.user?.roles === 'HOST' ? 12 : 8}
         >
           <AnalyticsConversionRates
-            title={
-              session?.user?.roles === 'HOST' ? 'Tổng  thu từng căn' : 'Căn Villa & homestay đã bán'
-            }
+            title={'Căn Villa & homestay đã bán'}
             chart={{
               series: Array.isArray(listTopResidence)
                 ? listTopResidence

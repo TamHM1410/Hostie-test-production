@@ -183,17 +183,6 @@ export default function NotificationItem({ notification }: NotificationItemProps
     </Stack>
   );
 
-  //  case 'BOOKING_UPDATED':
-  //   return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : friendAction;
-  //       case 'HOLD_CREATED':
-  //   return notification.entity_details.is_host_accept === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : acceptOrCancelHold;
-  //       case 'HOST_ACCEPTED_BOOKING':
-  //   return notification.entity_details.is_seller_transfer === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : paymentAction;
-  //       case 'SELLER_TRANSFERRED':
-  //   return notification.entity_details.is_host_receive === true ? <Typography sx={{ marginTop: 1, color: "#30e0ff" }}></Typography> : confirm;
-  //       case 'HOST_ACCEPTED_HOLD':
-  //   return bookNow;
-
   const renderAction = () => {
     switch (notification.event_code) {
       case 'HOST_REJECTED_BOOKING':

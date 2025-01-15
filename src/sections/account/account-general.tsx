@@ -11,14 +11,19 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 // hooks
 // utils
 import { fData } from 'src/utils/format-number';
 // assets
-import Image from 'next/image'; // components
+import Image from 'next/image';
+// components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
+import { Plus as PlusIcon, Trash as TrashIcon } from 'lucide-react';
 
 import { updateUserById, getUserInfor } from 'src/api/users';
 // ----------------------------------------------------
@@ -26,62 +31,24 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 /// type
 import { UserInfor } from 'src/types/users';
 import { useDefaultAvatar } from 'src/hooks/use-avatar';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Textfield from '../_examples/mui/textfield-view/textfield';
 import { useGetUserCurrentRole } from 'src/zustand/user';
 
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
-
-
 export default function AccountGeneral(props: any) {
-
-  
-
-  const {updateUserInfo}=useUserManagement()
+  const { updateUserInfo } = useUserManagement();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { userData, bankName = [] } = props;
   const { defaultAvatar } = useDefaultAvatar();
-
-
-  const updateInfor = async (payload: any) => {
-    const res = await updateUserInfo(payload);
-   
-    return res
-  };
-
-  // Add show more/less state
-  const [visibleBanks, setVisibleBanks] = useState(2);
-  const [isShowingAll, setIsShowingAll] = useState(false);
-
-  const toggleShowMore = () => {
-    if (isShowingAll) {
-      setVisibleBanks(2);
-    } else {
-      setVisibleBanks(bankList.length);
-    }
-    setIsShowingAll(!isShowingAll);
-  };
-
-  const handleChange = (event: SelectChangeEvent, index: number) => {
-    setBankList((prevBankList) =>
-      prevBankList.map((bank, i) => (i === index ? { ...bank, bankId: event.target.value } : bank))
-    );
-    setValue(`bankAccounts[${index}].bankId`, event.target.value);
-  };
+  const { userCurrentRole } = useGetUserCurrentRole();
 
   const [phoneList, setPhoneList] = useState<any[]>(() =>
     userData?.phones && Array.isArray(userData?.phones) && userData?.phones.length > 0
       ? userData?.phones
-      : [
-          {
-            phone: '',
-            status: 2,
-          },
-        ]
+      : [{ phone: '', status: 2 }]
   );
 
   const [bankList, setBankList] = useState<any[]>(() =>
@@ -89,19 +56,13 @@ export default function AccountGeneral(props: any) {
     Array.isArray(userData?.bankAccounts) &&
     userData?.bankAccounts.length > 0
       ? userData?.bankAccounts
-      : [
-          {
-            accountNo: 0,
-            accountHolder: '',
-            status: 2,
-            bankId: 0,
-          },
-        ]
+      : [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]
   );
 
+  const [visibleBanks, setVisibleBanks] = useState(2);
+  const [isShowingAll, setIsShowingAll] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isEditImage, setEditImage] = useState(false);
-  const { userCurrentRole } = useGetUserCurrentRole();
 
   const UpdateUserSchema = Yup.object().shape({
     firstName: Yup.string().required('Tên là bắt buộc'),
@@ -119,8 +80,8 @@ export default function AccountGeneral(props: any) {
     ),
     bankAccounts: Yup.array().of(
       Yup.object().shape({
-        accountNo: Yup.number().required('Số điện thoại chỉ được phép là chữ số'),
-        bankId: Yup.number().required('Bank is required'),
+        accountNo: Yup.number().required('Số tài khoản là bắt buộc'),
+        bankId: Yup.number().required('Ngân hàng là bắt buộc'),
         accountHolder: Yup.string().required('Tên chủ thẻ là bắt buộc'),
         status: Yup.number().notRequired(),
         id: Yup.number().notRequired(),
@@ -128,32 +89,73 @@ export default function AccountGeneral(props: any) {
     ),
   });
 
-  const defaultValues: any = {
-    firstName: userData?.firstName,
-    middleName: userData?.middleName,
-    lastName: userData?.lastName,
-    phones: phoneList,
-    email: userData?.email,
-    bankAccounts: bankList,
-  };
-
   const methods = useForm({
     resolver: yupResolver(UpdateUserSchema),
-    defaultValues,
+    defaultValues: {
+      firstName: userData?.firstName,
+      middleName: userData?.middleName,
+      lastName: userData?.lastName,
+      phones: phoneList,
+      email: userData?.email,
+      bankAccounts: bankList,
+    },
   });
 
   const {
     setValue,
     handleSubmit,
     formState: { isSubmitting },
+    getValues,
   } = methods;
+
+  const handleAddPhone = () => {
+    const currentPhones = getValues('phones') || [];
+    setValue('phones', [...currentPhones, { phone: '', status: 2 }]);
+    setPhoneList((prev) => [...prev, { phone: '', status: 2 }]);
+  };
+
+  const handleRemovePhone = (index: number) => {
+    const currentPhones = getValues('phones');
+    const updatedPhones = currentPhones.filter((_: any, i: number) => i !== index);
+    setValue('phones', updatedPhones);
+    setPhoneList(updatedPhones);
+  };
+
+  const handleAddBank = () => {
+    const currentBanks = getValues('bankAccounts') || [];
+    setValue('bankAccounts', [...currentBanks, { accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
+    setBankList((prev) => [...prev, { accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
+  };
+
+  const handleRemoveBank = (index: number) => {
+    const currentBanks = getValues('bankAccounts');
+    const updatedBanks = currentBanks.filter((_: any, i: number) => i !== index);
+    setValue('bankAccounts', updatedBanks);
+    setBankList(updatedBanks);
+  };
+
+  const handleChange = (event: SelectChangeEvent, index: number) => {
+    setBankList((prevBankList) =>
+      prevBankList.map((bank, i) => (i === index ? { ...bank, bankId: event.target.value } : bank))
+    );
+    setValue(`bankAccounts[${index}].bankId`, event.target.value);
+  };
+
+  const toggleShowMore = () => {
+    if (isShowingAll) {
+      setVisibleBanks(2);
+    } else {
+      setVisibleBanks(bankList.length);
+    }
+    setIsShowingAll(!isShowingAll);
+  };
 
   const { mutate }: any = useMutation({
     mutationFn: (payload) => updateUserInfo(payload),
     onSuccess: () => {
       enqueueSnackbar('Cập nhật thành công!');
       setIsEdit(!isEdit);
-    }
+    },
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -222,7 +224,7 @@ export default function AccountGeneral(props: any) {
               <>
                 <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
                   <Image
-                    alt="cmm"
+                    alt="avatar"
                     src={userData?.urlAvatar || defaultAvatar}
                     width={120}
                     height={120}
@@ -265,16 +267,14 @@ export default function AccountGeneral(props: any) {
             )}
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
-              {userCurrentRole ==="HOST" && "Chủ nhà"}
-              {userCurrentRole ==="SELLER" && "Người bán"}
-              {userCurrentRole ==="HOUSEKEEPER" && "Người quản gia"}
-              {userCurrentRole ==="ADMIN" && "Quản trị viên"}
-
-
-
+              {userCurrentRole === "HOST" && "Chủ nhà"}
+              {userCurrentRole === "SELLER" && "Người bán"}
+              {userCurrentRole === "HOUSEKEEPER" && "Người quản gia"}
+              {userCurrentRole === "ADMIN" && "Quản trị viên"}
             </Button>
+
             <Box sx={{ mt: 3, display: 'flex', width: '100%', justifyContent: 'center', gap: 2 }}>
-              <span> Mã giới thiệu của bạn:</span>
+              <span>Mã giới thiệu của bạn:</span>
               <Box>{userData?.referenceCode}</Box>
             </Box>
           </Card>
@@ -295,64 +295,91 @@ export default function AccountGeneral(props: any) {
               <RHFTextField name="firstName" label="Tên" disabled={!isEdit} />
               <RHFTextField name="middleName" label="Tên đệm" disabled={!isEdit} />
               <RHFTextField name="lastName" label="Họ" disabled={!isEdit} />
-              {userData?.phones &&
-                phoneList.map((phone, index) => (
-                  <RHFTextField
-                    key={index}
-                    name={`phones[${index}].phone`}
-                    label={`Số điện thoại `}
-                    disabled={!isEdit}
-                    defaultValue={phone?.phone}
-                  />
-                ))}
-
-              <RHFTextField name="email" label="Email" disabled={!isEdit} />
             </Box>
-            
-            <Typography sx={{ mt: 3 }}>Tài khoản ngân hàng</Typography>
-            {bankList &&
-              Array.isArray(bankList) &&
-              bankList.slice(0, visibleBanks).map((item, index) => (
-                <Stack key={index} spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
-                  <RHFTextField
-                    name={`bankAccounts[${index}].accountNo`}
-                    rows={4}
-                    label="Số tài khoản"
-                    disabled={!isEdit}
-                  />
 
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Age"
-                    onChange={(e: any) => handleChange(e, index)}
-                    fullWidth
-                    value={bankList[index]?.bankId}
-                    name={`bankAccounts[${index}].bankId`}
-                    disabled={!isEdit}
-                  >
-                    {bankName &&
-                      Array.isArray(bankName) &&
-                      bankName.length > 0 &&
-                      bankName.map((bank: any) => (
+            <Typography sx={{ mt: 3 }}>Số điện thoại</Typography>
+            {phoneList.map((phone, index) => (
+              <Stack key={index} direction="row" spacing={2} sx={{ mt: 2 }}>
+                <RHFTextField
+                  name={`phones[${index}].phone`}
+                  label={`Số điện thoại ${index + 1}`}
+                  disabled={!isEdit}
+                  fullWidth
+                />
+                {isEdit && phoneList.length > 1 && (
+                  <IconButton onClick={() => handleRemovePhone(index)} color="error">
+                    <TrashIcon />
+                  </IconButton>
+                )}
+              </Stack>
+            ))}
+            {isEdit && (
+              <Button
+                startIcon={<PlusIcon />}
+                onClick={handleAddPhone}
+                sx={{ mt: 2 }}
+                variant="outlined"
+              >
+                Thêm số điện thoại
+              </Button>
+            )}
+
+            <RHFTextField name="email" label="Email" disabled={!isEdit} sx={{ mt: 3 }} />
+
+            <Typography sx={{ mt: 3 }}>Tài khoản ngân hàng</Typography>
+            {bankList.slice(0, visibleBanks).map((item, index) => (
+              <Stack key={index} spacing={3} sx={{ mt: 3 }}>
+                <Stack direction="row" spacing={2}>
+                  <Box flex={1}>
+                    <RHFTextField
+                      name={`bankAccounts[${index}].accountNo`}
+                      label="Số tài khoản"
+                      disabled={!isEdit}
+                    />
+
+                    <Select
+                      labelId={`bank-select-${index}`}
+                      value={bankList[index]?.bankId}
+                      onChange={(e) => handleChange(e, index)}
+                      fullWidth
+                      disabled={!isEdit}
+                      sx={{ mt: 2 }}
+                    >
+                      {bankName.map((bank: any) => (
                         <MenuItem key={bank.id} value={bank.id}>
                           {bank?.vnName}
                         </MenuItem>
                       ))}
-                  </Select>
+                    </Select>
 
-                  <RHFTextField
-                    name={`bankAccounts[${index}].accountHolder`}
-                    rows={4}
-                    label="Chủ thẻ"
-                    defaultValue={item.accountHolder}
-                    disabled={!isEdit}
-                  />
+                    <RHFTextField
+                      name={`bankAccounts[${index}].accountHolder`}
+                      label="Chủ thẻ"
+                      disabled={!isEdit}
+                      sx={{ mt: 2 }}
+                    />
+                  </Box>
+                  {isEdit && bankList.length > 1 && (
+                    <IconButton onClick={() => handleRemoveBank(index)} color="error">
+                      <TrashIcon />
+                    </IconButton>
+                  )}
                 </Stack>
-              ))}
+              </Stack>
+            ))}
 
-            {/* Show more/less button */}
-            {bankList && bankList.length > 2 && (
+            {isEdit && (
+              <Button
+                startIcon={<PlusIcon />}
+                onClick={handleAddBank}
+                sx={{ mt: 2 }}
+                variant="outlined"
+                >
+                Thêm tài khoản ngân hàng
+              </Button>
+            )}
+
+            {bankList.length > 2 && (
               <Button
                 onClick={toggleShowMore}
                 sx={{
@@ -375,19 +402,36 @@ export default function AccountGeneral(props: any) {
               sx={{ mt: 3 }}
             >
               {isEdit && (
-                <LoadingButton variant="contained" loading={isSubmitting} type="submit">
-                  Lưu và thay đổi
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  loading={isSubmitting}
+                >
+                  Lưu thay đổi
                 </LoadingButton>
               )}
-              <LoadingButton
+              <Button
                 variant="contained"
                 onClick={() => {
                   setIsEdit(!isEdit);
                   setEditImage(isEditImage === false ? isEditImage : !isEditImage);
+                  // Reset form to initial values when canceling
+                  if (isEdit) {
+                    methods.reset({
+                      firstName: userData?.firstName,
+                      middleName: userData?.middleName,
+                      lastName: userData?.lastName,
+                      phones: userData?.phones || [{ phone: '', status: 2 }],
+                      email: userData?.email,
+                      bankAccounts: userData?.bankAccounts || [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }],
+                    });
+                    setPhoneList(userData?.phones || [{ phone: '', status: 2 }]);
+                    setBankList(userData?.bankAccounts || [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
+                  }
                 }}
               >
-                {isEdit ? 'Hủy bỏ' : 'Sửa'}
-              </LoadingButton>
+                {isEdit ? 'Hủy bỏ' : 'Chỉnh sửa'}
+              </Button>
             </Stack>
           </Card>
         </Grid>

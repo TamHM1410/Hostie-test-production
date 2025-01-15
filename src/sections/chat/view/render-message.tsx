@@ -72,9 +72,6 @@ const Chat = () => {
 
   const group_id = searchParam.get('group_id');
 
-
-
-
   const messageEndRef = useRef<HTMLDivElement | null>(null);
 
   const nearestMessageEndRef = useRef<any>(null);
@@ -84,49 +81,30 @@ const Chat = () => {
   const messageRef = useRef<any[]>([]);
   const page = useRef<number>(1);
 
-  const { updateConversation, updateMsg ,listMsg,listConver} = useConversation();
+  const { updateConversation, updateMsg, listMsg, listConver } = useConversation();
   const [listConversation, setListConversation] = useState<any[]>([]);
   const [detailMessage, setDetailMessage] = useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isUploadImage, setIsUploadImage] = useState(false);
-  
+
   useQueries({
     queries: [
       {
         queryKey: ['listConversation'],
         queryFn: async () => {
-          // if(Array.isArray(listConver) && listConver.length>1){
-          //   setListConversation(listConver)
-          //   return listConver
-
-          // }
-
           const res = await getListConversation();
-          if(res){
+          if (res) {
             setListConversation(res.data?.result || []);
           }
-          
 
-          // updateConversation(res.data?.result || []);
           return res;
         },
       },
       {
-        queryKey: ['listMessage',group_id],
+        queryKey: ['listMessage', group_id],
         queryFn: async () => {
           if (group_id) {
-            // const localMessages = Object.entries(listMsg).find(
-            //   ([key, value]) => key ===group_id && Array.isArray(value) && value.length > 10
-            // );
-            //          console.log(localMessages,'local nmess')  
-            // if (localMessages) {
-            //   const [, value] = localMessages;
-              
-            //   setDetailMessage(value); // Sử dụng dữ liệu cục bộ nếu có đủ tin nhắn
-            //   return value; // Trả về dữ liệu giả lập để đồng bộ
-            // }
-            
             const res = await getListGroupMessage(group_id, page.current);
             const sortedMessages = Array.isArray(res.data?.result)
               ? res.data.result.sort((a: any, b: any) => a.id - b.id)
@@ -154,7 +132,6 @@ const Chat = () => {
   });
 
   const { reset, handleSubmit } = methods;
-
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
@@ -199,15 +176,15 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id||group_id) {
       socket.emit('subscribe', { room_id: session?.user?.id });
 
       socket.on('common.chat.receive_message', (msg) => {
+
         if (msg?.sender_id !== Number(session.user.id)) {
           messageRef.current.push(msg);
-
           setDetailMessage([...messageRef.current]);
-          updateMsg(...messageRef.current,id)
+          updateMsg(...messageRef.current, id);
           notificationSound?.play();
         }
 
@@ -218,30 +195,30 @@ const Chat = () => {
         }
 
         setDetailMessage([...messageRef.current]);
-        updateMsg(...messageRef.current,id)
-
+        updateMsg(...messageRef.current, id);
       });
 
       return () => {
         socket.off('common.chat.receive_message');
       };
     }
-  }, [id, session?.user?.id]);
+  }, [id, session?.user?.id,group_id]);
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
+
+
     if (!isLoadingMore && nearestMessageEndRef.current) {
       nearestMessageEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      nearestMessageEndRef.current = null; // Reset ref sau khi cuộn
+      nearestMessageEndRef.current = null; 
     }
     if (!isLoadingMore) {
       scrollToBottom();
     }
   }, [isLoadingMore]);
-
 
   return (
     <div>
@@ -261,7 +238,7 @@ const Chat = () => {
               <ListItemIcon>
                 <Avatar alt="Remy Sharp" src={session?.user?.urlAvatar} />
               </ListItemIcon>
-              <ListItemText primary="Bạn" />
+              <ListItemText primary={session?.user?.name} />
             </ListItem>
           </List>
           <Divider />
@@ -291,8 +268,8 @@ const Chat = () => {
           <Divider />
 
           {/* Messages */}
-        
-          {(group_id|| id) && detailMessage && Array.isArray(detailMessage) ? (
+
+          {(group_id || id) && detailMessage && Array.isArray(detailMessage) ? (
             <Box className={classes.messagesWrapper}>
               <div
                 id="scrollableDiv"
@@ -308,15 +285,15 @@ const Chat = () => {
                   next={handleLoadMoreMessage}
                   hasMore={hasMore}
                   loader={
-                    <Typography sx={{ textAlign: 'center', py: 2 }}>{messageRef.current.length >8 &&'⏳ Đang tải lên...'}</Typography>
+                    <Typography sx={{ textAlign: 'center', py: 2 }}>
+                      {messageRef.current.length > 8 && '⏳ Đang tải lên...'}
+                    </Typography>
                   }
                   style={{ display: 'flex', flexDirection: 'column-reverse' }}
                   inverse
                   scrollableTarget="scrollableDiv"
                 >
                   <List>
-              
-
                     {detailMessage.map((item, index) => (
                       <ChatSection key={index} item={item} index={index} />
                     ))}
@@ -339,12 +316,14 @@ const Chat = () => {
           )}
 
           {/* Input Area */}
-          {(group_id|| id) && (
+          {(group_id || id) && (
             <Box className={classes.inputArea}>
               <FormProvider methods={methods} onSubmit={onSubmit}>
                 <Tiptap
-                checkNewGroup={(listConversation && listConversation.length>0) ?  listConversation[0] :[]}
-                 group_id={group_id}
+                  checkNewGroup={
+                    listConversation && listConversation.length > 0 ? listConversation[0] : []
+                  }
+                  group_id={group_id}
                   id={id}
                   setDetailMessage={setDetailMessage}
                   messageRef={messageRef}
@@ -357,7 +336,7 @@ const Chat = () => {
           )}
         </Grid>
       </Grid>
-      <CallModal/>
+      <CallModal />
     </div>
   );
 };

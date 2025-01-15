@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Grid, FormControl, Select, MenuItem, Tooltip } from '@mui/material';
+import { Grid, FormControl, Select, MenuItem, Tooltip ,Box} from '@mui/material';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 //  @util
 import { formattedAmountCalender } from 'src/utils/format-time';
@@ -15,7 +15,6 @@ import CustomCalendarPicker from './CustomCalenderPicker';
 
 //  @zustand
 
-//
 import './Booking.Module.css';
 
 const LoadingRow = ({ columnsCount }) => (
@@ -219,16 +218,19 @@ export default function BookingTableCalendar({
                           fetchResidenceInfor(villa.id);
                         }
                       }}
-                      style={{ color: 'rgb(76 84 90)', textAlign: 'center', minWidth: 300 }}
+                      style={{ color: 'rgb(76 84 90)', textAlign: 'start', minWidth: 300 ,display:'flex',gap:2}}
                     >
                       {mapUsersOnline.get(villa.host_id) ? 
-                       <Tooltip title="Chủ nhà hiện đang online">
+                      <Box sx={{display:'flex',alignItems:'center'}}>
+                         <Tooltip title="Chủ nhà hiện đang online">
                        <FiberManualRecordIcon color='success'/>
                      </Tooltip>
+                      </Box>
                      : 
-                     <Tooltip title="Chủ nhà hiện đang offline">
-                       <FiberManualRecordIcon color='disabled'/>
-                     </Tooltip>
+                     <Box sx={{display:'flex',alignItems:'center'}}><Tooltip title="Chủ nhà hiện đang offline">
+                     <FiberManualRecordIcon color='disabled'/>
+                   </Tooltip></Box>
+
                      }
                       {villa.name }{' '}
                       <Tooltip title="Hoa hồng cho căn hộ này">
