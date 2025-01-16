@@ -125,7 +125,7 @@ const UserTable = (props: any) => {
             cell.getValue()[0]?.name &&
             cell.getValue()[0]?.name === 'SELLER' && (
               <Chip
-                label="Người bán"
+                label="Môi giới"
                 variant="soft"
                 color="primary"
                 sx={{ width: 130 }}

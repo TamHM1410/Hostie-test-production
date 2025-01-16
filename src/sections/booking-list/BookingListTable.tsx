@@ -47,7 +47,8 @@ import { MoreVerticalIcon } from 'lucide-react';
 import { formattedAmount } from '../../utils/format-time';
 import ServicePolicyList from '../service/service-detail/service-policy-list';
 import { useSession } from 'next-auth/react';
-
+import Chat from '@mui/icons-material/Chat';
+import { useRouter } from 'next/navigation';
 import RefundDialog from './RefundedDialog';
 import SellerConfirmRefunded from './SellerConfirmReceiveDialog';
 //  @api
@@ -75,6 +76,9 @@ interface BookingListTableProps {
 }
 
 const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
+
+  const router=useRouter()
+  
   const [openDialog, setOpenDialog] = useState(false);
 
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
@@ -232,10 +236,11 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 100,
 
         Cell: ({ cell, row }: any) => {
+          console.log(row.original,'row original')
           if (row.original.status === 0)
             return (
               <Chip
-                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund ===true ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -256,7 +261,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -277,7 +282,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -298,7 +303,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={!row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_host_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -347,7 +352,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 <List>
                   {row.original.status === 0 ? (
                     <>
-                    {!row.original.is_host_refunded && (
+                    {!row.original.is_seller_receive_refund && row.original.is_refund && (
                         <ListItem disablePadding>
                           <ListItemButton
                             onClick={() => {
@@ -381,6 +386,21 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
+                            let id =session?.user.roles ==='HOST' ? row.original?.seller_id:row.original?.host_id 
+
+                            router.push(`/dashboard/chat/?id=${id}`)
+                          
+                          }}
+                        >
+                          <ListItemIcon>
+                          <Chat  />
+                          </ListItemIcon>
+                          <ListItemText primary={session?.user.roles ==='HOST' ? 'Nhắn tin cho môi giới':'Nhắn tin cho chủ nhà'} />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          onClick={() => {
                             handleOpenReportDialog();
                             handleClose();
 
@@ -393,7 +413,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <ListItemText primary="Báo cáo vấn đề" />
                         </ListItemButton>
                       </ListItem>
-                      {!row.original.is_refund && session?.user.roles === 'HOST' && (
+                      {!row.original.is_host_refund && session?.user.roles === 'HOST' &&row.original.is_refund && (
                         <ListItem disablePadding>
                           <ListItemButton
                             onClick={() => {
@@ -425,6 +445,21 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                             <CalendarMonthRounded />
                           </ListItemIcon>
                           <ListItemText primary="Xem nhật kí đặt nơi lưu trú" />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          onClick={() => {
+
+                            let id =session?.user.roles ==='HOST' ? row.original?.seller_id:row.original?.host_id 
+                          router.push(`/dashboard/chat/?id=${id}`)
+
+                          }}
+                        >
+                          <ListItemIcon>
+                          <Chat  />
+                          </ListItemIcon>
+                          <ListItemText primary={session?.user.roles ==='HOST' ? 'Nhắn tin cho môi giới':'Nhắn tin cho chủ nhà'}/>
                         </ListItemButton>
                       </ListItem>
                       <ListItem disablePadding>
@@ -509,6 +544,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const get_refund_api = async (booking_id: any) => {
     const res = await get_refund(booking_id);
     setRefunded(res.data);
+    console.log(res.data,'refundedds')
     return res;
   };
 
@@ -645,7 +681,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                           <TableRow>
                             <TableCell>
                               <Typography variant="body2" fontWeight={600}>
-                                Phí hủy (cho người bán):
+                                Phí hủy (cho Môi giới):
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -662,14 +698,14 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                               {formatCurrencyVND(detail.cancel_fee_currency.for_customer)}
                             </TableCell>
                           </TableRow>
-                          <TableRow>
+                          {/* <TableRow>
                             <TableCell>
                               <Typography variant="body2" fontWeight={600}>
                                 Số ngày đặt:
                               </Typography>
                             </TableCell>
                             <TableCell>{detail.total_booking_day} ngày</TableCell>
-                          </TableRow>
+                          </TableRow> */}
                           <TableRow>
                             <TableCell>
                               <Typography variant="body2" fontWeight={600}>
@@ -677,7 +713,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              Chủ nhà: {formatCurrencyVND(detail.refund.host_refund)} | Người bán:{' '}
+                              Chủ nhà: {formatCurrencyVND(detail.refund.host_refund)} | Môi giới:{' '}
                               {formatCurrencyVND(detail.refund.seller_refund)}
                             </TableCell>
                           </TableRow>

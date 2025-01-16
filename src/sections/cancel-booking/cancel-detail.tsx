@@ -81,7 +81,7 @@ export default function CancelDetail({refunded}:any){
                           <TableRow>
                             <TableCell>
                               <Typography variant="body2" fontWeight={600}>
-                                Phí hủy (cho người bán):
+                                Phí hủy (cho Môi giới):
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -113,7 +113,7 @@ export default function CancelDetail({refunded}:any){
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              Chủ nhà: {formatCurrencyVND(detail.refund.host_refund)} | Người bán:{' '}
+                              Chủ nhà: {formatCurrencyVND(detail.refund.host_refund)} | Môi giới:{' '}
                               {formatCurrencyVND(detail.refund.seller_refund)}
                             </TableCell>
                           </TableRow>

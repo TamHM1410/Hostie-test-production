@@ -1,26 +1,17 @@
 import React, { useRef, useState } from 'react';
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Box } from '@mui/material';
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-
 import './swiper-slider.css';
-
-// import required modules
 import { Pagination, Navigation } from 'swiper/modules';
 import Image from 'next/image';
 
 export default function SwiperSlider({images}:any) {
   return (
-    <>
-    <Box sx={{
-        height:'40vh'
-    }}>
-
-    <Swiper
+    <Box sx={{ height: 'auto' }}>
+      <Swiper
         pagination={{
           type: 'fraction',
         }}
@@ -28,26 +19,27 @@ export default function SwiperSlider({images}:any) {
         modules={[Pagination, Navigation]}
         className="mySwiper"
       >
-        {
-            Array.isArray(images) && images.length >0 && images.map((item,index)=>{
-                return (      
-                  <SwiperSlide>
-                    <Image src={item?.url} alt='' width={200} height={300} loading="eager"/>
-
-                </SwiperSlide>
-                )
-            })
+        {Array.isArray(images) && images.length > 0 && images.map((item, index) => (
+          <SwiperSlide key={index}>
+            <Image 
+              src={item?.url} 
+              alt=''
+              width={800}    // Tăng kích thước ảnh
+              height={600}   // Tăng kích thước ảnh
+              quality={100}  // Tăng chất lượng ảnh (0-100)
+              priority      // Ưu tiên tải ảnh này
+              style={{
+                objectFit: 'contain',  // hoặc 'cover' tùy nhu cầu
+                width: '100%',
+                height: '100%'
+              }}
+            />
+          </SwiperSlide>
+        ))}
+        {Array.isArray(images) && images.length === 0 && 
+          <SwiperSlide>Chưa có hình ảnh chứng minh</SwiperSlide>
         }
-        {
-            Array.isArray(images) && images.length ===0 &&  <SwiperSlide>Chưa có hình ảnh chứng minh</SwiperSlide>
-        }
-       
-      
-     
       </Swiper>
-
     </Box>
-     
-    </>
   );
 }

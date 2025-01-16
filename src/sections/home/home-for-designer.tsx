@@ -42,7 +42,7 @@ export default function HomeForDesigner() {
             ),
           }}
         >
-         Dành riêng cho chủ nhà  và người bán
+         Dành riêng cho chủ nhà  và Môi giới
         </Typography>
       </m.div>
 

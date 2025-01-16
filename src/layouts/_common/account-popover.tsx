@@ -106,7 +106,7 @@ export default function AccountPopover() {
         )}
 
         {session?.user?.roles === 'SELLER' && (
-          <Chip label={'Người bán'} sx={{ height: 20 }} color="primary" variant="soft" />
+          <Chip label={'Môi giới'} sx={{ height: 20 }} color="primary" variant="soft" />
         )}
 
         {session?.user?.roles === 'ADMIN' && (

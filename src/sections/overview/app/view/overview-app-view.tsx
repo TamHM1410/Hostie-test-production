@@ -191,7 +191,7 @@ export default function OverviewAppView() {
             chart={{
               series: [
                 { label: 'Chủ nhà', value: totalUser?.total_host },
-                { label: 'Người bán', value: totalUser?.total_seller },
+                { label: 'Môi giới', value: totalUser?.total_seller },
                 { label: 'Quản gia', value: totalUser?.total_butler },
                 { label: 'Người dùng chưa nâng cấp', value: totalUser?.total_user_chuamuagoi },
               ],

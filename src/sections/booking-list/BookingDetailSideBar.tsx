@@ -74,9 +74,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
       return '';
     },
   });
-
   
-
   return (
     <Drawer
       anchor="right"

@@ -15,7 +15,7 @@ import { Chip } from '@mui/material';
 // import RoleActionMenu from './role-action-menu';
 const columnHelper = createMRTColumnHelper<any>();
 
-const statusOption = ['Hết hạn', 'Đang xử lý,', 'Thành công', 'Thất bại '];
+const statusOption = [' Dừng hoạt động', 'Đang xử lý,', 'Thành công', 'Thất bại '];
 
 const PurchaseHistory = (props: any) => {
   const { data = [] } = props;
@@ -119,7 +119,7 @@ const PurchaseHistory = (props: any) => {
       size: 210,
       Cell: ({ cell }: any) => (
         <span>
-          {cell.getValue() === true && <Chip label={'Đang dùng'} variant="soft" color="success" />}
+          {cell.getValue() === true && <Chip label={'Đang hoạt động'} variant="soft" color="success" />}
           {cell.getValue() === false && <Chip label={statusOption[0]} variant="soft" color="default" />}
 
           {cell.getValue() === "SUCCESS" && <Chip label={statusOption[2]} variant="soft" color="success" />}

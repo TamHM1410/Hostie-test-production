@@ -8,7 +8,7 @@ import Iconify from 'src/components/iconify';
 const TABS = [
   {
     value: 'user',
-    label: 'Chủ nhà hoặc người bán',
+    label: 'Chủ nhà hoặc Môi giới',
     icon: <Iconify icon="fa-solid:user-tie" width={24} />,
   },
 

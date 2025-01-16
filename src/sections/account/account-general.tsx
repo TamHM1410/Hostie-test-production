@@ -268,7 +268,7 @@ export default function AccountGeneral(props: any) {
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
               {userCurrentRole === "HOST" && "Chủ nhà"}
-              {userCurrentRole === "SELLER" && "Người bán"}
+              {userCurrentRole === "SELLER" && "Môi giới"}
               {userCurrentRole === "HOUSEKEEPER" && "Người quản gia"}
               {userCurrentRole === "ADMIN" && "Quản trị viên"}
             </Button>

@@ -28,6 +28,8 @@ const columnHelper = createMRTColumnHelper<UserManagement | any>();
 const UserPendingTable = (props: any) => {
   const { data = [] } = props;
 
+
+
   const { currenUserSelected, updateUserSelected } = useCurrentUser();
 
   const [openActiveModal, setOpenActive] = useState(false);
@@ -90,9 +92,9 @@ const UserPendingTable = (props: any) => {
       header: 'Liên kết mạng xã hội',
       size: 220,
       Cell: ({ cell }: any) => {
-        if (Array.isArray(cell.getValue) && cell.getValue.length > 0) {
-          cell.getValue().map((item: any) => {
-            return <a>{item}</a>;
+        if (Array.isArray(cell.getValue()) && cell.getValue().length > 0) {
+        return   cell.getValue().map((item: any) => {
+            return <a key={item?.url} href={item?.url}>{item?.url}</a>;
           });
         }
         return <>N/A</>;

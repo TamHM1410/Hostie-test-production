@@ -72,7 +72,8 @@ const ViewEvidenceModal = (props: any) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 500,
+            width: 'auto',
+            maxWidth:1000,
             height: 'auto',
             bgcolor: 'background.paper',
             borderRadius:2,
@@ -81,7 +82,7 @@ const ViewEvidenceModal = (props: any) => {
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-          Ảnh chứng minh nhân thân
+          Ảnh  liên quan
                     </Typography>
           <FormControl onSubmit={onSubmit} sx={{ width: '100%' }}>
             <Grid md={12} xs={8}>

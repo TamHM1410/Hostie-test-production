@@ -59,6 +59,9 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
       ),
   });
 
+
+  console.log(data,'refunded')
+
   const handleConfirmRefunded = async () => {
     try {
       setIsLoading(!isLoadingButton)
@@ -75,6 +78,8 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
 
     }
   };
+
+  console.log(data,'data')
   return (
     <Dialog open={open}>
       <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
@@ -84,7 +89,7 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
         <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
      
 
-          <DialogTitle>Thông tin QR Code và Chi tiết Ngân hàng của người bán</DialogTitle>
+          <DialogTitle>Thông tin QR Code và Chi tiết Ngân hàng của Môi giới</DialogTitle>
           {
             isLoading && <LoadingScreen/>
           }

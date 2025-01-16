@@ -107,7 +107,7 @@ const ManageHoldResidencesTable: React.FC<ManageHoldResidencesProps> = ({ rows }
 
             {
                 accessorKey: 'seller_name',
-                header: 'Tên Người Bán',
+                header: 'Tên Môi giới',
                 size: 200,
                 Cell: ({ cell }: any) => <Typography >{cell.getValue()}</Typography>,
             },
