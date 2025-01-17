@@ -32,7 +32,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
   const queryClient = useQueryClient();
 
   const cancelPolicySchema = Yup.object().shape({
-    name: Yup.string().required('Tên chính sách là bắt buộc'),
+    name: Yup.string().notRequired(),
     description: Yup.string().required('Mô tả là bắt buộc'),
     cancel_policies: Yup.array().of(
       Yup.object().shape({
@@ -56,7 +56,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
       {
         from: null,
         to: null,
-        fee: '',
+        fee: '100',
         time_unit_from: 'hours',
         time_unit_to: 'hours',
         cancelable: false,
@@ -74,6 +74,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
     register,
     reset,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = methods;
 
@@ -81,6 +82,8 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
     control,
     name: 'cancel_policies',
   });
+
+  console.log(watch('cancel_policies'), 'watch');
 
   const onSubmit = async (data: any) => {
     try {
@@ -130,13 +133,6 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
       <Card className="p-4" sx={{ padding: 5, mt: 2 }}>
         <Stack direction="row" justifyContent="space-between" className="mb-4">
           <Typography variant="h6">Chi tiết chính sách hủy</Typography>
-
-          <Button
-            startIcon={<AddCircleIcon />}
-            onClick={() => append(defaultValues.cancel_policies[0])}
-          >
-            Thêm chính sách
-          </Button>
         </Stack>
 
         {fields.map((field, index) => (
@@ -160,6 +156,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                   {...register(`cancel_policies.${index}.from`)}
                   error={!!errors.cancel_policies?.[index]?.from}
                   helperText={errors.cancel_policies?.[index]?.from?.message}
+                  disabled
                 />
               </Grid>
 
@@ -168,7 +165,9 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                   select
                   fullWidth
                   label="Đơn vị"
-                  {...register(`cancel_policies.${index}.time_unit_from`)}
+                  {...register(`cancel_policies.${index}.time_unit_from`)} 
+                  value={watch(`cancel_policies.${index}.time_unit_from`)} // Thêm dòng này
+
                   error={!!errors.cancel_policies?.[index]?.time_unit_from}
                   helperText={errors.cancel_policies?.[index]?.time_unit_from?.message}
                 >
@@ -233,6 +232,29 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
             </Grid>
           </Box>
         ))}
+
+        <Button
+          startIcon={<AddCircleIcon />}
+          onClick={() => {
+            const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
+            const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
+
+            console.log(lastPolicy, 'last');
+
+            if (lastPolicy) {
+              append({
+                ...lastPolicy, // Sao chép giá trị phần tử cuối
+                from: lastPolicy?.to,
+                to: null,
+                time_unit_from: lastPolicy?.time_unit_to,
+                time_unit_to: '',
+                fee: '',
+              });
+            }
+          }}
+        >
+          Thêm chính sách
+        </Button>
       </Card>
 
       <Box

@@ -1,7 +1,8 @@
+'use client'
 import { m, AnimatePresence } from 'framer-motion';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useRefreshedToken } from 'src/utils/hooks/useRefreshedToken';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -45,6 +46,8 @@ export default function CheckoutOrderComplete({ open }: Props | any) {
       setIsLoading(false);
     }
   };
+
+
   const renderContent = (
     <Stack
       spacing={5}
@@ -109,12 +112,7 @@ export default function CheckoutOrderComplete({ open }: Props | any) {
           PaperComponent={(props: PaperProps) => (
             <Box
               component={m.div}
-              {...varFade({
-                distance: 120,
-                durationIn: 0.32,
-                durationOut: 0.24,
-                easeIn: 'easeInOut',
-              }).inUp}
+             
               sx={{
                 width: 1,
                 height: 1,

@@ -21,7 +21,6 @@ export default function CancelPolicyView() {
     queryFn: () => get_all_policy(),
   });
 
-  const [isAddNew, setAddNew] = useState(false);
 
   if (isLoading) return <LoadingScreen />;
 
@@ -37,9 +36,7 @@ export default function CancelPolicyView() {
           }}
         />
 
-        
-
-          <ServicePolicyList data={data}/>
+        <ServicePolicyList data={data} />
       </Box>
     </>
   );

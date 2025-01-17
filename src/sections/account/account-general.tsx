@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useUserManagement } from 'src/api/useUserManagement';
 // @mui
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -25,7 +24,7 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
 import { Plus as PlusIcon, Trash as TrashIcon } from 'lucide-react';
 
-import { updateUserById, getUserInfor } from 'src/api/users';
+import LoadingButton from '@mui/lab/LoadingButton';
 // ----------------------------------------------------
 import { useMutation, useQuery } from '@tanstack/react-query';
 /// type
@@ -63,6 +62,8 @@ export default function AccountGeneral(props: any) {
   const [isShowingAll, setIsShowingAll] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isEditImage, setEditImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const UpdateUserSchema = Yup.object().shape({
     firstName: Yup.string().required('Tên là bắt buộc'),
@@ -155,11 +156,17 @@ export default function AccountGeneral(props: any) {
     onSuccess: () => {
       enqueueSnackbar('Cập nhật thành công!');
       setIsEdit(!isEdit);
+      setIsLoading(false)
     },
+    onError:()=>      setIsLoading(false)
+
   });
 
   const onSubmit = handleSubmit(async (data) => {
+    setIsLoading(true)
+
     try {
+
       const payload: UserInfor = {
         firstName: data.firstName,
         middleName: data.middleName,
@@ -172,11 +179,12 @@ export default function AccountGeneral(props: any) {
       setEditImage(false);
       mutate(payload);
       queryClient.invalidateQueries(['userTest'] as any);
+  
+
     } catch (error) {
-      console.error(error);
+      setIsLoading(false)
     }
   });
-
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
@@ -405,7 +413,8 @@ export default function AccountGeneral(props: any) {
                 <LoadingButton
                   type="submit"
                   variant="contained"
-                  loading={isSubmitting}
+                  disabled={isLoading}
+                  loading={isLoading}
                 >
                   Lưu thay đổi
                 </LoadingButton>

@@ -56,16 +56,15 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
-  const { userCurrentRole } = useGetUserCurrentRole();
   const {data:session}=useSession()
 
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
-    if (!userCurrentRole) {
+    if (!session?.user.roles) {
       router.push('/auth/jwt/login');
     }
-  }, [userCurrentRole, router]);
+  }, [session]);
 
   const data = useMemo(
     () => [

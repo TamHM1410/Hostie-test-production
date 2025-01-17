@@ -1,4 +1,3 @@
-'use client'
 
 import CheckoutOrderComplete from "src/sections/checkout/checkout-order-complete";
 

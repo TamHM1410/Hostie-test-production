@@ -167,13 +167,7 @@ export default function Header() {
             {mdUp && !session && <LoginButton />}
 
             {mdUp && session && <PositionedMenu />}
-            {/* 
-            <SettingsButton
-              sx={{
-                ml: { xs: 1, md: 0 },
-                mr: { md: 2 },
-              }}
-            /> */}
+           
 
             {!mdUp && !session && <NavMobile offsetTop={offsetTop} data={navMobileConfig} />}
             {!mdUp && session && <PositionedMenu />}

@@ -236,11 +236,10 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 100,
 
         Cell: ({ cell, row }: any) => {
-          console.log(row.original,'row original')
           if (row.original.status === 0)
             return (
               <Chip
-                label={row.original.is_refund ===true ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund &&!row.original.is_seller_receive_refund     ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -261,7 +260,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund &&!row.original.is_seller_receive_refund    ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -282,7 +281,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={row.original.is_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund &&!row.original.is_seller_receive_refund   ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -291,7 +290,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           return cell.getValue() === false ? (
             <Chip label="Chưa trả " variant="soft" color="default" />
           ) : (
-            <Chip label="Đã trả " variant="soft" color="success" />
+            <Chip label="Đã xác nhận " variant="soft" color="success" />
           );
         },
       },
@@ -303,7 +302,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           if (row.original.status === 0)
             return (
               <Chip
-                label={row.original.is_host_refund ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
+                label={row.original.is_refund &&!row.original.is_seller_receive_refund    ? 'Đã huỷ (chưa hoàn tiền)' : 'Đã huỷ '}
                 variant="soft"
                 color="error"
               />
@@ -312,7 +311,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           return cell.getValue() === false ? (
             <Chip label="Chưa trả " variant="soft" color="default" />
           ) : (
-            <Chip label="Đã trả " variant="soft" color="success" />
+            <Chip label="Đã nhận " variant="soft" color="success" />
           );
         },
       },
@@ -352,7 +351,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 <List>
                   {row.original.status === 0 ? (
                     <>
-                    {!row.original.is_seller_receive_refund && row.original.is_refund && (
+                    {!row.original.is_seller_receive_refund && row.original.is_refund&&session?.user.roles!=='HOST' && (
                         <ListItem disablePadding>
                           <ListItemButton
                             onClick={() => {
@@ -544,13 +543,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const get_refund_api = async (booking_id: any) => {
     const res = await get_refund(booking_id);
     setRefunded(res.data);
-    console.log(res.data,'refundedds')
     return res;
   };
 
   const get_policy = async (residenceId: any) => {
     const res = await get_all_policy(residenceId);
     setPolicyData(res);
+    console.log(res,'res')
     return res;
   };
 
@@ -560,7 +559,9 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   useEffect(() => {
     get_policy(residenceId);
   }, [residenceId]);
+  
 
+  console.log('refunded',refunded)
   return (
     <>
       <MaterialReactTable
@@ -593,9 +594,9 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
 
       <BookingLogsModal logs={logs} open={openLogs} onClose={handleCloseLogs} />
 
-      <Dialog open={openConfirmationDialog} onClose={handleCloseConfirmationDialog}>
+      <Dialog open={openConfirmationDialog} onClose={handleCloseConfirmationDialog} sx={{width:'auto'}} fullWidth   maxWidth="xl">
         <DialogTitle>Xác Nhận Hủy Đặt</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{width:'auto'}}>
           <DialogContentText>
             Bạn có chắc chắn muốn hủy đặt này? Hành động này sẽ không thể hoàn tác.
           </DialogContentText>
@@ -612,7 +613,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           {viewPolicy && policyData === null && <Box sx={{ py: 2 }}>Phí hủy mặc định là 100%</Box>}
           <Divider sx={{ my: 2 }} />
 
-          <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
+          <Card sx={{ maxWidth: 1200, margin: 'auto', mt: 4 ,width:1000}}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Chi tiết hoàn tiền
@@ -621,7 +622,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
               <Divider sx={{ my: 2 }} />
 
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <Typography variant="body1" color="text.secondary">
                     Số tiền đã thanh toán:
                   </Typography>
@@ -629,12 +630,20 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                     {formatCurrencyVND(refunded?.paid_amount)}{' '}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <Typography variant="body1" color="text.secondary">
-                    Hoàn tiền cho chủ nhà:
+                   Chủ nhà hoàn tiền cho bạn
                   </Typography>
                   <Typography variant="body2">
                     {formatCurrencyVND(refunded?.host_refund)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1" color="text.secondary">
+                   Số tiền bạn cần hoàn cho khách hàng
+                  </Typography>
+                  <Typography variant="body2">
+                    {formatCurrencyVND(refunded?.seller_refund)}
                   </Typography>
                 </Grid>
               </Grid>
@@ -698,14 +707,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                               {formatCurrencyVND(detail.cancel_fee_currency.for_customer)}
                             </TableCell>
                           </TableRow>
-                          {/* <TableRow>
-                            <TableCell>
-                              <Typography variant="body2" fontWeight={600}>
-                                Số ngày đặt:
-                              </Typography>
-                            </TableCell>
-                            <TableCell>{detail.total_booking_day} ngày</TableCell>
-                          </TableRow> */}
+                       
                           <TableRow>
                             <TableCell>
                               <Typography variant="body2" fontWeight={600}>
@@ -713,7 +715,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              Chủ nhà: {formatCurrencyVND(detail.refund.host_refund)} | Môi giới:{' '}
+                              Chủ nhà hoàn : {formatCurrencyVND(detail.refund.host_refund)} | Tiền cần hoàn cho khách :{' '}
                               {formatCurrencyVND(detail.refund.seller_refund)}
                             </TableCell>
                           </TableRow>

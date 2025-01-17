@@ -66,6 +66,7 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
     try {
       setIsLoading(!isLoadingButton)
       await host_cofirm_refunded(bookingSelected?.id);
+      toast.success('Đã xác nhận chuyển tiền')
 
       setOpen(!open);
     } catch (error) {

@@ -79,6 +79,7 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
     control,
     register,
     reset,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = methods;
@@ -180,12 +181,6 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
       <Card className="p-4" sx={{ padding: 5, mt: 2 }}>
         <Stack direction="row" justifyContent="space-between" className="mb-4">
           <Typography variant="h6">Chi tiết chính sách hủy</Typography>
-
-          {!isEdit && (
-            <Button startIcon={<AddCircleIcon />} onClick={handleAddPolicy}>
-              Thêm chính sách
-            </Button>
-          )}
         </Stack>
 
         {fields.map((field, index) => (
@@ -300,6 +295,30 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
             </Grid>
           </Box>
         ))}
+        {!isEdit && (
+          <Button
+            startIcon={<AddCircleIcon />}
+            onClick={() => {
+              const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
+              const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
+
+              console.log(lastPolicy, 'last');
+
+              if (lastPolicy) {
+                append({
+                  ...lastPolicy, // Sao chép giá trị phần tử cuối
+                  from: lastPolicy?.to,
+                  to: null,
+                  time_unit_from: lastPolicy?.time_unit_to,
+                  time_unit_to: '',
+                  fee: '',
+                });
+              }
+            }}
+          >
+            Thêm chính sách
+          </Button>
+        )}
       </Card>
 
       <Box

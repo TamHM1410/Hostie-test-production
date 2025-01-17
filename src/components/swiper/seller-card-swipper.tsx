@@ -8,13 +8,12 @@ import uuidv4 from 'src/utils/uuidv4';
 import { Box } from '@mui/material';
 /// @swiper
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCreative, EffectCards } from 'swiper/modules';
+import {  EffectCards } from 'swiper/modules';
 
 /// @api
 import { findAllPackage } from 'src/api/pagekages';
 // @component
 import PricingCard from 'src/sections/pricing/pricing-card';
-import { useSession } from 'next-auth/react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -48,7 +47,7 @@ export default function SellerPackageCard() {
             listPack.length > 0 &&
             listPack.map((item: any, index: any) => {
               return (
-                <>
+             
                   <SwiperSlide className="    " key={index}>
                     <PricingCard
                       card={item}
@@ -58,7 +57,7 @@ export default function SellerPackageCard() {
                       type="normal"
                     />
                   </SwiperSlide>
-                </>
+             
               );
             })}
         </Swiper>

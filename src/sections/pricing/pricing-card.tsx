@@ -72,7 +72,6 @@ export default function PricingCard({ card, sx, ...other }: Props | any) {
 
   const renderPrice = (
     <Stack direction="row">
-      <Typography variant="h4">$</Typography>
 
       <Typography variant="h2">{price.toLocaleString('vi-VN')}</Typography>
 
@@ -92,7 +91,6 @@ export default function PricingCard({ card, sx, ...other }: Props | any) {
   const renderPriceWithUpgrade = (
     <>
       <Stack direction="row">
-        <Typography variant="h4">$</Typography>
 
         <Typography variant="h2" sx={{ textDecoration: 'line-through' }}>
           {price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
@@ -132,6 +130,45 @@ export default function PricingCard({ card, sx, ...other }: Props | any) {
       >
         <Iconify icon="eva:checkmark-fill" width={16} sx={{ mr: 1 }} />
         {description}
+        
+      </Stack>
+
+      <Stack
+        spacing={1}
+        direction="row"
+        alignItems="center"
+        sx={{
+          typography: 'body2',
+        }}
+      >
+        <Iconify icon="eva:checkmark-fill" width={16} sx={{ mr: 1 }} />
+        Nhận được lịch tham gia bán hàng
+        
+      </Stack>
+      <Stack
+        spacing={1}
+        direction="row"
+        alignItems="center"
+        sx={{
+          typography: 'body2',
+        }}
+      >
+        <Iconify icon="eva:checkmark-fill" width={16} sx={{ mr: 1 }} />
+        Tham gia đặt dịch vụ cho khách hàng
+
+        
+      </Stack>
+    <Stack
+        spacing={1}
+        direction="row"
+        alignItems="center"
+        sx={{
+          typography: 'body2',
+        }}
+      >
+       {!description.toLowerCase().includes('môi giới') && <Iconify icon="eva:checkmark-fill" width={16} sx={{ mr: 1 }} />} 
+        {!description.toLowerCase().includes('môi giới') ?'Thêm dịch vụ vào lịch bán hàng':''}
+        
       </Stack>
     </Stack>
   );

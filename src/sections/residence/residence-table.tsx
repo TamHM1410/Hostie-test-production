@@ -1,7 +1,6 @@
 //@hook
 import { useState } from 'react';
 import { UserManagement } from 'src/types/users';
-import { useCurrentRole } from 'src/zustand/store';
 
 ///@mui
 
@@ -25,7 +24,6 @@ const statusOption = ['Từ chối', 'Đang xử lý', 'Chấp thuận'];
 const ResidenceTable = (props: any) => {
   const { data = [] } = props;
   const [open, setOpen] = useState<boolean>(false);
-  const { updateRoleZustand } = useCurrentRole();
 
   const columns = [
     columnHelper.accessor('id', {

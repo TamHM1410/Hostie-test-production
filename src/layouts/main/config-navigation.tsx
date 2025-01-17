@@ -25,6 +25,10 @@ export const navConfig = [
     title: 'Về chúng tôi',
     icon: <Iconify icon="solar:notebook-bold-duotone" />,
     path: paths.about,
+  },  {
+    title: 'Gói dịch vụ',
+    icon: <Iconify icon="solar:notebook-bold-duotone" />,
+    path: paths.pricing,
   },
 ];
 
@@ -45,6 +49,11 @@ export const navMobileConfig= [
     title: 'Về chúng tôi',
     icon: <Iconify icon="solar:notebook-bold-duotone" />,
     path: paths.about,
+  },
+  {
+    title: 'Gói dịch vụ',
+    icon: <Iconify icon="solar:notebook-bold-duotone" />,
+    path: paths.pricing,
   },
   {
     title: 'Đăng nhập',

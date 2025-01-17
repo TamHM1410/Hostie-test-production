@@ -1,7 +1,6 @@
 //  @hook
 import * as React from 'react';
 import { useState } from 'react';
-import { useCurrentRole } from 'src/zustand/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 //  @mui
@@ -24,7 +23,6 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 const CallModal = (props: any) => {
   const [open, setOpen] = useState(false);
 
-  const { currentRole } = useCurrentRole();
 
   const queryClient = useQueryClient();
 
@@ -42,7 +40,7 @@ const CallModal = (props: any) => {
 
   const onSubmit = async () => {
     try {
-      mutate(currentRole.id);
+      // mutate(currentRole.id);
     } catch (error) {
       console.error(error);
     }
