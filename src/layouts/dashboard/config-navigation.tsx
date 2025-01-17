@@ -115,6 +115,11 @@ export function useNavData() {
             icon: ICONS.label,
           },
           {
+            title: 'Chính sách hoa hồng',
+            path: '/dashboard/commission-policy',
+            icon: <Icon icon="iconoir:hand-cash" style={{ width: 40, height: 40 }} />,
+          },
+          {
             title: 'Giao dịch',
             path: '/dashboard/transactions',
             icon: <Icon icon="hugeicons:bitcoin-transaction" style={{ width: 40, height: 40 }} />,

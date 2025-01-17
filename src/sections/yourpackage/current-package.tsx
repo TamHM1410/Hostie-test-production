@@ -73,7 +73,7 @@ export default function CurrentPackage({ card, sx, ...other }: Props | any) {
       </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Box component="span" sx={{ typography: 'overline' }}>
-          Ngày mua{' '}
+        Ngày bắt đầu
           <span style={{ fontSize: 30, margin: 2 }}>
             {' '}
             {other?.startAt ? other?.startAt : duration}

@@ -31,10 +31,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { UserInfor } from 'src/types/users';
 import { useDefaultAvatar } from 'src/hooks/use-avatar';
 import Textfield from '../_examples/mui/textfield-view/textfield';
-import { useGetUserCurrentRole } from 'src/zustand/user';
 
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 export default function AccountGeneral(props: any) {
   const { updateUserInfo } = useUserManagement();
@@ -42,7 +42,7 @@ export default function AccountGeneral(props: any) {
   const queryClient = useQueryClient();
   const { userData, bankName = [] } = props;
   const { defaultAvatar } = useDefaultAvatar();
-  const { userCurrentRole } = useGetUserCurrentRole();
+  const {data:session}=useSession()
 
   const [phoneList, setPhoneList] = useState<any[]>(() =>
     userData?.phones && Array.isArray(userData?.phones) && userData?.phones.length > 0
@@ -275,10 +275,10 @@ export default function AccountGeneral(props: any) {
             )}
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
-              {userCurrentRole === "HOST" && "Chủ nhà"}
-              {userCurrentRole === "SELLER" && "Môi giới"}
-              {userCurrentRole === "HOUSEKEEPER" && "Người quản gia"}
-              {userCurrentRole === "ADMIN" && "Quản trị viên"}
+              {session?.user?.roles === "HOST" && "Chủ nhà"}
+              {session?.user?.roles === "SELLER" && "Môi giới"}
+              {session?.user?.roles === "HOUSEKEEPER" && "Người quản gia"}
+              {session?.user?.roles === "ADMIN" && "Quản trị viên"}
             </Button>
 
             <Box sx={{ mt: 3, display: 'flex', width: '100%', justifyContent: 'center', gap: 2 }}>
