@@ -32,7 +32,6 @@ import AppTopInstalledCountries from '../app-top-installed-countries';
 import { LoadingScreen } from 'src/components/loading-screen';
 import { getDashboardAnalytic } from 'src/api/analytics';
 import { getALlTransactionPackage } from 'src/api/pagekages';
-import { useGetUserCurrentRole } from 'src/zustand/user';
 import { useRouter } from 'next/navigation';
 
 import { useAnalytics } from 'src/api/useAnalytic';
@@ -45,7 +44,6 @@ export default function OverviewAppView() {
   
   const {admin_analytic}=useAnalytics()
 
-  const { userCurrentRole}=useGetUserCurrentRole()
 
   const myRef = useRef(null);
 
