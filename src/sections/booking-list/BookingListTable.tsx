@@ -427,20 +427,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                     </>
                   ) : (
                     <>
-                      <ListItem disablePadding>
-                        <ListItemButton
-                          onClick={async () => {
-                            await fetchBookingLogs(row.original.id);
-                            handleOpenLogs();
-                            handleClose();
-                          }}
-                        >
-                          <ListItemIcon>
-                            <CalendarMonthRounded />
-                          </ListItemIcon>
-                          <ListItemText primary="Xem nhật kí đặt nơi lưu trú" />
-                        </ListItemButton>
-                      </ListItem>
+                      
                       <ListItem disablePadding>
                         <ListItemButton
                           onClick={() => {
@@ -525,6 +512,20 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                       )}
                     </>
                   )}
+                  <ListItem disablePadding>
+                        <ListItemButton
+                          onClick={async () => {
+                            await fetchBookingLogs(row.original.id);
+                            handleOpenLogs();
+                            handleClose();
+                          }}
+                        >
+                          <ListItemIcon>
+                            <CalendarMonthRounded />
+                          </ListItemIcon>
+                          <ListItemText primary="Xem nhật kí đặt nơi lưu trú" />
+                        </ListItemButton>
+                      </ListItem>
                 </List>
               </Popover>
             </>

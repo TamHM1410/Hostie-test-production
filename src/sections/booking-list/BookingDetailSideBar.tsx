@@ -10,14 +10,15 @@ import {
   TableCell,
   TableBody,
   Paper,
-  Button,
+  Card,
+  CardContent,
+  Divider,
+  Chip,
 } from '@mui/material';
 import { differenceInMinutes, parseISO } from 'date-fns';
-import { useEffect, useState } from 'react';
-import { useBooking } from 'src/auth/context/service-context/BookingContext';
+import { useQuery } from '@tanstack/react-query';
 import goAxiosClient from 'src/utils/goAxiosClient';
 import { formattedAmount } from 'src/utils/format-time';
-import { useQuery } from '@tanstack/react-query';
 
 interface BookingData {
   id: number;
@@ -33,6 +34,7 @@ interface BookingData {
   total_days: number;
   guest_name: string;
   guest_count: number;
+  point: number;
   guest_phone: string;
   host_phone: string | null;
   residence_address: string | null;
@@ -42,6 +44,13 @@ interface BookingData {
   is_seller_transfer: boolean;
   is_host_receive: boolean;
   status: number;
+  commission_rate?: number;
+  extra_guest_fee?: number;
+  seller_name?: string;
+  commission?: number;
+  reason_reject?: string;
+  housekeeper_transaction?: string;
+  additional_transaction?: string;
 }
 
 interface BookingDetailSidebarProps {
@@ -50,243 +59,194 @@ interface BookingDetailSidebarProps {
   bookingDetails: BookingData | null;
   onSave: (updatedDetails: Partial<BookingData>) => void;
   isEditing: boolean;
+  bookingId: number;
 }
 
-const getDetailbooking = async (booking_id: any) => {
+const getDetailbooking = async (booking_id: number) => {
   return await goAxiosClient.get(`/booking/${booking_id}`);
 };
+
 const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
   open,
   onClose,
-  bookingDetails,
-  onSave,
-  isEditing,
   bookingId,
-}: BookingDetailSidebarProps) => {
+}) => {
   const { data, isLoading } = useQuery({
     queryKey: ['bookingDetail', bookingId],
     queryFn: async () => {
       const res = await getDetailbooking(Number(bookingId));
-
-      if (res) {
-        return res?.data;
-      }
-      return '';
+      return res?.data || null;
     },
   });
+
+  const getExpireStatus = (expire: string | null, status: number, isSellerTransfer: boolean) => {
+    if (!expire) return 'Đã hết hạn';
+    if (status === 0) return 'Đã bị từ chối';
+    if (isSellerTransfer) return 'Đã thanh toán thành công';
+    
+    const minutesLeft = differenceInMinutes(parseISO(expire), new Date());
+    return minutesLeft > 0 ? `${minutesLeft} phút còn lại` : 'Đã hết hạn';
+  };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <Drawer
       anchor="right"
       open={open}
       onClose={onClose}
-      variant="temporary"
-      sx={{
-        '& .MuiDrawer-paper': {
+      PaperProps={{
+        sx: {
           width: '100%',
           maxWidth: 700,
-          padding: '24px',
-          backgroundColor: '#f4f6f8',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-          borderRadius: '8px',
+          bgcolor: '#f5f5f5',
         },
       }}
     >
-      <Box sx={{ padding: 2 }}>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{ fontWeight: 800, marginBottom: 2, fontSize: '1.45rem', color: '#333' }}
-        >
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom color="primary.main" fontWeight="bold">
           Chi Tiết Hóa Đơn Đặt Nơi Lưu Trú
         </Typography>
 
         <Grid container spacing={3}>
-          {' '}
-          {/* Adjusted gap here */}
-          {/* Thông tin đặt phòng */}
           <Grid item xs={12} md={6}>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}
-            >
-              Thông Tin Đặt Phòng:
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>ID Đặt Phòng :</strong> {data?.booking?.id}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Ngày Nhận Phòng :</strong> {data?.booking?.checkin}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Ngày Trả Phòng :</strong> {data?.booking?.checkout}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Tên Khách :</strong> {data?.booking?.guest_name}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Số Điện Thoại Khách :</strong> {data?.booking?.guest_phone}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Chỗ Nghỉ :</strong> {data?.booking?.residence_name}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Tổng Tiền :</strong> {formattedAmount(data?.booking?.total_amount)}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Số Tiền Cọc :</strong> {formattedAmount(data?.booking?.paid_amount)}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Tỷ Lệ Hoa Hồng :</strong> {data?.booking?.commission_rate}%
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Phí Thêm Khách :</strong> {formattedAmount(data?.booking?.extra_guest_fee)}
-            </Typography>
+            <Card elevation={0}>
+              <CardContent>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Thông Tin Đặt Phòng
+                </Typography>
+                <Box sx={{ '& > *': { mt: 1 } }}>
+                  <Typography><strong>ID Đặt Phòng:</strong> {data?.booking?.id}</Typography>
+                  <Typography><strong>Ngày Nhận Phòng:</strong> {data?.booking?.checkin}</Typography>
+                  <Typography><strong>Ngày Trả Phòng:</strong> {data?.booking?.checkout}</Typography>
+                  <Typography><strong>Tên Khách:</strong> {data?.booking?.guest_name}</Typography>
+                  <Typography><strong>Số Điện Thoại:</strong> {data?.booking?.guest_phone}</Typography>
+                  <Typography><strong>Chỗ Nghỉ:</strong> {data?.booking?.residence_name}</Typography>
+                  <Typography><strong>Tổng Tiền:</strong> {formattedAmount(data?.booking?.total_amount)}</Typography>
+                  <Typography><strong>Số Tiền Cọc:</strong> {formattedAmount(data?.booking?.paid_amount)}</Typography>
+                  <Typography><strong>Tỷ Lệ Hoa Hồng:</strong> {data?.booking?.commission_rate}%</Typography>
+                  <Typography><strong>Phí Thêm Khách:</strong> {formattedAmount(data?.booking?.extra_guest_fee)}</Typography>
+                  <Typography><strong>Điểm:</strong> {data?.booking?.point}</Typography>
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
-          {/* Thông tin chủ nhà */}
+
           <Grid item xs={12} md={6}>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}
-            >
-              Thông Tin Chủ Nhà:
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Tên Chủ Nhà :</strong> {data?.booking?.seller_name || 'Chưa Cung Cấp'}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>ID Chủ Nhà :</strong> {data?.booking?.seller_id || 'Chưa Cung Cấp'}
-            </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Số Điện Thoại Chủ Nhà :</strong>{' '}
-              {data?.booking?.host_phone || 'Chưa Cung Cấp'}
-            </Typography>
+            <Card elevation={0}>
+              <CardContent>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Thông Tin Chủ Nhà
+                </Typography>
+                <Box sx={{ '& > *': { mt: 1 } }}>
+                  <Typography><strong>Tên Chủ Nhà:</strong> {data?.booking?.seller_name || 'Chưa Cung Cấp'}</Typography>
+                  <Typography><strong>ID Chủ Nhà:</strong> {data?.booking?.seller_id || 'Chưa Cung Cấp'}</Typography>
+                  <Typography><strong>Số Điện Thoại:</strong> {data?.booking?.host_phone || 'Chưa Cung Cấp'}</Typography>
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
 
-        {/* Bảng Chi Tiết Đặt Phòng */}
-        <Box marginTop={3}>
-          <Typography variant="h6" sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.2rem' }}>
-            Chi Tiết Đặt Phòng:
-          </Typography>
-          <TableContainer
-            component={Paper}
-            sx={{ marginTop: 2, boxShadow: 'none', borderRadius: '8px' }}
-          >
-            <Table>
-              <TableHead sx={{ backgroundColor: '#e0e0e0' }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500, padding: '12px' }}>Ngày</TableCell>{' '}
-                  {/* Increased padding */}
-                  <TableCell align="right" sx={{ fontWeight: 500, padding: '12px' }}>
-                    Giá
-                  </TableCell>{' '}
-                  {/* Increased padding */}
-                  <TableCell align="right" sx={{ fontWeight: 500, padding: '12px' }}>
-                    Trạng Thái
-                  </TableCell>{' '}
-                  {/* Increased padding */}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data?.details?.map((detail) => (
-                  <TableRow key={detail.id}>
-                    <TableCell sx={{ padding: '16px' }}>
-                      {new Date(detail.date).toLocaleDateString()}
-                    </TableCell>{' '}
-                    {/* Increased padding */}
-                    <TableCell align="right" sx={{ padding: '16px' }}>
-                      {formattedAmount(detail.price)}
-                    </TableCell>{' '}
-                    {/* Increased padding */}
-                    <TableCell align="right" sx={{ padding: '16px' }}>
-                      {detail.status === 1 ? 'Đã Xác Nhận' : 'Chờ Xác Nhận'}
-                    </TableCell>{' '}
-                    {/* Increased padding */}
+        <Card sx={{ mt: 3 }} elevation={0}>
+          <CardContent>
+            <Typography variant="h6" color="primary" gutterBottom>
+              Chi Tiết Đặt Phòng
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Ngày</TableCell>
+                    <TableCell align="right">Giá</TableCell>
+                    <TableCell align="right">Trạng Thái</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+                </TableHead>
+                <TableBody>
+                  {data?.details?.map((detail: any) => (
+                    <TableRow key={detail.id}>
+                      <TableCell>{new Date(detail.date).toLocaleDateString()}</TableCell>
+                      <TableCell align="right">{formattedAmount(detail.price)}</TableCell>
+                      <TableCell align="right">
+                        <Chip
+                          label={detail.status === 1 ? 'Đã Xác Nhận' : 'Chờ Xác Nhận'}
+                          color={detail.status === 1 ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
 
-        {/* Thông Tin Bổ Sung */}
-        <Box marginTop={3}>
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 500, marginBottom: 1, fontSize: '1.1rem' }}
-          >
-            Thông Tin Bổ Sung:
-          </Typography>
-          <Typography sx={{ marginTop: 1 }}>
-            <strong>Mô Tả :</strong> {data?.booking?.description}
-          </Typography>
-          <Typography sx={{ marginTop: 1 }}>
-            <strong>Hoa Hồng :</strong> {formattedAmount(data?.booking?.commission)}
-          </Typography>
-          <Typography sx={{ marginTop: 1 }}>
-            <strong>Ngày Hết Hạn :</strong>
-            {data?.booking?.expire
-              ? (() => {
-                  const now = new Date();
-                  const expireDate = parseISO(data?.booking?.expire);
-                  const minutesLeft = differenceInMinutes(expireDate, now);
-                  if (data?.booking?.status === 0) {
-                    return 'Đã bị từ chối';
-                  }
-                  if (data?.booking?.is_seller_transfer === true) {
-                    return 'Đã thanh toán thành công';
-                  }
-                  if (minutesLeft > 0) {
-                    return `${minutesLeft} phút còn lại`;
-                  }
+        <Card sx={{ mt: 3 }} elevation={0}>
+          <CardContent>
+            <Typography variant="h6" color="primary" gutterBottom>
+              Thông Tin Bổ Sung
+            </Typography>
+            <Box sx={{ '& > *': { mt: 1 } }}>
+              <Typography><strong>Mô Tả:</strong> {data?.booking?.description}</Typography>
+              <Typography><strong>Hoa Hồng:</strong> {formattedAmount(data?.booking?.commission)}</Typography>
+              <Typography>
+                <strong>Ngày Hết Hạn:</strong>{' '}
+                {getExpireStatus(data?.booking?.expire, data?.booking?.status, data?.booking?.is_seller_transfer)}
+              </Typography>
+              {data?.booking?.reason_reject && (
+                <Typography><strong>Lý do từ chối:</strong> {data?.booking?.reason_reject}</Typography>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
 
-                  return 'Đã hết hạn';
-                })()
-              : 'Đã hết hạn'}
-          </Typography>
-          {data?.booking?.reason_reject && (
-            <Typography sx={{ marginTop: 1 }}>
-              <strong>Lý do từ chối :</strong>{' '}
-              {data?.booking?.reason_reject || 'Không có lý do rõ ràng'}
-            </Typography>
-          )}
-        </Box>
-        {data?.booking?.housekeeper_transaction && (
-          <Box mt={4} width="100%" textAlign="center">
-            <Typography variant="h6" mb={2}>
-              Hình ảnh giao dịch của quản gia khi khách tới
-            </Typography>
-            <Box
-              component="img"
-              src={data?.booking?.housekeeper_transaction}
-              alt={`Transaction ${data?.booking?.housekeeper_transaction}`}
-              sx={{
-                maxWidth: '100%',
-                height: '20%',
-                borderRadius: 4,
-                boxShadow: 3,
-              }}
-            />
-          </Box>
-        )}
-        {data?.booking?.additional_transaction && (
-          <Box mt={4} width="100%" textAlign="center">
-            <Typography variant="h6" mb={2}>
-              Hình ảnh giao dịch thêm của quản gia khi khách rời đi
-            </Typography>
-            <Box
-              component="img"
-              src={data?.booking?.additional_transaction}
-              alt={`Transaction ${data?.booking?.additional_transaction}`}
-              sx={{
-                maxWidth: '100%',
-                height: 'auto',
-                borderRadius: 4,
-                boxShadow: 3,
-              }}
-            />
-          </Box>
+        {(data?.booking?.housekeeper_transaction || data?.booking?.additional_transaction) && (
+          <Card sx={{ mt: 3 }} elevation={0}>
+            <CardContent>
+              <Typography variant="h6" color="primary" gutterBottom>
+                Hình Ảnh Giao Dịch
+              </Typography>
+              
+              {data?.booking?.housekeeper_transaction && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Giao dịch khi khách tới
+                  </Typography>
+                  <Box
+                    component="img"
+                    src={data?.booking?.housekeeper_transaction}
+                    alt="Transaction arrival"
+                    sx={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      borderRadius: 2,
+                    }}
+                  />
+                </Box>
+              )}
+
+              {data?.booking?.additional_transaction && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Giao dịch khi khách rời đi
+                  </Typography>
+                  <Box
+                    component="img"
+                    src={data?.booking?.additional_transaction}
+                    alt="Transaction departure"
+                    sx={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      borderRadius: 2,
+                    }}
+                  />
+                </Box>
+              )}
+            </CardContent>
+          </Card>
         )}
       </Box>
     </Drawer>

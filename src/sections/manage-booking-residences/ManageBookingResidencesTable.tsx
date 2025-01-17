@@ -263,7 +263,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
               </>
             ) : status === 2 ? (
               row.original.is_host_receive ? (
-                <>
+                
                   <Tooltip title="Xem chi tiết ">
                     <IconButton
                       color="info"
@@ -275,18 +275,7 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                       <VisibilityIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Xem nhật kí đặt nơi lưu trú">
-                    <IconButton
-                      color="info"
-                      onClick={async () => {
-                        await fetchBookingLogs(row.original.id);
-                        handleOpenLogs();
-                      }}
-                    >
-                      <CalendarMonthRounded />
-                    </IconButton>
-                  </Tooltip>
-                </>
+                
               ) : (
                 <>
                   <Tooltip title="Xác nhận đã nhận tiền">
@@ -319,6 +308,17 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
                 </>
               )
             ) : null}
+            <Tooltip title="Xem nhật kí đặt nơi lưu trú">
+                    <IconButton
+                      color="info"
+                      onClick={async () => {
+                        await fetchBookingLogs(row.original.id);
+                        handleOpenLogs();
+                      }}
+                    >
+                      <CalendarMonthRounded />
+                    </IconButton>
+                  </Tooltip>
           </Box>
         );
       },
