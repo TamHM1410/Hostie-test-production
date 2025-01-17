@@ -24,12 +24,10 @@ export default function BookingListView() {
       }
       return bookingData;
     },
-    // Add these options to help manage the state updates
-    staleTime: 5000, // Data considered fresh for 5 seconds
+    staleTime: 5000, 
   
   });
 
-  
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>

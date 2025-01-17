@@ -302,7 +302,6 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
               const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
               const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
 
-              console.log(lastPolicy, 'last');
 
               if (lastPolicy) {
                 append({

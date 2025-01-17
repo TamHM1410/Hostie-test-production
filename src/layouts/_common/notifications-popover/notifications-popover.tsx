@@ -48,7 +48,6 @@ export default function NotificationsPopover() {
 
   const { messages, totalMessage } = useSocket()
 
-  console.log(messages,'message')
 
 
   const [notifications, setNotifications] = useState([messages]);

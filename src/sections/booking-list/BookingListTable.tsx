@@ -152,12 +152,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
     setIsEdit(false);
   };
 
-  const handleEditBooking = (bookingId: number) => {
-    const bookingDetails = rows.find((row) => row.id === bookingId);
-    setSelectedBooking(bookingDetails || null);
-    setOpenSidebar(true);
-    setIsEdit(true);
-  };
 
   const handleOpenDialog = () => setOpenDialog(true);
 
@@ -420,6 +414,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                               // handleClose();
                               setSelectedBooking(row.original)
                               setResidenceId(row.original.residence_id);
+                              setBookingId(row.original?.id)
                             }}
                           >
                             <ListItemIcon>
@@ -543,13 +538,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   const get_refund_api = async (booking_id: any) => {
     const res = await get_refund(booking_id);
     setRefunded(res.data);
+
     return res;
   };
 
   const get_policy = async (residenceId: any) => {
     const res = await get_all_policy(residenceId);
     setPolicyData(res);
-    console.log(res,'res')
     return res;
   };
 
@@ -561,7 +556,6 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
   }, [residenceId]);
   
 
-  console.log('refunded',refunded)
   return (
     <>
       <MaterialReactTable
@@ -742,7 +736,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         </DialogActions>
       </Dialog>
 
-      <RefundDialog open={openRefundedDialog} setOpen={setOpenRefundedDialog}  bookingSelected={selectedBooking}/>
+      <RefundDialog open={openRefundedDialog} setOpen={setOpenRefundedDialog}  bookingSelected={selectedBooking} refunded={refunded}/>
       <BookingDetailSidebar
         open={openSidebar}
         onClose={() => setOpenSidebar(false)}

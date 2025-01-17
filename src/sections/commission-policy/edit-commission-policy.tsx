@@ -1,8 +1,7 @@
 //  @hooks
 import * as React from 'react';
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRoleManagement } from 'src/api/useRoleManagement';
+import {  useEffect } from 'react';
+import {  useQueryClient } from '@tanstack/react-query';
 
 //  @lib
 import * as Yup from 'yup';
@@ -18,22 +17,17 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Grid, Stack, Card } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import AddIcon from '@mui/icons-material/Add';
-import toast from 'react-hot-toast';
 
 //  @type
 
-const AddNewCommissionPolicy = (props: any) => {
-  const { createCommissionPolicy } = useCommissionPolicy();
-  const [open, setOpen] = useState(false);
+const EditCommission = (props: any) => {
+  const { selectedItem, open, setOpen } = props;
+  const { updateCommissionPolicy } = useCommissionPolicy();
   const queryClient = useQueryClient();
 
   const UpdateUserSchema = Yup.object().shape({
     validFrom: Yup.string().required('Chưa nhập thông tin'),
-    minPoint: Yup.number()
-      .required()
-      .default(0)
-      .min(0, 'Phải lớn hơn 0'),
+    minPoint: Yup.number().required().default(0).min(0, 'Phải lớn hơn 0'),
     commissionRate: Yup.number()
       .required()
       .default(0)
@@ -63,23 +57,30 @@ const AddNewCommissionPolicy = (props: any) => {
   const {
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = async (data: any) => {
     try {
-      await createCommissionPolicy(data);
+      await updateCommissionPolicy(data,selectedItem?.policyId);
       reset();
       setOpen(false);
       queryClient.invalidateQueries(['listCommissionPolicy'] as any);
     } catch (error) {}
   };
+  useEffect(() => {
+    setValue('validFrom', selectedItem?.validFrom);
+    setValue('minPoint', selectedItem?.minPoint);
 
+    setValue('policyDescription', selectedItem?.policyDescription);
+
+    setValue('maxCommission', selectedItem?.maxCommission);
+
+    setValue('commissionRate', selectedItem?.commissionRate);
+  }, [selectedItem]);
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)} sx={{ gap: 2 }}>
-        <AddIcon /> Thêm mới chính sách hoa hồng
-      </Button>
       <Modal
         open={open}
         onClose={() => setOpen(false)}
@@ -102,7 +103,7 @@ const AddNewCommissionPolicy = (props: any) => {
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
-            Thêm mới quyền
+            Chỉnh sửa
           </Typography>
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Grid md={12} xs={8}>
@@ -127,11 +128,11 @@ const AddNewCommissionPolicy = (props: any) => {
                 </Box>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
-                  <Button variant="contained" onClick={() => setOpen(false)}>
+                  <Button variant="contained" onClick={() => setOpen(!open)}>
                     Hủy
                   </Button>
                   <LoadingButton variant="contained" type="submit" loading={isSubmitting}>
-                    Thêm
+                    Cập nhật
                   </LoadingButton>
                 </Stack>
               </Card>
@@ -143,4 +144,4 @@ const AddNewCommissionPolicy = (props: any) => {
   );
 };
 
-export default AddNewCommissionPolicy;
+export default EditCommission;

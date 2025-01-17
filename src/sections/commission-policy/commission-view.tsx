@@ -36,6 +36,7 @@ const {findAllCommissionPolicy}=useCommissionPolicy()
     return <LoadingScreen />;
   }
 
+
   return (
     <Box>
       <CustomBreadcrumbs
@@ -50,7 +51,7 @@ const {findAllCommissionPolicy}=useCommissionPolicy()
         <AddNewCommissionPolicy />
       </Box>
       <Box sx={{ py: 5, px: 5 }}>
-        <CommissionPolicyTable />
+        <CommissionPolicyTable data={data}/>
       </Box>
     </Box>
   );

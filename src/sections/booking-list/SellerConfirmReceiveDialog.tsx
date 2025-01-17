@@ -37,10 +37,8 @@ export default function SellerConfirmRefunded({ open, setOpen, booking_id }: any
       await confirmReceiveRefunded(booking_id);
       queryClient.invalidateQueries(['booking'] as any);
     } catch (error) {
-      console.log(error,'err')
       toast.error('Đã xảy ra lỗi');
       setIsLoading(false);
-
     }
   };
 

@@ -43,44 +43,35 @@ const host_cofirm_refunded = async (id: any) => {
 
   return res;
 };
-export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
-
-  const [isLoadingButton,setIsLoading]=useState(false)
-
+export default function RefundDialog({ open, setOpen, bookingSelected, refunded }: any) {
+  const [isLoadingButton, setIsLoading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['qrcode', bookingSelected],
     queryFn: () =>
       getQr(
         bookingSelected?.seller_id,
-        bookingSelected?.paid_amount,
+        refunded?.host_refund,
         'Chuyen khoan hoan tien',
         bookingSelected?.id
       ),
   });
 
-
-  console.log(data,'refunded')
-
   const handleConfirmRefunded = async () => {
     try {
-      setIsLoading(!isLoadingButton)
+      setIsLoading(!isLoadingButton);
       await host_cofirm_refunded(bookingSelected?.id);
-      toast.success('Đã xác nhận chuyển tiền')
+      toast.success('Đã xác nhận chuyển tiền');
 
       setOpen(!open);
     } catch (error) {
-      toast.error('Da co loi xay ra')
-      setIsLoading(false)
-
-    }finally{
-            setIsLoading(false)
-
-
+      toast.error('Da co loi xay ra');
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  console.log(data,'data')
   return (
     <Dialog open={open}>
       <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
@@ -88,12 +79,8 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
         <Divider sx={{ my: 2 }} />
 
         <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
-     
-
           <DialogTitle>Thông tin QR Code và Chi tiết Ngân hàng của Môi giới</DialogTitle>
-          {
-            isLoading && <LoadingScreen/>
-          }
+          {isLoading && <LoadingScreen />}
           {!isLoading && Array(data?.qr) && data?.qr.length > 0 && (
             <DialogContent dividers>
               <Box
@@ -133,9 +120,10 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
                   <Typography variant="body1">
                     <strong>Ngân hàng:</strong> {data?.shortname_bank || '---'}
                   </Typography>
-                  <Typography>                  <strong>Số tiền hoàn (tiền cọc) :</strong> {formattedAmount(bookingSelected?.paid_amount)}
+                  <Typography>
+                    {' '}
+                    <strong>Số tiền hoàn :</strong> {formattedAmount(refunded?.host_refund)}
                   </Typography>
-
                 </Box>
                 <Box
                   mt={3}
@@ -169,10 +157,14 @@ export default function RefundDialog({ open, setOpen, bookingSelected }: any) {
         <Button onClick={() => setOpen(!open)} color="primary">
           Đóng
         </Button>
-        <LoadingButton color="error" onClick={handleConfirmRefunded} type='button' loading={isLoadingButton}>
-        Xác Nhận
+        <LoadingButton
+          color="error"
+          onClick={handleConfirmRefunded}
+          type="button"
+          loading={isLoadingButton}
+        >
+          Xác Nhận
         </LoadingButton>
-        
       </DialogActions>
     </Dialog>
   );

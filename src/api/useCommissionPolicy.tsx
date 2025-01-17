@@ -9,7 +9,6 @@ export const useCommissionPolicy = () => {
   const findAllCommissionPolicy = useCallback(async () => {
     try {
       const response = await axiosAuth.get<any>('/v1/api/commission-policies?page=0&size=9999999999');
-      console.log('res',response)
       return response;
     } catch (error) {
       if (error instanceof Error) {
@@ -33,9 +32,11 @@ export const useCommissionPolicy = () => {
     }
   }, [axiosAuth]);
 
-  const updateCommissionPolicy= useCallback(async (payload:any) => {
+  const updateCommissionPolicy= useCallback(async (payload:any,id:any) => {
     try {
-      const response = await axiosAuth.put<any>('/v1/api/commission-policies',payload);
+      const response = await axiosAuth.put<any>(`/v1/api/commission-policies/${id}`,payload);
+      toast.success('Cập nhật chính sách thành công ');
+
       return response;
     } catch (error) {
       if (error instanceof Error) {

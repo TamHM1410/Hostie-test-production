@@ -32,6 +32,7 @@ import BookingFormDialog from './BookingDialogForm';
 import HoldingFormDialog from './HoldingForm';
 import DatePickerForm from './BooingFormOnInFor';
 import { formattedAmount } from 'src/utils/format-time';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export default function ForumTypeInFormation() {
@@ -61,7 +62,7 @@ export default function ForumTypeInFormation() {
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [openForm, setOpenForm] = useState(false);
 
-  console.log(residenceInfor, 'residence infor');
+  const router = useRouter();
 
   const handleAction = (type: 'book' | 'hold') => {
     if (type === 'book' && !customerList.data.length) {
@@ -183,7 +184,9 @@ export default function ForumTypeInFormation() {
               </MUILink>
               <Divider orientation="vertical" flexItem />
               <Tooltip title="Nhắn tin cho chủ nhà">
-                <IconButton>
+                <IconButton
+                  onClick={() => router.push(`/dashboard/chat/?id=${residenceInfor?.host_id}`)}
+                >
                   <Chat />
                 </IconButton>
               </Tooltip>
