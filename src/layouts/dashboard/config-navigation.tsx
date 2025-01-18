@@ -53,14 +53,14 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession(); // Added status to track authentication state
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
     if (!session?.user.roles) {
       router.push('/auth/jwt/login');
     }
-  }, [session]);
+  }, [session, status]);
 
   const data = useMemo(
     () => [
@@ -138,7 +138,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, session]
+    [t, session?.user?.roles]
   );
 
   const bulterNav = useMemo(
@@ -164,7 +164,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, session]
+    [t, session?.user?.roles]
   );
 
   const userNav = useMemo(
@@ -180,7 +180,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, session]
+    [t, session?.user?.roles]
   );
 
   const hostNav = useMemo(
@@ -266,7 +266,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, session]
+    [t, session?.user?.roles]
   );
 
   const seller = useMemo(
@@ -334,7 +334,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, session]
+    [t, session?.user?.roles]
   );
 
   switch (session?.user?.roles) {
