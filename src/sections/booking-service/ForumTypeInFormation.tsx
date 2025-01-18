@@ -333,6 +333,40 @@ export default function ForumTypeInFormation() {
           </Box>
         </Grid>
         <Grid item xs={12} lg={6}>
+          <div style={{display:"flex", justifyContent:"flex-end"}}>
+        <Box 
+              sx={{ 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                p: 2,
+                width: 'fit-content',
+                maxWidth: 'md',
+                bgcolor: 'background.paper',
+                '&:hover': {
+                  bgcolor: 'action.hover'
+                },
+               
+              }}
+            >
+              <MUILink
+                href={`https://drive.thehostie.com/?residenceId=${residenceInfor?.residence_id || 0}`}
+                variant="body1"
+                underline="hover"
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  gap: 1,
+                  color: 'inherit',
+                  textDecoration: 'none'
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Drive hình ảnh
+                <LinkOutlined sx={{ color: '#2152FF' }} />
+              </MUILink>
+            </Box>
+            </div>
           <Box width="100%" mt={2} overflow="hidden" borderRadius="8px" height="250px">
             <Slider {...settings}>
               <div>
