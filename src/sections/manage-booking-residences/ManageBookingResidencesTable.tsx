@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-nested-ternary */
 import * as React from 'react';
+import { useEffect } from 'react';
 import {
   Chip,
   IconButton,
@@ -29,11 +30,15 @@ import { useManageBookingResidencesContext } from 'src/auth/context/manage-book-
 import { useBookingListContext } from 'src/auth/context/booking-list-context/BookingListContext';
 import { MRT_Localization_VI } from 'material-react-table/locales/vi'; // Nhập localization tiếng Việt
 import BookingDetailSidebar from '../booking-list/BookingDetailSideBar';
-import { formatCurrency } from '../booking-service/Booking';
 import BookingLogsModal from '../booking-list/BookingLogs';
 import { CalendarMonthRounded } from '@mui/icons-material';
 import { formattedAmount } from 'src/utils/format-time';
 import toast from 'react-hot-toast';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import RefundDialog from '../booking-list/RefundedDialog';
+
+///
+import { get_refund } from 'src/api/cancelPolicy';
 
 interface HoldData {
   id: number;
@@ -57,6 +62,10 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
     'accept' | 'cancel' | 'confirmPayment' | 'notPayment'
   >('accept');
   const [selectedRowId, setSelectedRowId] = React.useState<number | null>(null);
+  const [selectedBooking, setSelectedBooking] = React.useState<any>(null);
+  const [openRefunded, setOpenRefunded] = React.useState<any>(false);
+  const [refunded, setRefunded] = React.useState<any>(false);
+
   const {
     confirmBooking,
     cancelBooking,
@@ -69,9 +78,10 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
     priceQuotation,
   } = useManageBookingResidencesContext();
 
-
   const { detail, fetchDataDetail } = useBookingListContext();
+
   const [openSidebar, setOpenSidebar] = React.useState(false);
+
   const [isEdit, setIsEdit] = React.useState(false);
 
   const [openLogs, setOpenLogs] = React.useState(false);
@@ -192,22 +202,77 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
       accessorKey: 'is_customer_checkin',
       header: 'Nhận nơi lưu trú ',
       size: 100,
-      Cell: ({ row, cell }: any) =>
-        renderBooleanChip(cell.getValue(), 'Đã nhận', 'Chưa nhận', row.original.status === 0),
+      Cell: ({ cell, row }: any) => {
+        if (row.original.status === 0)
+          return (
+            <Chip
+              label={
+                row.original.is_refund && !row.original.is_seller_receive_refund
+                  ? 'Đã huỷ (chưa hoàn tiền)'
+                  : 'Đã huỷ '
+              }
+              variant="soft"
+              color="error"
+            />
+          );
+
+        return cell.getValue() === false ? (
+          <Chip label="Chưa nhận " variant="soft" color="default" />
+        ) : (
+          <Chip label="Đã xác nhận " variant="soft" color="success" />
+        );
+      },
     },
     {
       accessorKey: 'is_customer_checkout',
       header: 'Trả nơi lưu trú ',
       size: 100,
-      Cell: ({ row, cell }: any) =>
-        renderBooleanChip(cell.getValue(), 'Đã trả', 'Chưa trả', row.original.status === 0),
+      Cell: ({ cell, row }: any) => {
+        if (row.original.status === 0)
+          return (
+            <Chip
+              label={
+                row.original.is_refund && !row.original.is_seller_receive_refund
+                  ? 'Đã huỷ (chưa hoàn tiền)'
+                  : 'Đã huỷ '
+              }
+              variant="soft"
+              color="error"
+            />
+          );
+
+        return cell.getValue() === false ? (
+          <Chip label="Chưa trả " variant="soft" color="default" />
+        ) : (
+          <Chip label="Đã xác nhận " variant="soft" color="success" />
+        );
+      },
     },
     {
       accessorKey: 'is_seller_transfer',
       header: 'Chuyển Giao',
       size: 100,
-      Cell: ({ row, cell }: any) =>
-        renderBooleanChip(cell.getValue(), 'Đã Chuyển', 'Chưa Chuyển', row.original.status === 0),
+      Cell: ({ cell, row }: any) => {
+        console.log(row.original,'row')
+        if (row.original.status === 0)
+          return (
+            <Chip
+              label={
+                row.original.is_refund && !row.original.is_seller_receive_refund
+                  ? 'Đã huỷ (chưa hoàn tiền)'
+                  : 'Đã huỷ '
+              }
+              variant="soft"
+              color="error"
+            />
+          );
+
+        return cell.getValue() === false ? (
+          <Chip label="Chưa trả " variant="soft" color="default" />
+        ) : (
+          <Chip label="Đã xác nhận " variant="soft" color="success" />
+        );
+      },
     },
     {
       accessorKey: 'action',
@@ -218,17 +283,33 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         return (
           <Box display="flex">
             {status === 0 ? (
-              <Tooltip title="Xem chi tiết ">
-                <IconButton
-                  color="info"
-                  onClick={() => {
-                    fetchDataDetail(row.original.id);
-                    handleViewBooking();
-                  }}
-                >
-                  <VisibilityIcon />
-                </IconButton>
-              </Tooltip>
+              <>
+                <Tooltip title="Xem chi tiết ">
+                  <IconButton
+                    color="info"
+                    onClick={() => {
+                      fetchDataDetail(row.original.id);
+                      handleViewBooking();
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Hoàn tiền">
+                  <IconButton
+                    color="success"
+                    onClick={() => {
+                      // fetchDataDetail(row.original.id);
+                      // handleViewBooking();
+                      setOpenRefunded(!openRefunded)
+                      setSelectedBooking(row.original);
+                    }}
+                  >
+                    <AttachMoneyIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
             ) : status === 1 ? (
               <>
                 <Tooltip title="Xác nhận đặt nơi lưu trú">
@@ -263,19 +344,17 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
               </>
             ) : status === 2 ? (
               row.original.is_host_receive ? (
-                
-                  <Tooltip title="Xem chi tiết ">
-                    <IconButton
-                      color="info"
-                      onClick={() => {
-                        fetchDataDetail(row.original.id);
-                        handleViewBooking();
-                      }}
-                    >
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Tooltip>
-                
+                <Tooltip title="Xem chi tiết ">
+                  <IconButton
+                    color="info"
+                    onClick={() => {
+                      fetchDataDetail(row.original.id);
+                      handleViewBooking();
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                </Tooltip>
               ) : (
                 <>
                   <Tooltip title="Xác nhận đã nhận tiền">
@@ -309,35 +388,33 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
               )
             ) : null}
             <Tooltip title="Xem nhật kí đặt nơi lưu trú">
-                    <IconButton
-                      color="info"
-                      onClick={async () => {
-                        await fetchBookingLogs(row.original.id);
-                        handleOpenLogs();
-                      }}
-                    >
-                      <CalendarMonthRounded />
-                    </IconButton>
-                  </Tooltip>
+              <IconButton
+                color="info"
+                onClick={async () => {
+                  await fetchBookingLogs(row.original.id);
+                  handleOpenLogs();
+                }}
+              >
+                <CalendarMonthRounded />
+              </IconButton>
+            </Tooltip>
           </Box>
         );
       },
     },
   ];
+  const get_refund_api = async (booking_id: any) => {
+    const res = await get_refund(booking_id);
+    setRefunded(res.data);
 
-  const renderBooleanChip = (
-    value: boolean,
-    trueLabel: string,
-    falseLabel: string,
-    isCanceled: boolean
-  ) => (
-    <Chip
-      label={isCanceled ? 'Hủy đặt' : value ? trueLabel : falseLabel}
-      color={isCanceled ? 'error' : value ? 'success' : 'warning'}
-      variant="soft"
-    />
-  );
+    return res;
+  };
 
+  useEffect(() => {
+    if (selectedBooking?.id) {
+      get_refund_api(selectedBooking?.id);
+    }
+  }, [selectedBooking]);
 
   return (
     <>
@@ -477,13 +554,19 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
         open={openSidebar}
         onClose={() => setOpenSidebar(false)}
         bookingDetails={detail}
-        onSave={(updatedDetails) => {
-        }}
+        onSave={(updatedDetails) => {}}
         isEditing={isEdit}
         bookingId={detail?.booking?.id}
       />
 
       <BookingLogsModal logs={logs} open={openLogs} onClose={handleCloseLogs} />
+
+      <RefundDialog
+        open={openRefunded}
+        setOpen={setOpenRefunded}
+        bookingSelected={selectedBooking}
+        refunded={refunded}
+      />
     </>
   );
 };

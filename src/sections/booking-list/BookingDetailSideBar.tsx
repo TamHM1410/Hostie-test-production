@@ -91,7 +91,8 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
   if (isLoading) {
     return null;
   }
-
+  
+  console.log(data,'data')
   return (
     <Drawer
       anchor="right"

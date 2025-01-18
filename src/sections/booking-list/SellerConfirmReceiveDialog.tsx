@@ -33,9 +33,10 @@ export default function SellerConfirmRefunded({ open, setOpen, booking_id }: any
 
   const handleConfirmReceiveRefunded = async () => {
     try {
-      setIsLoading(!isLoading);
+      setIsLoading(false);
       await confirmReceiveRefunded(booking_id);
       queryClient.invalidateQueries(['booking'] as any);
+      setOpen(false)
     } catch (error) {
       toast.error('Đã xảy ra lỗi');
       setIsLoading(false);

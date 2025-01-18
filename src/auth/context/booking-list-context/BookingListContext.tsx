@@ -51,7 +51,7 @@ export const BookingListProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const response = await axiosClient.get(`${baseURl}/booking?sort=id:desc`, {
+                const response = await axiosClient.get(`${baseURl}/booking/host?sort=id:desc`, {
                     params: { page, page_size: ROWS_PER_PAGE, },
                 });
                 setRows(response?.data?.result);

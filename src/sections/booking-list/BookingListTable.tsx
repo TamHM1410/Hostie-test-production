@@ -230,6 +230,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
         size: 100,
 
         Cell: ({ cell, row }: any) => {
+          console.log(row.original,'row')
           if (row.original.status === 0)
             return (
               <Chip
@@ -345,7 +346,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
                 <List>
                   {row.original.status === 0 ? (
                     <>
-                    {!row.original.is_seller_receive_refund && row.original.is_refund&&session?.user.roles!=='HOST' && (
+                    {!row.original.is_seller_receive_refund  && (
                         <ListItem disablePadding>
                           <ListItemButton
                             onClick={() => {

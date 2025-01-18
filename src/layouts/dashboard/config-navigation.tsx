@@ -86,7 +86,7 @@ export function useNavData() {
         items: [
           {
             title: 'Người dùng',
-            path: '/dashboasrsdsdsa',
+            path: paths.dashboard.user.root,
             icon: ICONS.user,
             children: [
               { title: 'Quản lý người dùng', path: paths.dashboard.user.root },
@@ -210,7 +210,7 @@ export function useNavData() {
           },
           {
             title: 'Danh sách ',
-            path: 'hidsshisd',
+            path: paths.dashboard.bookingList,
             icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
             children: [
               {
@@ -225,7 +225,7 @@ export function useNavData() {
           },
           {
             title: 'Quản lý ',
-            path: 'dsihsdhis',
+            path:paths.dashboard.manage_booking_residence,
             icon: ICONS.job,
             children: [
               {
@@ -291,7 +291,7 @@ export function useNavData() {
           },
           {
             title: 'Danh sách ',
-            path: '/dashboard/booking/xxxdsd',
+            path: paths.dashboard.bookingList,
             icon: <Icon icon="fluent-mdl2:reservation-orders" style={{ width: 35, height: 35 }} />,
             children: [
               {
@@ -306,7 +306,7 @@ export function useNavData() {
           },
           {
             title: 'Quản lý ',
-            path: 'dsihsdhis',
+            path:  paths.dashboard.manage_customer,
             icon: ICONS.job,
             children: [
               {
