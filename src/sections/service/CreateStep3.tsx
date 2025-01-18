@@ -19,41 +19,30 @@ import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DatePicker } from '@mui/x-date-pickers';
-import toast from 'react-hot-toast';
+import { NumericFormat } from 'react-number-format';
 
 const validationSchema = Yup.object().shape({
-  defaultPrice: Yup.number()
-    .required('Giá mặc định là bắt buộc')
-    .positive('Giá phải là số dương'),
+  defaultPrice: Yup.number().required('Giá mặc định là bắt buộc').positive('Giá phải là số dương'),
   weekendEntries: Yup.array()
     .of(
       Yup.object().shape({
         weekendFee: Yup.number().required('Vui lòng chọn ngày cuối tuần'),
-        weekendSurcharge: Yup.number()
-          .nullable()
-          .positive('Giá mới phải là số dương'),
+        weekendSurcharge: Yup.number().nullable().positive('Giá mới phải lớn hơn 0 '),
       })
     )
     .max(2, 'Không thể thêm quá 2 mục giá cuối tuần'),
   seasonEntries: Yup.array().of(
     Yup.object().shape({
-      seasonFrom: Yup.date()
-        .nullable()
-        .required('Ngày bắt đầu là bắt buộc'),
+      seasonFrom: Yup.date().nullable().required('Ngày bắt đầu là bắt buộc'),
       seasonTo: Yup.date()
         .nullable()
         .required('Ngày kết thúc là bắt buộc')
-        .min(
-          Yup.ref('seasonFrom'),
-          'Ngày kết thúc phải lớn hơn ngày bắt đầu'
-        )
+        .min(Yup.ref('seasonFrom'), 'Ngày kết thúc phải lớn hơn ngày bắt đầu')
         .max(
           new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           'Ngày kết thúc không được vượt quá 1 năm kể từ ngày hiện tại'
         ),
-      seasonSurcharge: Yup.number()
-        .nullable()
-        .positive('Giá mới phải là số dương'),
+      seasonSurcharge: Yup.number().nullable().positive('Giá mới phải là số dương'),
       seasonDescription: Yup.string(),
     })
   ),
@@ -94,12 +83,12 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      defaultPrice: 1000,
-      weekendEntries: [{ weekendFee: 6, weekendSurcharge: 100 }],
+      defaultPrice: 1000000,
+      weekendEntries: [{ weekendFee: 6, weekendSurcharge: 2000000 }],
       seasonEntries: [
         {
-          seasonFrom: new Date(2024, 10, 20),
-          seasonTo: new Date(2024, 10, 21),
+          seasonFrom: new Date(),
+          seasonTo: new Date(2025, 10, 21),
           seasonSurcharge: 100,
           seasonDescription: 'Ngày Lễ 20/11',
         },
@@ -169,24 +158,23 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
       onSubmit={handleSubmit(handleFormSubmit)}
       noValidate
       autoComplete="off"
-      sx={{ maxWidth: 600, mx: 'auto', p: 2 }}
+      sx={{ maxWidth: 800, mx: 'auto', px: 5, width: 1000 }}
     >
       <Typography variant="h6" gutterBottom>
         Giá theo từng thời điểm của nơi lưu trú
       </Typography>
 
-      <TextField
-        label="Giá mặc định"
-        variant="outlined"
+      <NumericFormat
+        value={watch('defaultPrice')}
+        thousandSeparator=","
+        prefix="VNĐ "
+        customInput={TextField}
         fullWidth
-        type="number"
-        {...register('defaultPrice')}
+        onValueChange={(values) => setValue('defaultPrice', values.floatValue || 0)}
         error={!!errors.defaultPrice}
         helperText={errors.defaultPrice?.message}
+        label="Giá mặc định"
         margin="normal"
-        InputProps={{
-          endAdornment: <InputAdornment position="end">VND</InputAdornment>,
-        }}
       />
 
       {/* Weekend Entries */}
@@ -196,7 +184,7 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
       </Typography>
       {weekendEntries.map((entry, index) => (
         <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{ maxWidth: '50%' }}>
             <InputLabel>Ngày cuối tuần</InputLabel>
             <Select
               label="Ngày cuối tuần"
@@ -216,17 +204,21 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
               </MenuItem>
             </Select>
           </FormControl>
-          <TextField
-            label="Giá mới"
-            variant="outlined"
-            type="number"
-            {...register(`weekendEntries.${index}.weekendSurcharge`)}
+          <NumericFormat
+            value={watch(`weekendEntries.${index}.weekendSurcharge`)}
+            thousandSeparator=","
+            prefix="VNĐ "
+            customInput={TextField}
+            fullWidth
+            onValueChange={(values) =>
+              setValue(`weekendEntries.${index}.weekendSurcharge`, values.floatValue || 0)
+            }
             error={!!errors?.weekendEntries?.[index]?.weekendSurcharge}
             helperText={errors?.weekendEntries?.[index]?.weekendSurcharge?.message}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">VND</InputAdornment>,
-            }}
+            label="Giá mới"
+            margin="normal"
           />
+
           <IconButton onClick={() => removeWeekendEntry(index)} color="error">
             <RemoveIcon />
           </IconButton>
@@ -278,10 +270,7 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
                     {errors.seasonEntries?.[index]?.seasonFrom?.message}
                   </Typography>
                 )}
-
               </>
-
-
             )}
           />
           <Controller
@@ -308,28 +297,23 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
                   </Typography>
                 )}
               </>
-
             )}
           />
-          <TextField
-            label="Giá mới"
-            variant="outlined"
-            type="number"
-            {...register(`seasonEntries.${index}.seasonSurcharge`)}
+          <NumericFormat
+            value={watch(`seasonEntries.${index}.seasonSurcharge`)}
+            thousandSeparator=","
+            prefix="VNĐ "
+            customInput={TextField}
+            fullWidth
+            onValueChange={(values) =>
+              setValue(`seasonEntries.${index}.seasonSurcharge`, values.floatValue || 0)
+            }
             error={!!errors.seasonEntries?.[index]?.seasonSurcharge}
             helperText={errors.seasonEntries?.[index]?.seasonSurcharge?.message}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">VND</InputAdornment>,
-            }}
+            label="Giá mới"
+            margin="normal"
           />
-          {/* <TextField
-            label="Mô tả"
-            variant="outlined"
-            fullWidth
-            {...register(`seasonEntries.${index}.seasonDescription`)}
-            error={!!errors.seasonEntries?.[index]?.seasonDescription}
-            helperText={errors.seasonEntries?.[index]?.seasonDescription?.message}
-          /> */}
+
           <IconButton onClick={() => removeSeasonEntry(index)} color="error">
             <RemoveIcon />
           </IconButton>

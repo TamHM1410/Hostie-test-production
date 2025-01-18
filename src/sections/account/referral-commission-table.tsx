@@ -58,7 +58,7 @@ const ReferralCommissionTable = ({ referListData, totalCommission }) => {
             fontSize: '1rem'
           }}
         >
-          Thống Kê Hoa Hồng Giới Thiệu
+          Thống kê khuyến mãi của bạn <br/> <span style={{fontWeight:400,fontStyle:'italic',fontSize:12}}>(*Được áp dụng khi mua gói)</span>
         </Typography>
         
         <TableContainer 
@@ -84,7 +84,7 @@ const ReferralCommissionTable = ({ referListData, totalCommission }) => {
                 >
                   Tài khoản
                 </StyledHeaderCell>
-                <Tooltip title="Phần trăm hoa hồng được hưởng khi giới thiệu người dùng" placement="top">
+                <Tooltip title="Phần trăm khuyến mãi được hưởng khi giới thiệu người dùng" placement="top">
                   <StyledHeaderCell 
                     align="right"
                     sx={{ 
@@ -94,7 +94,7 @@ const ReferralCommissionTable = ({ referListData, totalCommission }) => {
                       zIndex: 1
                     }}
                   >
-                    % Hoa Hồng
+                    % Khuyến mãi
                   </StyledHeaderCell>
                 </Tooltip>
               </TableRow>
@@ -146,7 +146,7 @@ const ReferralCommissionTable = ({ referListData, totalCommission }) => {
               fontSize: '0.875rem'
             }}
           >
-            Tổng % Hoa Hồng
+            Tổng % Khuyến mãi
           </Typography>
           <Typography 
             sx={{ 

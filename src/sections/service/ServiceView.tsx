@@ -477,7 +477,7 @@ export default function ServiceView() {
             }
 
             {/* Dialog */}
-            <Dialog open={open} onClose={undefined} maxWidth="md">
+            <Dialog open={open} onClose={undefined} maxWidth="md" sx={{width:'auto'}}>
                 <DialogTitle>
                     <Typography fontSize={30} fontWeight="bold">
                         Tạo nơi lưu trú

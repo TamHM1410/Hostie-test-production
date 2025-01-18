@@ -61,7 +61,7 @@ interface BookingContextProps {
   policy: any;
   fetchImages: (id: any) => void;
   images: any;
-  mapUsersOnline: Map<number, boolean>
+  mapUsersOnline: Map<number, boolean>;
 }
 
 const BookingContext = createContext<BookingContextProps | undefined>(undefined);
@@ -106,16 +106,10 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setLoading(true);
     try {
       const response = await axiosClient2.get(`${API_BASE_URL}/residences/${id}/policy`, {});
-
-      if (response.status === 200) {
-        const data1 = response.data;
-        setPolicy(data1.data);
-        setLoading(false);
-      } else {
-        console.error('Failed to fetch residence data');
-      }
+      const data1 = response.data;
+      setPolicy(response.data?.data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching residence data:', error);
     } finally {
       setLoading(false);
     }
@@ -204,12 +198,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       apiQuery = `?page_size=${pageSize}&page=${page}&month=${year}-${formattedMonth}`;
     }
 
-
     if (typeOfDate === 'range') {
       apiQuery = `?page_size=${pageSize}&page=${page}&from=${rangeDate.from}&to=${rangeDate.to}`;
     }
-
-    
 
     // Add parameters to the query only if they are not null or undefined
     if (formattedCheckinDate) {
@@ -261,18 +252,17 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error('Unable to fetch user online');
       }
 
-      const usersOnline  = response?.data?.data || []
+      const usersOnline = response?.data?.data || [];
       const newMap = new Map<number, boolean>();
 
       // Populate the map with user IDs and set the value to true (indicating online status)
-      for (let i = 0; i < usersOnline.length; i+=1) {
+      for (let i = 0; i < usersOnline.length; i += 1) {
         newMap.set(usersOnline[i], true);
       }
 
       // Update the state with the new map
       setMapUsersOnline(newMap);
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const fetchProvince = async () => {
@@ -326,7 +316,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         guest_count,
       });
 
-
       const newData = response.data?.data?.find((d: any) => d.residence_id === id);
       setPriceQuotation(newData);
     } catch (err: any) {
@@ -346,7 +335,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setBookingData(data.data.data.calendars);
       setTotalPages(data.data.data.total_pages);
     } catch (error) {
-   
     } finally {
       setLoading(false);
     }
@@ -544,7 +532,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       fetchImages,
       images,
       fetchUsersOnline,
-      mapUsersOnline
+      mapUsersOnline,
     }),
     [
       bookingData,
@@ -558,7 +546,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       priceQuotation,
       provinceList,
       policy,
-      mapUsersOnline
+      mapUsersOnline,
     ]
   );
 

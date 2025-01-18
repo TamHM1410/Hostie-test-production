@@ -91,8 +91,6 @@ export default function OverviewAnalyticsView() {
           }
 
           const seller_res = await getSellerAnalytic();
-
-
           if (seller_res?.data) {
             const this_year = seller_res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.this_year;
@@ -100,15 +98,11 @@ export default function OverviewAnalyticsView() {
             const last_year = seller_res?.data?.income_by_month[0].data.map((item: any) => {
               return item?.last_year;
             });
-
             setTotalSellResidence(seller_res?.data?.total_sold);
-
             setSellThisYear(this_year);
             setSellLastYear(last_year);
-            // setTotalResidence(res?.data?.total_sold);
             setTotalSellRevenue(seller_res?.data?.total_revenue);
             setTotalSellCommission(seller_res?.data?.total_commission);
-            // setTotalRevenue(res?.data?.total_revenue);
           }
           return seller_res?.data;
         },

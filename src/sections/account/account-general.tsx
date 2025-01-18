@@ -3,6 +3,11 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useUserManagement } from 'src/api/useUserManagement';
+import { UserInfor } from 'src/types/users';
+import { useDefaultAvatar } from 'src/hooks/use-avatar';
+import { useSession } from 'next-auth/react';
+import { useSnackbar } from 'src/components/snackbar';
+
 // @mui
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -20,32 +25,25 @@ import { fData } from 'src/utils/format-number';
 // assets
 import Image from 'next/image';
 // components
-import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
 import { Plus as PlusIcon, Trash as TrashIcon } from 'lucide-react';
 
 import LoadingButton from '@mui/lab/LoadingButton';
 // ----------------------------------------------------
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 /// type
-import { UserInfor } from 'src/types/users';
-import { useDefaultAvatar } from 'src/hooks/use-avatar';
-import Textfield from '../_examples/mui/textfield-view/textfield';
 
-import toast from 'react-hot-toast';
-import { useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import ReferralCommissionTable from './referral-commission-table';
 
 export default function AccountGeneral(props: any) {
   const { updateUserInfo, getReferredAccount, getTotalCommissionPackage } = useUserManagement();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const { userData, bankName = [] ,referListData=[],totalCommission=0} = props;
+  const { userData, bankName = [], referListData = [], totalCommission = 0 } = props;
 
-  console.log('ref:',referListData ,'total commission',totalCommission)
+ 
   const { defaultAvatar } = useDefaultAvatar();
-  const {data:session}=useSession()
+  const { data: session } = useSession();
 
   const [phoneList, setPhoneList] = useState<any[]>(() =>
     userData?.phones && Array.isArray(userData?.phones) && userData?.phones.length > 0
@@ -60,13 +58,13 @@ export default function AccountGeneral(props: any) {
       ? userData?.bankAccounts
       : [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]
   );
+ 
 
   const [visibleBanks, setVisibleBanks] = useState(2);
   const [isShowingAll, setIsShowingAll] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isEditImage, setEditImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
 
   const UpdateUserSchema = Yup.object().shape({
     firstName: Yup.string().required('Tên là bắt buộc'),
@@ -127,7 +125,10 @@ export default function AccountGeneral(props: any) {
 
   const handleAddBank = () => {
     const currentBanks = getValues('bankAccounts') || [];
-    setValue('bankAccounts', [...currentBanks, { accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
+    setValue('bankAccounts', [
+      ...currentBanks,
+      { accountNo: 0, accountHolder: '', status: 2, bankId: 0 },
+    ]);
     setBankList((prev) => [...prev, { accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
   };
 
@@ -159,21 +160,16 @@ export default function AccountGeneral(props: any) {
     onSuccess: () => {
       enqueueSnackbar('Cập nhật thành công!');
       setIsEdit(!isEdit);
-      setIsLoading(false)
+      setIsLoading(false);
     },
-    onError:()=>      setIsLoading(false)
-
+    onError: () => setIsLoading(false),
   });
 
-
-
-  
   const onSubmit = handleSubmit(async (data) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-
-      const payload: UserInfor = {
+      const payload:any = {
         firstName: data.firstName,
         middleName: data.middleName,
         lastName: data.lastName,
@@ -185,10 +181,9 @@ export default function AccountGeneral(props: any) {
       setEditImage(false);
       mutate(payload);
       queryClient.invalidateQueries(['userTest'] as any);
-  
 
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   });
   const handleDrop = useCallback(
@@ -281,15 +276,16 @@ export default function AccountGeneral(props: any) {
             )}
 
             <Button variant="soft" color="success" sx={{ mt: 3 }}>
-              {session?.user?.roles === "HOST" && "Chủ nhà"}
-              {session?.user?.roles === "SELLER" && "Môi giới"}
-              {session?.user?.roles === "HOUSEKEEPER" && "Người quản gia"}
-              {session?.user?.roles === "ADMIN" && "Quản trị viên"}
+              {session?.user?.roles === 'HOST' && 'Chủ nhà'}
+              {session?.user?.roles === 'SELLER' && 'Môi giới'}
+              {session?.user?.roles === 'HOUSEKEEPER' && 'Người quản gia'}
+              {session?.user?.roles === 'ADMIN' && 'Quản trị viên'}
             </Button>
 
-           
-         <ReferralCommissionTable referListData={referListData} 
-  totalCommission={totalCommission}/>
+            <ReferralCommissionTable
+              referListData={referListData}
+              totalCommission={totalCommission}
+            />
           </Card>
         </Grid>
 
@@ -387,7 +383,7 @@ export default function AccountGeneral(props: any) {
                 onClick={handleAddBank}
                 sx={{ mt: 2 }}
                 variant="outlined"
-                >
+              >
                 Thêm tài khoản ngân hàng
               </Button>
             )}
@@ -437,10 +433,16 @@ export default function AccountGeneral(props: any) {
                       lastName: userData?.lastName,
                       phones: userData?.phones || [{ phone: '', status: 2 }],
                       email: userData?.email,
-                      bankAccounts: userData?.bankAccounts || [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }],
+                      bankAccounts: userData?.bankAccounts || [
+                        { accountNo: 0, accountHolder: '', status: 2, bankId: 0 },
+                      ],
                     });
                     setPhoneList(userData?.phones || [{ phone: '', status: 2 }]);
-                    setBankList(userData?.bankAccounts || [{ accountNo: 0, accountHolder: '', status: 2, bankId: 0 }]);
+                    setBankList(
+                      userData?.bankAccounts || [
+                        { accountNo: 0, accountHolder: '', status: 2, bankId: 0 },
+                      ]
+                    );
                   }
                 }}
               >

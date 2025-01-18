@@ -23,6 +23,7 @@ const statusOption = ['Từ chối', 'Đang xử lý', 'Chấp thuận'];
 
 const ResidenceTable = (props: any) => {
   const { data = [] } = props;
+  console.log(data,'data')
   const [open, setOpen] = useState<boolean>(false);
 
   const columns = [

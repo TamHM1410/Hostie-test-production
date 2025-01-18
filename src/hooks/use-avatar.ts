@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import avatar from 'public/assets/undefined_Icon.png'
 
 
 export const useDefaultAvatar=()=> {

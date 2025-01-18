@@ -34,6 +34,7 @@ import DatePickerForm from './BooingFormOnInFor';
 import { formattedAmount } from 'src/utils/format-time';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export default function ForumTypeInFormation() {
   const settings = {
@@ -93,9 +94,9 @@ export default function ForumTypeInFormation() {
     setOpenForm(false);
   };
   useEffect(() => {
-    fetchResidenceInfor(219);
-    fetchPolicy(219);
-    fetchImages(219);
+    fetchResidenceInfor(350);
+    fetchPolicy(350);
+    fetchImages(350);
   }, []);
   const [copied, setCopied] = useState(false);
 
@@ -114,6 +115,8 @@ export default function ForumTypeInFormation() {
     }
   };
 
+  console.log(residenceInfor, 'residence infor');
+
   return (
     <Paper
       style={{
@@ -131,7 +134,7 @@ export default function ForumTypeInFormation() {
               Tên nơi lưu trú :{' '}
               <Typography fontSize="20px"> {residenceInfor?.residence_name}</Typography>
             </Typography>
-            <Box display="flex" flexWrap="wrap" alignItems="center" gap={4} mt={2}>
+            <Box display="flex" flexWrap="wrap" alignItems="center" gap={2} mt={2}>
               <Tooltip title={copied ? 'Đã sao chép' : 'Sao chép số điện thoại'}>
                 <Typography
                   onClick={handleCopy}
@@ -159,8 +162,7 @@ export default function ForumTypeInFormation() {
                   <PhoneOutlined sx={{ color: '#2152FF' }} />
                 </Typography>
               </Tooltip>
-
-              <Divider orientation="vertical" flexItem />
+              {/* <Divider orientation="vertical" flexItem />
               <MUILink
                 href={residenceInfor?.residence_website || 'https://www.facebook.com/'}
                 variant="body1"
@@ -170,26 +172,53 @@ export default function ForumTypeInFormation() {
                 rel="noopener noreferrer" // Bảo mật khi dùng target="_blank"
               >
                 Link hình ảnh <LinkOutlined style={{ color: '#2152FF' }} />
-              </MUILink>
+              </MUILink> */}
               <Divider orientation="vertical" flexItem />
               <MUILink
-                href={policy?.files?.[0]?.file_url || 'https://www.facebook.com/'} // Đúng cú pháp
+                href={policy?.files?.[0]?.file_url} // Đúng cú pháp
                 variant="body1"
                 underline="hover"
                 sx={{ display: 'flex', gap: 1, color: 'inherit' }}
                 target="_blank" // Mở liên kết trong tab mới
                 rel="noopener noreferrer" // Bảo mật khi dùng target="_blank"
               >
-                Chính sách <LinkOutlined style={{ color: '#2152FF' }} />
+                Chính sách căn hộ <LinkOutlined style={{ color: '#2152FF' }} />
               </MUILink>
               <Divider orientation="vertical" flexItem />
-              <Tooltip title="Nhắn tin cho chủ nhà">
-                <IconButton
-                  onClick={() => router.push(`/dashboard/chat/?id=${residenceInfor?.host_id}`)}
-                >
-                  <Chat />
-                </IconButton>
-              </Tooltip>
+              <Box
+                display="flex"
+                alignItems='center'
+                gap={2}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    textDecoration: 'underline', // Gạch chân khi hover
+                  },
+                }}
+              >
+                Liên hệ
+                <Tooltip title="Nhắn tin cho chủ nhà">
+                  <IconButton
+                    onClick={() => router.push(`/dashboard/chat/?id=${residenceInfor?.host_id}`)}
+                  >
+                    <Chat style={{ color: '#2152FF' }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              <Divider orientation="vertical" flexItem />
+              <Box
+                display="flex"
+                gap={2}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    textDecoration: 'underline', // Gạch chân khi hover
+                  },
+                }}
+              >
+                Chính sách hủy <CancelIcon style={{ color: '#2152FF' }} />
+              </Box>
             </Box>
 
             <Tooltip title={copied ? 'Đã sao chép địa chỉ' : 'Sao chép địa chỉ'} placement="left">

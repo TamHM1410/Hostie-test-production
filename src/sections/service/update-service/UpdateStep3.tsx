@@ -9,6 +9,7 @@ import {
     IconButton,
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
+
 import DeleteIcon from '@mui/icons-material/Delete';
 import toast from 'react-hot-toast';
 

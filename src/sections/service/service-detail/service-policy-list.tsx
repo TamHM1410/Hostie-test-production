@@ -212,7 +212,7 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1, padding: 2 }}>
+      <Box sx={{ flexGrow: 1, padding: 2 ,width:'100%',minWidth:400}}>
         {!isAddNew && type === '' && (
           <Button
             variant="contained"

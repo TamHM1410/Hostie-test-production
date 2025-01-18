@@ -29,9 +29,19 @@ const NoDataCancelPolicy = () => {
 
   return (
     <>
-      <Box>
-        <Box sx={{ textAlign: 'center' }}>Hiện tại căn hộ chưa có chính sách hủy</Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 5 }}>
+      <Box sx={{ width: '100%' }}>
+        {!isMapCancel && (
+          <Box sx={{ textAlign: 'center' }}>Hiện tại căn hộ chưa có chính sách hủy</Box>
+        )}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            px: 5,
+            justifyContent: 'center',
+          }}
+        >
           {isMapCancel && <ServicePolicyList data={data} type="update" id={id} />}
 
           <Button
@@ -55,9 +65,8 @@ export default function ServiceDetailView() {
     queryKey: ['residencePolicy'],
     queryFn: () => get_all_policy(id),
   });
-  
-  if (isLoading) return <LoadingScreen />;
 
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <>
@@ -70,13 +79,13 @@ export default function ServiceDetailView() {
           px: 1,
         }}
       />
-
-
-      {Array.isArray(data) && data.length > 0 ? (
-        <ServicePolicyList data={data} type="h" />
-      ) : (
-        <NoDataCancelPolicy />
-      )}
+      <Box>
+        {Array.isArray(data) && data.length > 0 ? (
+          <ServicePolicyList data={data} type="h" />
+        ) : (
+          <NoDataCancelPolicy />
+        )}
+      </Box>
     </>
   );
 }
