@@ -47,7 +47,7 @@ const TABS = [
 
 export default function AccountView() {
 
-  const {getUserInfo}=useUserManagement()
+  const {getUserInfo,getReferredAccount,getTotalCommissionPackage}=useUserManagement()
   const settings = useSettingsContext();
 
   const { updateUserSelected } = useCurrentUser();
@@ -61,6 +61,12 @@ export default function AccountView() {
     },{
       queryKey:['bankList'],
       queryFn:()=>getBankList()
+    },{
+      queryKey:['referenceAccountList'],
+      queryFn:()=>getReferredAccount()
+    },{
+      queryKey:['totalCommission'],
+      queryFn:()=>getTotalCommissionPackage()
     }],
     combine: (results) => {
       return {
@@ -79,7 +85,6 @@ export default function AccountView() {
   if (result?.pending) {
     return <LoadingScreen />;
   }
-
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -106,9 +111,9 @@ export default function AccountView() {
         ))}
       </Tabs>
 
-      {currentTab === 'general' && <AccountGeneral userData={result?.data[0]} bankName={result?.data[1]} />}
+      {currentTab === 'general' && <AccountGeneral userData={result?.data[0]} bankName={result?.data[1]} referListData={result?.data[2]} totalCommission={result?.data[3]} />}
 
-      {currentTab === 'social' && <AccountSocialLinks socialLinks={_userAbout.socialLinks}  socials={result?.data[0]?.socials} />}
+      {currentTab === 'social' && <AccountSocialLinks socialLinks={_userAbout.socialLinks}  socials={result?.data[0]?.socials}  />}
 
     </Container>
   );

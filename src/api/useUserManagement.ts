@@ -5,6 +5,42 @@ import toast from 'react-hot-toast';
 export const useUserManagement = () => {
   const axiosAuth = useAxiosAuth();
 
+  const getReferredAccount = useCallback(
+    async () => {
+      try {
+        const response = await axiosAuth.get<any>(
+          `${endPoint.user.getReferredAccounts}`
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof Error) {
+          // toast.error(error.message);
+          throw new Error(error.message);
+        }
+        throw new Error('Đăng nhập thất bại');
+      }
+    },
+    [axiosAuth]
+  );
+  
+  const getTotalCommissionPackage = useCallback(
+    async () => {
+      try {
+        const response = await axiosAuth.get<any>(
+          `${endPoint.user.totalCommissionPackage}`
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof Error) {
+          // toast.error(error.message);
+          throw new Error(error.message);
+        }
+        throw new Error('Đăng nhập thất bại');
+      }
+    },
+    [axiosAuth]
+  );
+
   const getAllUsers = useCallback(
     async ({ limit = 1000, search = '' }) => {
       try {
@@ -14,7 +50,7 @@ export const useUserManagement = () => {
         return response;
       } catch (error) {
         if (error instanceof Error) {
-          toast.error(error.message);
+          // toast.error(error.message);
           throw new Error(error.message);
         }
         throw new Error('Đăng nhập thất bại');
@@ -127,5 +163,7 @@ export const useUserManagement = () => {
     getUserReferralLink,
     rejectUserReview,
     approveUserReview,
+    getReferredAccount, 
+    getTotalCommissionPackage,
   };
 };

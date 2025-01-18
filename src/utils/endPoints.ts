@@ -16,6 +16,9 @@ const endPoint = {
     avatar: `/v1/api/files/upload-avatar`,
     role: '/v1/api/users/my-roles',
     confirmVerification: '/v1/api/email/confirm-verification',
+    getReferredAccounts: `/v1/api/users/referred-accounts`,
+    totalCommissionPackage: `/v1/api/users/total-commission-for-package`,
+
   },
   butler: {
     residence: '/v1/api/housekeepers/my-residences',

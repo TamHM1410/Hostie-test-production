@@ -35,12 +35,15 @@ import Textfield from '../_examples/mui/textfield-view/textfield';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import ReferralCommissionTable from './referral-commission-table';
 
 export default function AccountGeneral(props: any) {
-  const { updateUserInfo } = useUserManagement();
+  const { updateUserInfo, getReferredAccount, getTotalCommissionPackage } = useUserManagement();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const { userData, bankName = [] } = props;
+  const { userData, bankName = [] ,referListData=[],totalCommission=0} = props;
+
+  console.log('ref:',referListData ,'total commission',totalCommission)
   const { defaultAvatar } = useDefaultAvatar();
   const {data:session}=useSession()
 
@@ -162,6 +165,9 @@ export default function AccountGeneral(props: any) {
 
   });
 
+
+
+  
   const onSubmit = handleSubmit(async (data) => {
     setIsLoading(true)
 
@@ -281,10 +287,9 @@ export default function AccountGeneral(props: any) {
               {session?.user?.roles === "ADMIN" && "Quản trị viên"}
             </Button>
 
-            <Box sx={{ mt: 3, display: 'flex', width: '100%', justifyContent: 'center', gap: 2 }}>
-              <span>Mã giới thiệu của bạn:</span>
-              <Box>{userData?.referenceCode}</Box>
-            </Box>
+           
+         <ReferralCommissionTable referListData={referListData} 
+  totalCommission={totalCommission}/>
           </Card>
         </Grid>
 
