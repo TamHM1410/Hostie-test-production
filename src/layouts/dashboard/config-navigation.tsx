@@ -53,14 +53,14 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
-  const { data: session, status } = useSession(); // Added status to track authentication state
+  const { data: session } = useSession(); // Added status to track authentication state
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
     if (!session?.user.roles) {
       router.push('/auth/jwt/login');
     }
-  }, [session, status]);
+  }, [session]);
 
   const data = useMemo(
     () => [
