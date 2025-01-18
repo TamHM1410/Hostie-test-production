@@ -254,7 +254,7 @@ const Tiptap = ({
 
         const res = await sendNewMessage(form);
         if (res) {
-          queryClient.invalidateQueries(['listConversation']);
+          queryClient.invalidateQueries(['listConversation'] as any);
           messageRef.current.push(payload);
           listNewMessageRef.current.push(payload);
           setDetailMessage([...messageRef.current]);

@@ -20,16 +20,18 @@ export default function SwiperSlider({images}:any) {
         className="mySwiper"
       >
         {Array.isArray(images) && images.length > 0 && images.map((item, index) => (
-          <SwiperSlide key={index}>
+          <SwiperSlide key={index } style={{display:'flex',alignItems:'center' ,maxHeight:500}}>
             <Image 
               src={item?.url} 
               alt=''
-              width={800}    // Tăng kích thước ảnh
-              height={600}   // Tăng kích thước ảnh
+              width={400}    // Tăng kích thước ảnh
+              height={450}   // Tăng kích thước ảnh
               quality={100}  // Tăng chất lượng ảnh (0-100)
-              priority      // Ưu tiên tải ảnh này
+        
+             
+              loading='lazy'
               style={{
-                objectFit: 'contain',  // hoặc 'cover' tùy nhu cầu
+                objectFit: 'contain',
                 width: '100%',
                 height: '100%'
               }}

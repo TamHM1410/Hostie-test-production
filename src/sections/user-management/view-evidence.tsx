@@ -65,6 +65,7 @@ const ViewEvidenceModal = (props: any) => {
         onClose={() => setOpen(false)}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
+        sx={{width:'auto',height:'auto'}}
       >
         <Box
           sx={{
@@ -73,12 +74,13 @@ const ViewEvidenceModal = (props: any) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: 'auto',
-            maxWidth:1000,
+            maxWidth:900,
             height: 'auto',
+            maxHeight:850,
             bgcolor: 'background.paper',
             borderRadius:2,
             boxShadow: 24,
-            p: 4,
+            p: 2,
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2">
@@ -86,7 +88,7 @@ const ViewEvidenceModal = (props: any) => {
                     </Typography>
           <FormControl onSubmit={onSubmit} sx={{ width: '100%' }}>
             <Grid md={12} xs={8}>
-              <Card sx={{ p: 3, mt: 2 }}>
+              <Card sx={{ p: 0.5, mt: 2 }}>
                
                 <SwiperSlider images={images}/>
 

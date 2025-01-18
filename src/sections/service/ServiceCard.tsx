@@ -131,7 +131,7 @@ export default function ServiceCardList({
         setIsLoading(true)
         if (confirmName === selectedName) {
             try {
-                const response = await axiosClient.delete(`${baseURL}/residences/`, {
+                const response = await axiosClient.delete(`${baseURL}/residences`, {
                     data: { id: selectedId }, // Use `data` for the body in Axios
                 });
 

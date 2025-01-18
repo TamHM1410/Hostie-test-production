@@ -105,7 +105,6 @@ export default function OverviewAnalyticsView() {
 
             setSellThisYear(this_year);
             setSellLastYear(last_year);
-            setTotalCommission(seller_res?.data?.total_commission);
             // setTotalResidence(res?.data?.total_sold);
             setTotalSellRevenue(seller_res?.data?.total_revenue);
             setTotalSellCommission(seller_res?.data?.total_commission);
@@ -206,7 +205,7 @@ export default function OverviewAnalyticsView() {
         {session?.user?.roles === 'HOST' && (
           <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
             <AnalyticsWidgetSummary
-              title={session?.user?.roles === 'HOST' ? 'Hoa hồng cho seller' : 'Hoa hồng của bạn '}
+              title={'Hoa hồng cho seller' }
               total={commission}
               color="error"
               icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
