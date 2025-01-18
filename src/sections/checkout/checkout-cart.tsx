@@ -37,6 +37,7 @@ export default function CheckoutCart({ discount, data, step }: any) {
   const id = searchParam.get('packageId');
   const type = searchParam.get('type');
 
+
   
   const handleNextStep = () => {
     router.push(`/pricing/checkout/?step=1&type=${type}&packageId=${id}`);
@@ -96,7 +97,7 @@ export default function CheckoutCart({ discount, data, step }: any) {
           total={data?.price}
           discount={discount}
           subTotal={
-            data?.upgradeCost === 0 || !data?.upgradeCost ? data?.originalPrice : data?.upgradeCost
+            data?.upgradeCost === 0 || !data?.upgradeCost||type!=="upgrade" ? data?.originalPrice : data?.upgradeCost
           }
           onApplyDiscount={checkout.onApplyDiscount}
         />

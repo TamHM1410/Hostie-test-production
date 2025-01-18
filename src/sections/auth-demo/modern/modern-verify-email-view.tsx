@@ -3,6 +3,7 @@
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -31,6 +32,7 @@ export default function ModernNewVerifyEmail() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const [sending, setSending] = useState(false);
 
   const NewPasswordSchema = Yup.object().shape({
     // code: Yup.string().min(6, 'Code must be at least 6 characters').required('Code is required'),
@@ -62,13 +64,17 @@ export default function ModernNewVerifyEmail() {
 
   const onSend = async () => {
     try {
+      setSending(true);
       const res = await confirmVerifyEmail(token);
       if (res) {
         toast.success('Xác nhận thành công');
         router.push('/');
+        setSending(false);
       }
     } catch (error) {
       console.error(error);
+      setSending(false);
+      toast.error('Error');
     }
   };
   const onSubmit = async () => {};
@@ -80,7 +86,7 @@ export default function ModernNewVerifyEmail() {
         size="large"
         type="submit"
         variant="contained"
-        loading={isSubmitting}
+        loading={sending}
         onClick={onSend}
       >
         Xác nhận
@@ -96,12 +102,6 @@ export default function ModernNewVerifyEmail() {
         <Typography variant="h5">
           Vui lòng xác nhận để hoàn tất quá trình xác thực email của bạn.{' '}
         </Typography>
-
-        {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        Chúng tôi&apos;đã gửi email xác nhận gồm  chữ số đến email của bạn.
-          <br />
-          Vui lòng nhập mã vào ô bên dưới để xác minh email của bạn.
-        </Typography> */}
       </Stack>
     </>
   );

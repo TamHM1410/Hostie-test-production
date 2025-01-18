@@ -262,7 +262,7 @@ export const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                         >
                             <Typography variant="body2">Tên khách hàng:</Typography>
                             <Typography variant="body2" fontWeight="bold">
-                                {customerList?.data?.find((n) => n.id === parseInt(formValues.guest_id))?.name || 'N/A'}
+                                {customerList?.data?.find((n) => n.id === parseInt(formValues.guest_id))?.name || 'Trống'}
                             </Typography>
                         </Box>
                         <Box

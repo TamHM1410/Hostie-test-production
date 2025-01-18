@@ -70,7 +70,7 @@ const DayCell = React.memo(
           className="corner-number"
           style={{ color: 'rgb(0 0 0)', fontWeight: 400, fontSize: 14 }}
         >
-          {bookingInfo ? `${formattedAmountCalender(bookingInfo.price)}` : 'N/A'}
+          {bookingInfo ? `${formattedAmountCalender(bookingInfo.price)}` : 'Trống'}
         </div>
         {bookingInfo?.start_point && (
           <div className="rectangle start-point">

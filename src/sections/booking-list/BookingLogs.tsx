@@ -173,7 +173,7 @@ const BookingLogsModal: React.FC<LogsTableModalProps> = ({ logs, open, onClose }
                                                                                 ? formatDate(change?.old_value)
                                                                                 : typeof change?.old_value === "boolean"
                                                                                     ? formatBoolean(change?.field, change?.old_value)
-                                                                                    : change?.old_value ?? "N/A"}
+                                                                                    : change?.old_value ?? "Trống"}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         {["total_amount", "paid_amount"].includes(change?.field)
@@ -182,7 +182,7 @@ const BookingLogsModal: React.FC<LogsTableModalProps> = ({ logs, open, onClose }
                                                                                 ? formatDate(change?.new_value)
                                                                                 : typeof change?.new_value === "boolean"
                                                                                     ? formatBoolean(change?.field, change?.new_value)
-                                                                                    : change?.new_value ?? "N/A"}
+                                                                                    : change?.new_value ?? "Trống"}
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ))}

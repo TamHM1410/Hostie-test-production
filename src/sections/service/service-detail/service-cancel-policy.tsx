@@ -7,8 +7,7 @@ import { Box, Button } from '@mui/material';
 
 //  @component
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import AddNewPolicyView from './add-cancel-policy-view';
-import DetailCancelPolicyForm from './detail-cancel-policy-form';
+
 import { LoadingScreen } from 'src/components/loading-screen';
 import ServicePolicyList from './service-policy-list';
 
@@ -20,7 +19,6 @@ export default function CancelPolicyView() {
     queryKey: ['cancelPolicies'],
     queryFn: () => get_all_policy(),
   });
-
 
   if (isLoading) return <LoadingScreen />;
 

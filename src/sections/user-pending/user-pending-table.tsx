@@ -97,7 +97,7 @@ const UserPendingTable = (props: any) => {
             return <a key={item?.url} href={item?.url}>{item?.url}</a>;
           });
         }
-        return <>N/A</>;
+        return <>Trống</>;
       },
     }),
 

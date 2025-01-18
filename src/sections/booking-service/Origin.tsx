@@ -282,7 +282,7 @@ const BookingDashboard = ({ month, year }: { month: any; year: any }) => {
                                             {isCellSelected(villa.name, day.day) && (
                                                 <div className="selected"></div> // This will be styled to create the border effect
                                             )}
-                                            <div className="corner-number">{bookingInfo ? `${bookingInfo.price}VND` : 'N/A'}</div>
+                                            <div className="corner-number">{bookingInfo ? `${bookingInfo.price}VND` : 'Trống'}</div>
 
                                             {/* Rectangle based on start_point, middle_point, end_point */}
                                             {bookingInfo && bookingInfo.start_point && (

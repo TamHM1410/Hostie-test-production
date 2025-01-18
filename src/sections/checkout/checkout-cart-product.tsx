@@ -15,6 +15,7 @@ import Iconify from 'src/components/iconify';
 
 // types
 import { ICheckoutItem } from 'src/types/checkout';
+import { useSearchParams } from 'next/navigation';
 //
 
 
@@ -29,6 +30,10 @@ type Props = {
 
 export default function CheckoutCartProduct({ row, onDelete, onDecrease, onIncrease }: Props) {
   const { name,  originalPrice,upgradeCost, coverUrl, description,duration } = row;
+  const searchParams = useSearchParams();
+
+  const type = searchParams.get('type') || 'normal';
+
 
 
   return (
@@ -45,7 +50,7 @@ export default function CheckoutCartProduct({ row, onDelete, onDecrease, onIncre
         </Stack>
       </TableCell>
 
-      <TableCell>{fCurrency((upgradeCost===0 ||!upgradeCost) ?originalPrice : upgradeCost)}</TableCell>
+      <TableCell>{fCurrency((upgradeCost===0 ||!upgradeCost|| type!=='upgrade') ? originalPrice : upgradeCost)}</TableCell>
 
       <TableCell>{duration ?duration :'0'} ngày</TableCell>
 
