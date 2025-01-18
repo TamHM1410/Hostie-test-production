@@ -114,13 +114,14 @@ const PolicyProgress = ({ item }: any) => {
     if (item && item?.length > 0) {
       const res = item?.map((item: any) => {
         return {
-          label: `Từ ${item?.from || 0} ${
+          label: `Trước ${item?.from || 0} ${
             item?.time_unit_from === 'hours' ? 'giờ' : 'ngày'
-          } Đến ${item?.to} ${item?.time_unit_to === 'hours' ? 'giờ' : 'ngày'}`,
+          } ${item?.to===null ?`trở đi ` :`đến ${item?.to} `}  ${item?.to !== null ? (item?.time_unit_to === 'hours' ? 'giờ' : 'ngày') : ''}` ,
           percentage: item?.fee,
         };
       });
-      return res;
+      const sorted=res.sort((a,b)=>a.percentage-b?.percentage)
+      return sorted;
     }
   }, [item]);
 
@@ -173,19 +174,7 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
     }
   }, [uniqueObjects]);
 
-  const stages = useMemo(() => {
-    if (cancel_policies && cancel_policies?.length > 0) {
-      const res = cancel_policies[0]?.map((item: any) => {
-        return {
-          label: `Từ ${item?.from || 0} ${
-            item?.time_unit_from === 'hours' ? 'giờ' : 'ngày'
-          } Đến ${item?.to} ${item?.time_unit_to === 'hours' ? 'giờ' : 'ngày'}`,
-          percentage: item?.fee,
-        };
-      });
-      return res;
-    }
-  }, [cancel_policies]);
+
 
   // const totalPercentage = stages.reduce((acc, stage) => acc + stage.percentage, 0);
 

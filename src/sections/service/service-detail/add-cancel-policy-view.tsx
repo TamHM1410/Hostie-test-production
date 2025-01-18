@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Yup from 'yup';
@@ -32,18 +32,18 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
   const queryClient = useQueryClient();
 
   const cancelPolicySchema = Yup.object().shape({
-    name: Yup.string().notRequired(),
+    name: Yup.string().required('Tên chính sách là bắt buộc '),
     description: Yup.string().required('Mô tả là bắt buộc'),
     cancel_policies: Yup.array().of(
       Yup.object().shape({
-        from: Yup.number().nullable().min(0),
-        to: Yup.number().nullable().min(0),
+        from: Yup.number().nullable(),
+        to: Yup.number().nullable(),
         fee: Yup.number()
           .required('Phí hủy là bắt buộc')
           .min(0, 'Phí hủy phải lớn hơn hoặc bằng 0')
           .max(100, 'Phí hủy phải nhỏ hơn hoặc bằng 100'),
-        time_unit_from: Yup.string().required('Đơn vị thời gian là bắt buộc'),
-        time_unit_to: Yup.string().required('Đơn vị thời gian là bắt buộc'),
+        time_unit_from: Yup.string().nullable().notRequired(),
+        time_unit_to: Yup.string().nullable().notRequired(),
         cancelable: Yup.boolean().required('Trường này là bắt buộc'),
       })
     ),
@@ -57,8 +57,16 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
         from: null,
         to: null,
         fee: '100',
-        time_unit_from: 'hours',
-        time_unit_to: 'hours',
+        time_unit_from: '',
+        time_unit_to: '',
+        cancelable: false,
+      },
+      {
+        from: null,
+        to: null,
+        fee: '0',
+        time_unit_from: '',
+        time_unit_to: '',
         cancelable: false,
       },
     ],
@@ -74,16 +82,15 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
     register,
     reset,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors, isSubmitting },
   } = methods;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, insert } = useFieldArray({
     control,
     name: 'cancel_policies',
   });
-
-  console.log(watch('cancel_policies'), 'watch');
 
   const onSubmit = async (data: any) => {
     try {
@@ -97,6 +104,18 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
       toast.error('Không thành công');
     }
   };
+
+
+  useEffect(() => {
+   // Lấy giá trị mới nhất của cancel_policies
+   const cancelPolicies = watch('cancel_policies');
+
+    if (cancelPolicies.length >= 2) {
+      for (let i = 1; i < cancelPolicies.length; i++) {
+        setValue(`cancel_policies.${i}.from`, cancelPolicies[i-1].to);
+      }
+    }
+  }, [watch('cancel_policies')]);
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -165,9 +184,8 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                   select
                   fullWidth
                   label="Đơn vị"
-                  {...register(`cancel_policies.${index}.time_unit_from`)} 
+                  {...register(`cancel_policies.${index}.time_unit_from`)}
                   value={watch(`cancel_policies.${index}.time_unit_from`)} // Thêm dòng này
-
                   error={!!errors.cancel_policies?.[index]?.time_unit_from}
                   helperText={errors.cancel_policies?.[index]?.time_unit_from?.message}
                 >
@@ -237,12 +255,10 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
           startIcon={<AddCircleIcon />}
           onClick={() => {
             const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
-            const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
-
-            console.log(lastPolicy, 'last');
+            const lastPolicy = cancelPolicies[cancelPolicies.length - 2]; // Lấy phần tử cuối cùng hiện tại
 
             if (lastPolicy) {
-              append({
+              insert(1, {
                 ...lastPolicy, // Sao chép giá trị phần tử cuối
                 from: lastPolicy?.to,
                 to: null,

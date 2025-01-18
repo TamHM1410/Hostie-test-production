@@ -129,17 +129,6 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
     }
   }, [data, reset]);
 
-  const handleAddPolicy = () => {
-    append({
-      from: null,
-      to: null,
-      fee: '',
-      time_unit_from: 'hours',
-      time_unit_to: 'hours',
-      cancelable: false,
-    });
-  };
-
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card className="p-4" sx={{ padding: 5 }}>
@@ -277,6 +266,7 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
                   InputProps={{
                     readOnly: isEdit,
                   }}
+                  disabled={index === 0 ? true : false}
                 />
               </Grid>
 
@@ -301,7 +291,6 @@ const DetailCancelPolicyForm = ({ data, onCancel, isSelected, setIsSelected, typ
             onClick={() => {
               const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
               const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
-
 
               if (lastPolicy) {
                 append({

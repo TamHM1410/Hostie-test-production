@@ -10,9 +10,6 @@ import { useLocales } from 'src/locales';
 
 import { useRouter } from 'next/navigation';
 
-
-
-import { useGetUserCurrentRole } from 'src/zustand/user';
 // components
 
 import SvgColor from 'src/components/svg-color';
@@ -56,8 +53,7 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const router = useRouter();
-  const {data:session}=useSession()
-
+  const { data: session } = useSession();
 
   useEffect(() => {
     // Kiểm tra nếu người dùng chưa có role và điều hướng tới trang đăng nhập
@@ -92,7 +88,6 @@ export function useNavData() {
               { title: 'Quản lý người dùng', path: paths.dashboard.user.root },
               { title: 'Quản lý quyền ', path: paths.dashboard.user.roles },
               { title: 'Danh sách người dùng cần duyệt ', path: '/dashboard/user-pending' },
-
             ],
           },
           {
@@ -143,7 +138,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, session]
   );
 
   const bulterNav = useMemo(
@@ -169,7 +164,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, session]
   );
 
   const userNav = useMemo(
@@ -185,7 +180,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, session]
   );
 
   const hostNav = useMemo(
@@ -225,7 +220,7 @@ export function useNavData() {
           },
           {
             title: 'Quản lý ',
-            path:paths.dashboard.manage_booking_residence,
+            path: paths.dashboard.manage_booking_residence,
             icon: ICONS.job,
             children: [
               {
@@ -271,7 +266,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, session]
   );
 
   const seller = useMemo(
@@ -306,7 +301,7 @@ export function useNavData() {
           },
           {
             title: 'Quản lý ',
-            path:  paths.dashboard.manage_customer,
+            path: paths.dashboard.manage_customer,
             icon: ICONS.job,
             children: [
               {
@@ -339,7 +334,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, session]
   );
 
   switch (session?.user?.roles) {

@@ -601,11 +601,14 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ rows }) => {
           <Box onClick={() => setViewPolicy(!viewPolicy)} sx={{ color: 'blue', cursor: 'pointer' }}>
             Chính sách hủy?
           </Box>
+          <Box sx={{display:'flex',justifyContent:'center'}}>
           {viewPolicy && policyData !== null && (
-            <Box>
+            <Box   sx={{width:'auto'}}>
               <ServicePolicyList data={policyData} type="cancelview" />
             </Box>
           )}
+          </Box>
+        
           {viewPolicy && policyData === null && <Box sx={{ py: 2 }}>Phí hủy mặc định là 100%</Box>}
           <Divider sx={{ my: 2 }} />
 
