@@ -83,7 +83,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
     if (!expire) return 'Đã hết hạn';
     if (status === 0) return 'Đã bị từ chối';
     if (isSellerTransfer) return 'Đã thanh toán thành công';
-    
+
     const minutesLeft = differenceInMinutes(parseISO(expire), new Date());
     return minutesLeft > 0 ? `${minutesLeft} phút còn lại` : 'Đã hết hạn';
   };
@@ -91,8 +91,8 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
   if (isLoading) {
     return null;
   }
-  
-  console.log(data,'data')
+
+  console.log(data, 'data');
   return (
     <Drawer
       anchor="right"
@@ -119,17 +119,53 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
                   Thông Tin Đặt Phòng
                 </Typography>
                 <Box sx={{ '& > *': { mt: 1 } }}>
-                  <Typography><strong>ID Đặt Phòng:</strong> {data?.booking?.id}</Typography>
-                  <Typography><strong>Ngày Nhận Phòng:</strong> {data?.booking?.checkin}</Typography>
-                  <Typography><strong>Ngày Trả Phòng:</strong> {data?.booking?.checkout}</Typography>
-                  <Typography><strong>Tên Khách:</strong> {data?.booking?.guest_name}</Typography>
-                  <Typography><strong>Số Điện Thoại:</strong> {data?.booking?.guest_phone}</Typography>
-                  <Typography><strong>Chỗ Nghỉ:</strong> {data?.booking?.residence_name}</Typography>
-                  <Typography><strong>Tổng Tiền:</strong> {formattedAmount(data?.booking?.total_amount)}</Typography>
-                  <Typography><strong>Số Tiền Cọc:</strong> {formattedAmount(data?.booking?.paid_amount)}</Typography>
-                  <Typography><strong>Tỷ Lệ Hoa Hồng:</strong> {data?.booking?.commission_rate}%</Typography>
-                  <Typography><strong>Phí Thêm Khách:</strong> {formattedAmount(data?.booking?.extra_guest_fee)}</Typography>
-                  <Typography><strong>Điểm:</strong> {data?.booking?.point}</Typography>
+                  <Typography>
+                    <strong>ID Đặt Phòng:</strong> {data?.booking?.id}
+                  </Typography>
+                  <Typography>
+                    <strong>Ngày Nhận Phòng:</strong> {data?.booking?.checkin}
+                  </Typography>
+                  <Typography>
+                    <strong>Ngày Trả Phòng:</strong> {data?.booking?.checkout}
+                  </Typography>
+                  <Typography>
+                    <strong>Tổng đêm:</strong> {data?.booking?.total_nights}
+                  </Typography>
+                  <Typography>
+                    <strong>Tên Khách:</strong> {data?.booking?.guest_name}
+                  </Typography>
+                  <Typography>
+                    <strong>Số Điện Thoại:</strong> {data?.booking?.guest_phone}
+                  </Typography>
+                  <Typography>
+                    <strong>Chỗ Nghỉ:</strong> {data?.booking?.residence_name}
+                  </Typography>
+                  <Typography>
+                    <strong>Tổng Tiền:</strong> {formattedAmount(data?.booking?.total_amount)}
+                  </Typography>
+                  <Typography>
+                    <strong>Số Tiền Cọc:</strong> {formattedAmount(data?.booking?.paid_amount)}
+                  </Typography>
+                  <Typography>
+                    <strong>Tỷ Lệ Hoa Hồng:</strong> {data?.booking?.commission_rate}%
+                  </Typography>
+                  <Typography>
+                    <strong>Phí Thêm Khách:</strong>{' '}
+                    {formattedAmount(
+                      data?.booking?.extra_guest_fee *
+                        data?.booking?.extra_guest_count *
+                        data?.booking?.total_nights
+                    )}
+                  </Typography>
+                  <Typography>
+                    <strong>Số khách :</strong> {data?.booking?.guest_count}
+                  </Typography>
+                  <Typography>
+                    <strong>Số khách vượt:</strong> {data?.booking?.extra_guest_count}
+                  </Typography>
+                  <Typography>
+                    <strong>Điểm:</strong> {data?.booking?.point}
+                  </Typography>
                 </Box>
               </CardContent>
             </Card>
@@ -139,12 +175,15 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
             <Card elevation={0}>
               <CardContent>
                 <Typography variant="h6" color="primary" gutterBottom>
-                  Thông Tin Chủ Nhà
+                  Thông tin người đặt
                 </Typography>
                 <Box sx={{ '& > *': { mt: 1 } }}>
-                  <Typography><strong>Tên Chủ Nhà:</strong> {data?.booking?.seller_name || 'Chưa Cung Cấp'}</Typography>
-                  <Typography><strong>ID Chủ Nhà:</strong> {data?.booking?.seller_id || 'Chưa Cung Cấp'}</Typography>
-                  <Typography><strong>Số Điện Thoại:</strong> {data?.booking?.host_phone || 'Chưa Cung Cấp'}</Typography>
+                  <Typography>
+                    <strong>Tên :</strong> {data?.booking?.seller_name || 'Chưa Cung Cấp'}
+                  </Typography>
+                  <Typography>
+                    <strong>Số Điện Thoại:</strong> {data?.booking?.host_phone || 'Chưa Cung Cấp'}
+                  </Typography>
                 </Box>
               </CardContent>
             </Card>
@@ -191,14 +230,24 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
               Thông Tin Bổ Sung
             </Typography>
             <Box sx={{ '& > *': { mt: 1 } }}>
-              <Typography><strong>Mô Tả:</strong> {data?.booking?.description}</Typography>
-              <Typography><strong>Hoa Hồng:</strong> {formattedAmount(data?.booking?.commission)}</Typography>
+              <Typography>
+                <strong>Mô Tả:</strong> {data?.booking?.description}
+              </Typography>
+              <Typography>
+                <strong>Hoa Hồng:</strong> {formattedAmount(data?.booking?.commission)}
+              </Typography>
               <Typography>
                 <strong>Ngày Hết Hạn:</strong>{' '}
-                {getExpireStatus(data?.booking?.expire, data?.booking?.status, data?.booking?.is_seller_transfer)}
+                {getExpireStatus(
+                  data?.booking?.expire,
+                  data?.booking?.status,
+                  data?.booking?.is_seller_transfer
+                )}
               </Typography>
               {data?.booking?.reason_reject && (
-                <Typography><strong>Lý do từ chối:</strong> {data?.booking?.reason_reject}</Typography>
+                <Typography>
+                  <strong>Lý do từ chối:</strong> {data?.booking?.reason_reject}
+                </Typography>
               )}
             </Box>
           </CardContent>
@@ -210,7 +259,7 @@ const BookingDetailSidebar: React.FC<BookingDetailSidebarProps> = ({
               <Typography variant="h6" color="primary" gutterBottom>
                 Hình Ảnh Giao Dịch
               </Typography>
-              
+
               {data?.booking?.housekeeper_transaction && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>

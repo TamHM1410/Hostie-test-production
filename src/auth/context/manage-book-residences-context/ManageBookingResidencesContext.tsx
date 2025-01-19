@@ -168,10 +168,10 @@ export const ManageBookingResidencesProvider: React.FC<BookingProviderProps> = (
         checkin,
         checkout,
         commission_rate: 10,
-        bank_account_id: 25,
+        // bank_account_id: 25,
         reason_reject: rejectionReason || 'deo thic',
       });
-      toast.success('Đặt chỗ đã được hủy thành công.');
+      toast.success('Hủy thành công.');
 
       fetchData();
     } catch (error) {
