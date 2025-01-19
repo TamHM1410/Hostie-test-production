@@ -182,7 +182,7 @@ const ButlerBookingTable = (props: any) => {
                 {row?.is_customer_checkin === false ? (
                   <Chip label="Chưa nhận phòng" variant="soft" color="warning" />
                 ) : (
-                  <Chip label="Đã nhận phòng" variant="soft" color="warning" />
+                  <Chip label="Đã nhận phòng" variant="soft" color="success" />
                 )}
               </Box>
             </Box>
@@ -216,7 +216,7 @@ const ButlerBookingTable = (props: any) => {
                 {row?.is_customer_checkout === false ? (
                   <Chip label="Chưa trả phòng" variant="soft" color="warning" />
                 ) : (
-                  <Chip label="Đã trả phòng" variant="soft" color="warning" />
+                  <Chip label="Đã trả phòng" variant="soft" color="success" />
                 )}
               </Box>
             </Box>
