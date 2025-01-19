@@ -61,14 +61,6 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
         time_unit_to: '',
         cancelable: true,
       }
-      // {
-      //   from: null,
-      //   to: null,
-      //   fee: '0',
-      //   time_unit_from: '',
-      //   time_unit_to: '',
-      //   cancelable: true,
-      // },
     ],
   };
 
@@ -94,7 +86,6 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-
       await create_cancel_policy(data);
       toast.success('Thêm chính sách thành công');
       reset();
@@ -106,17 +97,15 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
     }
   };
 
-
   useEffect(() => {
-   const cancelPolicies = watch('cancel_policies');
+    const cancelPolicies = watch('cancel_policies');
 
     if (cancelPolicies.length >= 2) {
-
       for (let i = 1; i < cancelPolicies.length; i++) {
-        setValue(`cancel_policies.${i}.from`, cancelPolicies[i-1].to);
+        setValue(`cancel_policies.${i}.from`, cancelPolicies[i - 1].to);
       }
     }
-  }, [watch('cancel_policies'),fields]);
+  }, [watch('cancel_policies'), fields]);
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -206,6 +195,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                   {...register(`cancel_policies.${index}.to`)}
                   error={!!errors.cancel_policies?.[index]?.to}
                   helperText={errors.cancel_policies?.[index]?.to?.message}
+                  disabled={index === fields.length-1 && fields.length>1}
                 />
               </Grid>
 
@@ -265,9 +255,8 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                 to: null,
                 time_unit_from: lastPolicy?.time_unit_to,
                 time_unit_to: '',
-                fee: '',
-              })
-       
+                fee: '0',
+              });
             }
           }}
         >
