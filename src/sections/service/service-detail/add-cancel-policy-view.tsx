@@ -195,7 +195,6 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
                   {...register(`cancel_policies.${index}.to`)}
                   error={!!errors.cancel_policies?.[index]?.to}
                   helperText={errors.cancel_policies?.[index]?.to?.message}
-                  disabled={index === fields.length-1 && fields.length>1}
                 />
               </Grid>
 
