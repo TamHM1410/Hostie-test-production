@@ -234,7 +234,7 @@ export default function AccountGeneral(props: any) {
                 <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
                   <Image
                     alt="avatar"
-                    src={userData?.urlAvatar || defaultAvatar}
+                    src={userData?.urlAvatar || 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg'}
                     width={120}
                     height={120}
                     style={{ borderRadius: '80%', transition: 'transform 0.3s ease' }}

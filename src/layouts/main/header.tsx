@@ -63,7 +63,7 @@ export function PositionedMenu() {
         <Image
           style={{ borderRadius: 30 }}
           src={
-            session?.user.urlAvatar !== undefined && session?.user.urlAvatar !== 'null'
+         session?.user.urlAvatar !== 'null'
               ? session?.user?.urlAvatar
               : 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg'
           }
