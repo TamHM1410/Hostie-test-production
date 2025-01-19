@@ -34,7 +34,7 @@ const butler_add_residence = async (payload: any) => {
   return res;
 };
 const addCharge = async (payload: any) => {
-  const res = await goAxiosClient.post(goEndPoint.uploadFileCheckIn, payload, {
+  const res = await goAxiosClient.post(goEndPoint.addCharge, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
