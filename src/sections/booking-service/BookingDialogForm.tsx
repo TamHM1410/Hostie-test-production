@@ -215,6 +215,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
             <Dialog
                 open={isConfirmDialogOpen}
                 onClose={() => setIsConfirmDialogOpen(false)}
+                sx={{p:3}}
             >
                 <DialogTitle>
                     <Typography variant="h6" color="primary">
@@ -227,8 +228,9 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                             display: 'flex',
                             flexDirection: 'column',
                             gap: 2,
-                            paddingTop: 2,
-                            width: 400
+                            paddingTop: 7.5,
+                            width: 550,
+                            height:580,
                         }}
                     >
                         <Box
@@ -323,6 +325,20 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                                 {formattedAmount(priceQuotation?.commission) || '0'}
                             </Typography>
                         </Box>
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                borderBottom: '1px solid #e0e0e0',
+                                paddingBottom: 1,
+                            }}
+                        >
+                            <Typography variant="body2">Tổng giá:</Typography>
+                            <Typography variant="body2" fontWeight="bold" color="secondary">
+                                {(formattedAmount(priceQuotation?.booking_price+priceQuotation?.charge_price) || '0')}
+                            </Typography>
+                        </Box>
                         <Box
                             sx={{
                                 display: 'flex',
@@ -337,11 +353,11 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({
                             </Typography>
                         </Box>
                     </Box>
-                    <Typography variant="body2" fontWeight='bold' sx={{
+                    <Typography variant="body2"  fontWeight='bold' sx={{
                         wordWrap: 'break-word',
                         overflowWrap: 'break-word',
-                        width: 400
-                    }} marginTop={2}>Số tiền cần cọc được tính theo : (Tiền đặt nơi lưu trú + tiền phụ thu) /2 - tiền hoa hồng</Typography>
+                        width: '100%'
+                    }} marginTop={2}>Số tiền cần cọc được tính theo : <span style={{color:'red'}}>50% của tổng giá  trừ cho tiền hoa hồng</span></Typography>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'space-between', padding: 2 }}>
                     <Button

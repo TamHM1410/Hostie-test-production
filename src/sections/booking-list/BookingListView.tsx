@@ -1,6 +1,6 @@
 'use client';
 
-import { Container, CircularProgress, Backdrop ,Box} from '@mui/material';
+import { Container, CircularProgress, Backdrop, Box } from '@mui/material';
 import { useSettingsContext } from 'src/components/settings';
 import { useBookingListContext } from 'src/auth/context/booking-list-context/BookingListContext';
 import BookingListTable from './BookingListTable';
@@ -9,13 +9,12 @@ import goAxiosClient from 'src/utils/goAxiosClient';
 import { useQuery } from '@tanstack/react-query';
 
 export default function BookingListView() {
-
   const settings = useSettingsContext();
 
   const { rows, setRows } = useBookingListContext();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["booking"],
+    queryKey: ['booking'],
     queryFn: async () => {
       const res = await goAxiosClient.get('/booking?sort=id:desc&page_size=9999&size=1');
       const bookingData = res?.data?.result;
@@ -24,10 +23,8 @@ export default function BookingListView() {
       }
       return bookingData;
     },
-    staleTime: 5000, 
-  
+    staleTime: 5000,
   });
-
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -43,10 +40,7 @@ export default function BookingListView() {
         <CircularProgress color="inherit" />
       </Backdrop>
 
-    <BookingListTable rows={data || rows} />
-
-
-
+      <BookingListTable rows={data || rows} />
     </Container>
   );
 }

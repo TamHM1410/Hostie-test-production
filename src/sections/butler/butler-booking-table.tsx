@@ -131,7 +131,6 @@ const ButlerBookingTable = (props: any) => {
       header: 'Tên khách',
       size: 60,
       Cell: ({ cell }: any) => {
-
         return (
           <Box>
             <Box>

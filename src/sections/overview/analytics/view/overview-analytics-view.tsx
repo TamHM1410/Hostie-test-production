@@ -119,6 +119,7 @@ export default function OverviewAnalyticsView() {
                 value: item?.total_value,
               };
             });
+
             setListTopResidence(data);
           }
           return res?.data;
@@ -199,7 +200,7 @@ export default function OverviewAnalyticsView() {
         {session?.user?.roles === 'HOST' && (
           <Grid xs={12} sm={6} md={session?.user?.roles === 'HOST' ? 3 : 4}>
             <AnalyticsWidgetSummary
-              title={'Hoa hồng cho seller' }
+              title={'Hoa hồng cho seller'}
               total={commission}
               color="error"
               icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
