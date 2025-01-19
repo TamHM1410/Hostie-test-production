@@ -46,13 +46,13 @@ const CommissionPolicyTable = (props: any) => {
     }),
 
     columnHelper.accessor('maxCommission', {
-      header: 'Tỷ lệ hoa hồng tối đa (%)',
+      header: 'Hoa hồng tối đa (VND) ',
       size: 220,
+      Cell: ({ cell }: any) => <span>{cell.getValue().toLocaleString('vi-VN')}</span>,
     }),
     columnHelper.accessor('policyDescription', {
       header: 'Mô tả',
       size: 220,
-    
     }),
     columnHelper.accessor('actionsd', {
       header: 'Thao tác',

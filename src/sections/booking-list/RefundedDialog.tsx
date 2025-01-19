@@ -19,6 +19,8 @@ import { formattedAmount } from 'src/utils/format-time';
 
 import { useQuery } from '@tanstack/react-query';
 
+import { useEffect } from 'react';
+
 import { useState } from 'react';
 
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -31,6 +33,9 @@ const getQr = async (user_id = 0, amount = 0, message = '', bill_number = 0) => 
   const res = await goAxiosClient.get(
     `/booking/qrs?user_id=${user_id}&amount=${amount}&message=${message}&bill_number=${bill_number}`
   );
+
+  console.log(res,'qr')
+
   if (Array.isArray(res.data) && res.data.length > 0) {
     return res?.data[0];
   }
@@ -46,16 +51,24 @@ const host_cofirm_refunded = async (id: any) => {
 export default function RefundDialog({ open, setOpen, bookingSelected, refunded }: any) {
   const [isLoadingButton, setIsLoading] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['qrcode', bookingSelected],
-    queryFn: () =>
-      getQr(
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['qrcode', bookingSelected, refunded],
+    queryFn: async () => {
+      const res = await getQr(
         bookingSelected?.seller_id,
         refunded?.host_refund,
         'Chuyen khoan hoan tien',
         bookingSelected?.id
-      ),
+      );
+
+      return res;
+    },
+    enabled: Boolean(refunded), // Chỉ kích hoạt khi refunded có giá trị
+    retry: 3, // Thử lại tối đa 3 lần nếu thất bại
+    retryDelay: 1000, // Thời gian chờ giữa các lần retry
   });
+
+  // console.log(refunded, 'refunded', data);
 
   const handleConfirmRefunded = async () => {
     try {
@@ -72,6 +85,12 @@ export default function RefundDialog({ open, setOpen, bookingSelected, refunded 
     }
   };
 
+  useEffect(() => {
+    if (data === undefined && Boolean(refunded)) {
+      refetch();
+    }
+  }, [data, refunded, refetch]);
+
   return (
     <Dialog open={open}>
       <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
@@ -81,7 +100,7 @@ export default function RefundDialog({ open, setOpen, bookingSelected, refunded 
         <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
           <DialogTitle>Thông tin QR Code và Chi tiết Ngân hàng của Môi giới</DialogTitle>
           {isLoading && <LoadingScreen />}
-          {!isLoading && Array(data?.qr) && data?.qr.length > 0 && (
+          {!isLoading && refunded && Array(data?.qr) && data?.qr.length > 0 && (
             <DialogContent dividers>
               <Box
                 display="flex"

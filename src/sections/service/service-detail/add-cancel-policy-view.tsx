@@ -59,7 +59,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
         fee: '100',
         time_unit_from: '',
         time_unit_to: '',
-        cancelable: false,
+        cancelable: true,
       },
       {
         from: null,
@@ -67,7 +67,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
         fee: '0',
         time_unit_from: '',
         time_unit_to: '',
-        cancelable: false,
+        cancelable: true,
       },
     ],
   };
@@ -94,10 +94,12 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
 
   const onSubmit = async (data: any) => {
     try {
-      await create_cancel_policy(data);
-      toast.success('Thêm chính sách thành công');
-      reset();
-      queryClient.invalidateQueries(['cancelPolicies'] as any);
+
+      console.log(data,'data')
+      // await create_cancel_policy(data);
+      // toast.success('Thêm chính sách thành công');
+      // reset();
+      // queryClient.invalidateQueries(['cancelPolicies'] as any);
       // Add your API call here
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -111,11 +113,13 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
    const cancelPolicies = watch('cancel_policies');
 
     if (cancelPolicies.length >= 2) {
+      console.log('hihi')
+
       for (let i = 1; i < cancelPolicies.length; i++) {
         setValue(`cancel_policies.${i}.from`, cancelPolicies[i-1].to);
       }
     }
-  }, [watch('cancel_policies')]);
+  }, [watch('cancel_policies'),fields]);
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -258,7 +262,7 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
             const lastPolicy = cancelPolicies[cancelPolicies.length - 2]; // Lấy phần tử cuối cùng hiện tại
 
             if (lastPolicy) {
-              insert(1, {
+              insert(cancelPolicies.length - 1, {
                 ...lastPolicy, // Sao chép giá trị phần tử cuối
                 from: lastPolicy?.to,
                 to: null,

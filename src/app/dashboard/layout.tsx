@@ -11,6 +11,9 @@ import { SplashScreen } from 'src/components/loading-screen';
 // components
 import DashboardLayout from 'src/layouts/dashboard';
 
+import { SocketProvider } from 'src/auth/context/socket-message-context/SocketMessageContext';
+
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -34,6 +37,6 @@ export default function Layout({ children }: Props) {
     // Nếu không có session, chuyển hướng đến trang đăng nhập
     return null; // Để tránh render nếu không có session
   }
-
+         
   return <DashboardLayout>{children}</DashboardLayout>;
 }

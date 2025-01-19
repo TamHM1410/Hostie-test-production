@@ -35,7 +35,7 @@ import { formattedAmount } from 'src/utils/format-time';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import CancelIcon from '@mui/icons-material/Cancel';
-
+import PolicyDialog from './PolicyDialog';
 export default function ForumTypeInFormation() {
   const settings = {
     dots: true,
@@ -62,11 +62,12 @@ export default function ForumTypeInFormation() {
   const [actionType, setActionType] = useState<'book' | 'hold' | null>(null);
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [openForm, setOpenForm] = useState(false);
+  const [openPolicy,setOpenPolicy]=useState(false)
 
   const router = useRouter();
 
   const handleAction = (type: 'book' | 'hold') => {
-    if (type === 'book' && !customerList.data.length) {
+    if (type === 'book' && !customerList?.data.length) {
       toast.error(
         'Bạn chưa có khách hàng nào hãy vào trang quản lí khách hàng để tạo mới 1 khách hàng.'
       );
@@ -93,6 +94,8 @@ export default function ForumTypeInFormation() {
     // Close the dialog after successful submission
     setOpenForm(false);
   };
+
+
   useEffect(() => {
     fetchResidenceInfor(350);
     fetchPolicy(350);
@@ -162,17 +165,7 @@ export default function ForumTypeInFormation() {
                   <PhoneOutlined sx={{ color: '#2152FF' }} />
                 </Typography>
               </Tooltip>
-              {/* <Divider orientation="vertical" flexItem />
-              <MUILink
-                href={residenceInfor?.residence_website || 'https://www.facebook.com/'}
-                variant="body1"
-                underline="hover"
-                sx={{ display: 'flex', gap: 1, color: 'inherit' }}
-                target="_blank" // Mở liên kết trong tab mới
-                rel="noopener noreferrer" // Bảo mật khi dùng target="_blank"
-              >
-                Link hình ảnh <LinkOutlined style={{ color: '#2152FF' }} />
-              </MUILink> */}
+
               <Divider orientation="vertical" flexItem />
               <MUILink
                 href={policy?.files?.[0]?.file_url} // Đúng cú pháp
@@ -187,7 +180,7 @@ export default function ForumTypeInFormation() {
               <Divider orientation="vertical" flexItem />
               <Box
                 display="flex"
-                alignItems='center'
+                alignItems="center"
                 gap={2}
                 sx={{
                   cursor: 'pointer',
@@ -195,12 +188,11 @@ export default function ForumTypeInFormation() {
                     textDecoration: 'underline', // Gạch chân khi hover
                   },
                 }}
+                onClick={() => router.push(`/dashboard/chat/?id=${residenceInfor?.host_id}`)}
               >
                 Liên hệ
                 <Tooltip title="Nhắn tin cho chủ nhà">
-                  <IconButton
-                    onClick={() => router.push(`/dashboard/chat/?id=${residenceInfor?.host_id}`)}
-                  >
+                  <IconButton>
                     <Chat style={{ color: '#2152FF' }} />
                   </IconButton>
                 </Tooltip>
@@ -216,6 +208,7 @@ export default function ForumTypeInFormation() {
                     textDecoration: 'underline', // Gạch chân khi hover
                   },
                 }}
+                onClick={()=>setOpenPolicy(true)}
               >
                 Chính sách hủy <CancelIcon style={{ color: '#2152FF' }} />
               </Box>
@@ -333,9 +326,9 @@ export default function ForumTypeInFormation() {
           </Box>
         </Grid>
         <Grid item xs={12} lg={6}>
-          <div style={{display:"flex", justifyContent:"flex-end"}}>
-        <Box 
-              sx={{ 
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box
+              sx={{
                 border: '1px solid #e0e0e0',
                 borderRadius: 1,
                 p: 2,
@@ -343,21 +336,22 @@ export default function ForumTypeInFormation() {
                 maxWidth: 'md',
                 bgcolor: 'background.paper',
                 '&:hover': {
-                  bgcolor: 'action.hover'
+                  bgcolor: 'action.hover',
                 },
-               
               }}
             >
               <MUILink
-                href={`https://drive.thehostie.com/?residenceId=${residenceInfor?.residence_id || 0}`}
+                href={`https://drive.thehostie.com/?residenceId=${
+                  residenceInfor?.residence_id || 0
+                }`}
                 variant="body1"
                 underline="hover"
-                sx={{ 
-                  display: 'flex', 
+                sx={{
+                  display: 'flex',
                   alignItems: 'center',
                   gap: 1,
                   color: 'inherit',
-                  textDecoration: 'none'
+                  textDecoration: 'none',
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -366,7 +360,7 @@ export default function ForumTypeInFormation() {
                 <LinkOutlined sx={{ color: '#2152FF' }} />
               </MUILink>
             </Box>
-            </div>
+          </div>
           <Box width="100%" mt={2} overflow="hidden" borderRadius="8px" height="250px">
             <Slider {...settings}>
               <div>
@@ -447,6 +441,8 @@ export default function ForumTypeInFormation() {
           onSubmitHolding={onSubmitHolding}
         />
       )}
+
+      <PolicyDialog open={openPolicy} setOpen={setOpenPolicy} residence_id={residenceInfor?.residence_id}/>
     </Paper>
   );
 }

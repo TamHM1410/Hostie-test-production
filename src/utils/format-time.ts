@@ -46,7 +46,7 @@ export const formatDateToDDMMYYYY = (date: string) => {
 export const formattedAmountCalender = (amount: number): string => {
   if (amount >= 1000) {
     const thousands=Math.floor(amount / 1000)
-    return `${thousands.toLocaleString('vi-VN')} k`;
+    return `${thousands.toLocaleString('vi-VN')} K`;
 
   }
   return `${amount} k`;

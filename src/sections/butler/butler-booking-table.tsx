@@ -11,10 +11,7 @@ import {
 import Image from 'next/image';
 
 import { Box, Button, Chip, Menu, MenuItem } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { useButlerBooking } from 'src/zustand/store';
-import { IconButton } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import CheckinModal from './checkin-modal';
 import CheckoutModal from './checkout-modal';
@@ -46,7 +43,7 @@ function BasicMenu() {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
-        < ChatIcon />
+        <ChatIcon />
       </Button>
       <Menu
         id="basic-menu"
@@ -123,8 +120,8 @@ const ButlerBookingTable = (props: any) => {
 
         return (
           <Box>
-            <Box onClick={()=>updateButlerBookingZustand(cell.row.original)} >
-             <BasicMenu/>
+            <Box onClick={() => updateButlerBookingZustand(cell.row.original)}>
+              <BasicMenu />
             </Box>
           </Box>
         );
@@ -134,15 +131,11 @@ const ButlerBookingTable = (props: any) => {
       header: 'Tên khách',
       size: 60,
       Cell: ({ cell }: any) => {
-        const row = cell.row.original;
 
         return (
           <Box>
             <Box>
               <Box sx={{ fontSize: 18, fontWeight: 700 }}>{cell.getValue()}</Box>
-              <Box sx={{ fontSize: 12, fontStyle: 'italic' }}>
-                Số lượng khách: {row?.total_amount ?? '(Chưa cập nhật)'}
-              </Box>
             </Box>
           </Box>
         );
@@ -169,6 +162,7 @@ const ButlerBookingTable = (props: any) => {
       size: 100,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
+        if (row?.status === 0) return <Chip label="Đã hủy " variant="soft" color="error" />;
 
         return (
           <Box>
@@ -186,9 +180,9 @@ const ButlerBookingTable = (props: any) => {
                 }}
               >
                 {row?.is_customer_checkin === false ? (
-                  <Chip label="Chưa nhận phòng" variant="soft" color="error" />
+                  <Chip label="Chưa nhận phòng" variant="soft" color="warning" />
                 ) : (
-                  <Chip label="Đã nhận phòng" variant="soft" color="success" />
+                  <Chip label="Đã nhận phòng" variant="soft" color="warning" />
                 )}
               </Box>
             </Box>
@@ -202,6 +196,7 @@ const ButlerBookingTable = (props: any) => {
       size: 100,
       Cell: ({ cell }: any) => {
         const row = cell.row.original;
+        if (row?.status === 0) return <Chip label="Đã hủy " variant="soft" color="error" />;
 
         return (
           <Box>
@@ -219,9 +214,9 @@ const ButlerBookingTable = (props: any) => {
                 }}
               >
                 {row?.is_customer_checkout === false ? (
-                  <Chip label="Chưa trả phòng" variant="soft" color="error" />
+                  <Chip label="Chưa trả phòng" variant="soft" color="warning" />
                 ) : (
-                  <Chip label="Đã trả phòng" variant="soft" color="success" />
+                  <Chip label="Đã trả phòng" variant="soft" color="warning" />
                 )}
               </Box>
             </Box>
@@ -233,25 +228,11 @@ const ButlerBookingTable = (props: any) => {
     columnHelper.accessor('paid_amount', {
       header: 'Tổng tiền',
       size: 60,
+      Cell: ({ cell }: any) => {
+        return <Box>{cell.getValue().toLocaleString('vi-VN')}</Box>;
+      },
     }),
   ];
-
-  const csvConfig = mkConfig({
-    fieldSeparator: ',',
-    decimalSeparator: '.',
-    useKeysAsHeaders: true,
-  });
-
-  const handleExportRows = (rows: MRT_Row<any>[]) => {
-    const rowData = rows.map((row) => row.original);
-    const csv = generateCsv(csvConfig)(rowData);
-    download(csvConfig)(csv);
-  };
-
-  const handleExportData = () => {
-    const csv = generateCsv(csvConfig)(data);
-    download(csvConfig)(csv);
-  };
 
   const table = useMaterialReactTable({
     columns,
@@ -263,7 +244,6 @@ const ButlerBookingTable = (props: any) => {
     muiSearchTextFieldProps: {
       placeholder: 'Tìm kiếm người dùng',
     },
-    
   });
 
   useEffect(() => {}, [openModal, openActiveModal]);

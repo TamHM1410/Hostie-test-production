@@ -91,7 +91,7 @@ export function PositionedMenu() {
         <MenuItem onClick={() => router.push('/dashboard/user/account/')}>
           Tài khoản của tôi
         </MenuItem>
-        <MenuItem onClick={() => signOut()}>Đăng xuất</MenuItem>
+        <MenuItem onClick={() => signOut({redirect:true})}>Đăng xuất</MenuItem>
       </Menu>
     </div>
   );

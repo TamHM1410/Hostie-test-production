@@ -253,7 +253,6 @@ const ManageBookingResidencesTable: React.FC<{ rows: HoldData[] }> = ({ rows }) 
       header: 'Chuyển Giao',
       size: 100,
       Cell: ({ cell, row }: any) => {
-        console.log(row.original,'row')
         if (row.original.status === 0)
           return (
             <Chip

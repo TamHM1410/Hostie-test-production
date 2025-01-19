@@ -164,6 +164,7 @@ export default function Step2({
                 <img
                   src={icons.find((a) => a.id === amenity.amenity_id)?.icon || ''}
                   alt={amenity.name}
+                  style={{maxHeight:50,maxWidth:50}}
                 />
               </Typography>
             ))

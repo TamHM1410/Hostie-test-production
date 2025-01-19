@@ -63,6 +63,10 @@ export default function CheckoutView() {
       return res
     },
   });
+
+
+
+  
   const results = useQueries({
     queries: [
       {
