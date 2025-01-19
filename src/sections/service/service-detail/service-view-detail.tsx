@@ -81,7 +81,7 @@ export default function ServiceDetailView() {
       />
       <Box>
         {Array.isArray(data) && data.length > 0 ? (
-          <ServicePolicyList data={data} type="h" />
+          <ServicePolicyList data={data} type="detail" />
         ) : (
           <NoDataCancelPolicy />
         )}

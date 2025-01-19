@@ -60,15 +60,15 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
         time_unit_from: '',
         time_unit_to: '',
         cancelable: true,
-      },
-      {
-        from: null,
-        to: null,
-        fee: '0',
-        time_unit_from: '',
-        time_unit_to: '',
-        cancelable: true,
-      },
+      }
+      // {
+      //   from: null,
+      //   to: null,
+      //   fee: '0',
+      //   time_unit_from: '',
+      //   time_unit_to: '',
+      //   cancelable: true,
+      // },
     ],
   };
 
@@ -95,11 +95,10 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
   const onSubmit = async (data: any) => {
     try {
 
-      console.log(data,'data')
-      // await create_cancel_policy(data);
-      // toast.success('Thêm chính sách thành công');
-      // reset();
-      // queryClient.invalidateQueries(['cancelPolicies'] as any);
+      await create_cancel_policy(data);
+      toast.success('Thêm chính sách thành công');
+      reset();
+      queryClient.invalidateQueries(['cancelPolicies'] as any);
       // Add your API call here
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -109,11 +108,9 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
 
 
   useEffect(() => {
-   // Lấy giá trị mới nhất của cancel_policies
    const cancelPolicies = watch('cancel_policies');
 
     if (cancelPolicies.length >= 2) {
-      console.log('hihi')
 
       for (let i = 1; i < cancelPolicies.length; i++) {
         setValue(`cancel_policies.${i}.from`, cancelPolicies[i-1].to);
@@ -259,17 +256,18 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
           startIcon={<AddCircleIcon />}
           onClick={() => {
             const cancelPolicies = watch('cancel_policies'); // Lấy giá trị mới nhất của cancel_policies
-            const lastPolicy = cancelPolicies[cancelPolicies.length - 2]; // Lấy phần tử cuối cùng hiện tại
+            const lastPolicy = cancelPolicies[cancelPolicies.length - 1]; // Lấy phần tử cuối cùng hiện tại
 
             if (lastPolicy) {
-              insert(cancelPolicies.length - 1, {
+              append({
                 ...lastPolicy, // Sao chép giá trị phần tử cuối
                 from: lastPolicy?.to,
                 to: null,
                 time_unit_from: lastPolicy?.time_unit_to,
                 time_unit_to: '',
                 fee: '',
-              });
+              })
+       
             }
           }}
         >

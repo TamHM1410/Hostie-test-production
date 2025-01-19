@@ -28,7 +28,14 @@ export const seller_get_policy = async (residence_id = '') => {
 
   return res?.data?.policies;
 };
+export const unregisterPolicy = async (residence_id: any, policy_id: any) => {
+  const res = await goAxiosClient.delete(`/cancel-policy/unregister`, {
+    residence_id: residence_id,
+    policy_id: policy_id,
+  });
 
+  return res?.data;
+};
 export const map_residence_policy = async (payload: any) => {
   const res = await goAxiosClient.post('/cancel-policy/map-residence', payload);
 

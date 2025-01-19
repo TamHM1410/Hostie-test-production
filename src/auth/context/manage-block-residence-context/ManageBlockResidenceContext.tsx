@@ -41,7 +41,7 @@ export const ResidenceBlockProvider: React.FC<{ children: React.ReactNode }> = (
         setIsLoading(true);
         try {
             const response = await axiosClient.get(`${baseUrl}/${id}`);
-            setBlocks(response.data.data.residence_block);
+            setBlocks(response.data.residence_block);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách chặn:', error);
             toast.error('Không thể lấy danh sách chặn.');
@@ -53,6 +53,7 @@ export const ResidenceBlockProvider: React.FC<{ children: React.ReactNode }> = (
     const createBlock = async (data: Partial<ResidenceBlock>) => {
         try {
             setIsLoading(true);
+            console.log(data)
             await axiosClient.post(`${baseUrl}`, data);
             toast.success('Tạo khoảng thời gian chặn thành công.');
             fetchBlocks(data.residence_id);

@@ -317,7 +317,7 @@ export default function JwtRegisterView() {
             <Typography variant="body2" color="text.secondary">
               {isDragActive
                 ? 'Thả hình ảnh ở đây'
-                : `Vui lòng cung cấp các hình ảnh liên quan đến chủ nhà hoặc môi giới để đăng tỉ lệ được xét duyệt (${previewImages.length}/3)`}
+                : `Vui lòng tải lên hình mặt trước, mặt sau của CCCD và hình chính diện của bạn để được xét duyệt.(${previewImages.length}/3)`}
             </Typography>
           ) : null}
 

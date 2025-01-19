@@ -18,6 +18,8 @@ import {
   LinearProgress,
 } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import UnregisterPolicy from './unregister-policy-diaglog';
+import Cancel from '@mui/icons-material/Cancel';
 
 //  @component
 import AddNewPolicyView from './add-cancel-policy-view';
@@ -38,15 +40,13 @@ const getColor = (percentage: any) => {
 };
 
 const PolicyModal = ({ open, setOpen, cancel_policy_id, residence_id = 0 }: any) => {
-
   const queryClient = useQueryClient();
 
-  const [isLoading,setIsLoading]=useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async (e: any) => {
     try {
-
-      setIsLoading(!isLoading)
+      setIsLoading(!isLoading);
       let payload = {
         cancel_policy_id: cancel_policy_id,
         map_residences: [{ residence_id: Number(residence_id), is_default: true }],
@@ -54,17 +54,14 @@ const PolicyModal = ({ open, setOpen, cancel_policy_id, residence_id = 0 }: any)
 
       const res = await get_all_policy(residence_id);
 
-    
       await map_residence_policy(payload);
       queryClient.invalidateQueries(['residencePolicy'] as any);
       toast.success('Cập nhật thành công');
       setOpen(!open);
-      setIsLoading(false)
-
+      setIsLoading(false);
     } catch (error) {
       toast.error('Có lỗi xảy ra vui lòng thử lại');
-      setIsLoading(false)
-
+      setIsLoading(false);
     }
   };
 
@@ -99,7 +96,12 @@ const PolicyModal = ({ open, setOpen, cancel_policy_id, residence_id = 0 }: any)
             <Button variant="contained" onClick={() => setOpen(!open)}>
               Hủy bỏ
             </Button>
-            <Button color="error" variant="contained" onClick={(e) => handleConfirm(e)} disabled={isLoading}>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={(e) => handleConfirm(e)}
+              disabled={isLoading}
+            >
               Xác nhận
             </Button>
           </Box>
@@ -114,13 +116,13 @@ const PolicyProgress = ({ item }: any) => {
     if (item && item?.length > 0) {
       const res = item?.map((item: any) => {
         return {
-          label: `Trước ${item?.from || 0} ${
-            item?.time_unit_from === 'hours' ? 'giờ' : 'ngày'
-          } ${item?.to===null ?`trở đi ` :`đến ${item?.to} `}  ${item?.to !== null ? (item?.time_unit_to === 'hours' ? 'giờ' : 'ngày') : ''}` ,
+          label: `Trước ${item?.from || 0} ${item?.time_unit_from === 'hours' ? 'giờ' : 'ngày'} ${
+            item?.to === null ? `trở đi ` : `đến ${item?.to} `
+          }  ${item?.to !== null ? (item?.time_unit_to === 'hours' ? 'giờ' : 'ngày') : ''}`,
           percentage: item?.fee,
         };
       });
-      const sorted=res.sort((a,b)=>a.percentage-b?.percentage)
+      const sorted = res.sort((a, b) => a.percentage - b?.percentage);
       return sorted;
     }
   }, [item]);
@@ -174,9 +176,8 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
     }
   }, [uniqueObjects]);
 
-
-
   // const totalPercentage = stages.reduce((acc, stage) => acc + stage.percentage, 0);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const [cancel_policy_id, setCancel_policy_id] = useState(0);
 
@@ -201,7 +202,7 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1, padding: 2 ,width:'100%',minWidth:400}}>
+      <Box sx={{ flexGrow: 1, padding: 2, width: '100%', minWidth: 400 }}>
         {!isAddNew && type === '' && (
           <Button
             variant="contained"
@@ -229,7 +230,13 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
               uniqueObjects.length > 0 &&
               uniqueObjects.map((item: any, index: any) => {
                 return (
-                  <Grid item xs={12} sm={type==='cancelview' ? 12:6} md={type==='cancelview' ?12 :3} key={index}>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={type === 'cancelview' ? 12 : 6}
+                    md={type === 'cancelview' ? 12 : 3}
+                    key={index}
+                  >
                     <Card
                       sx={{
                         maxWidth: 500,
@@ -238,7 +245,7 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
                           transform: 'scale(1.05)', // Phóng to card khi hover
                           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // Tạo bóng khi hover
                         },
-                        width:'auto'
+                        width: 'auto',
                       }}
                     >
                       <CardContent>
@@ -278,6 +285,20 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
                           </IconButton>
                         </Tooltip>
                       )}
+
+                      {type === 'detail' && (
+                        <Tooltip title="xóa bỏ chính sách" arrow>
+                          <IconButton
+                            color="error"
+                            onClick={() => {
+                              setOpenDialog(!open);
+                              setCancel_policy_id(item?.id);
+                            }}
+                          >
+                            <Cancel />
+                          </IconButton>
+                        </Tooltip>
+                      )}
                     </Card>
                   </Grid>
                 );
@@ -290,6 +311,11 @@ export default function ServicePolicyList({ data, type = '', id }: any) {
         setOpen={setOpen}
         cancel_policy_id={cancel_policy_id}
         residence_id={id}
+      />
+      <UnregisterPolicy
+        open={openDialog}
+        setOpen={setOpenDialog}
+        cancel_policy_id={cancel_policy_id}
       />
     </>
   );

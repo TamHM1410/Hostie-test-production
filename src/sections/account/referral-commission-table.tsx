@@ -47,7 +47,6 @@ const TotalBox = styled(Box)({
 
 const ReferralCommissionTable = ({ referListData, totalCommission }) => {
 
-  console.log(totalCommission,'total')
   return (
     <StyledCard>
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
@@ -157,7 +156,7 @@ const ReferralCommissionTable = ({ referListData, totalCommission }) => {
               fontSize: '0.875rem'
             }}
           >
-            {((totalCommission?.result) * 100)}%
+            {((totalCommission) * 100)}%
           </Typography>
         </TotalBox>
       </CardContent>
