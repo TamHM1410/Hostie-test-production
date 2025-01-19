@@ -36,8 +36,8 @@ const CancellationPolicyForm = ({ isAddNew, setAddNew }: any) => {
     description: Yup.string().required('Mô tả là bắt buộc'),
     cancel_policies: Yup.array().of(
       Yup.object().shape({
-        from: Yup.number().nullable(),
-        to: Yup.number().nullable(),
+        from: Yup.number().nullable().notRequired(),
+        to: Yup.number().nullable().notRequired(),
         fee: Yup.number()
           .required('Phí hủy là bắt buộc')
           .min(0, 'Phí hủy phải lớn hơn hoặc bằng 0')
