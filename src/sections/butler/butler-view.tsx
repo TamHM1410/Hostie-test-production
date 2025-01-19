@@ -22,8 +22,6 @@ import ButlerFilter from './bulter-filter';
 import ButlerTable from './bulter-table';
 import ButlerBookingTable from './butler-booking-table';
 
-
-
 //  @api
 
 const TABS = [
@@ -45,9 +43,6 @@ export default function ButlerView() {
 
   const [currentTab, setCurrentTab] = useState('all');
 
-  const [filter, setFilter] = useState('all');
-  const [residencesList, setResidenceList] = useState<any>([]);
-
   const [refCode, setHousekeeperRegistrationCode] = useState('');
 
   const result = useQueries({
@@ -57,7 +52,12 @@ export default function ButlerView() {
 
         queryFn: async () => {
           const res = await getButlerResidence();
-          return res;
+          if(Array.isArray(res)&&res.length>0){
+            return res;
+
+
+          }
+          return []
         },
       },
       {
@@ -65,7 +65,12 @@ export default function ButlerView() {
 
         queryFn: async () => {
           const res = await getButlerBooking();
-          return res;
+          if(Array.isArray(res)&&res.length>0){
+            return res;
+
+
+          }
+          return []
         },
       },
     ],

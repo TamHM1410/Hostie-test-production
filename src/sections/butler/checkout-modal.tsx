@@ -67,7 +67,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
   const methods = useForm({
     resolver: yupResolver(chargeSchema),
     defaultValues: {
-      charges: [{ amount: 0, reason: '', quantity: 0 }],
+      charges: [],
     },
   });
 
