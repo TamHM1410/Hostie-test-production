@@ -239,6 +239,22 @@ export default function ServiceDetail({ id }: ServiceDetailViewProps) {
                   mt={2}
                   sx={{ display: 'flex', gap: 1, color: 'inherit' }}
                 >
+                  <Typography fontWeight="bold">Số lần khiếu nại:</Typography>{' '}
+                  {residenceData?.complaint_count || 0}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  mt={2}
+                  sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                >
+                  <Typography fontWeight="bold">Số lần cảnh báo:</Typography>{' '}
+                  {residenceData?.warning_count || 0}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  mt={2}
+                  sx={{ display: 'flex', gap: 1, color: 'inherit' }}
+                >
                   <Typography fontWeight="bold">Mã giới thiệu cho quản gia:</Typography>{' '}
                   {residenceData?.housekeeper_registration_code}
                 </Typography>

@@ -252,9 +252,15 @@ export default function ForumTypeInFormation() {
             </Typography>
 
             <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
+              <Typography fontWeight="bold">Tỷ lệ khiếu nại :</Typography>{' '}
+              {residenceInfor?.complaint_rate || 0} %
+            </Typography>
+            
+            <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
               <Typography fontWeight="bold">Phụ thu nếu quá số lượng khách tiêu chuẩn :</Typography>{' '}
               {formattedAmount(residenceInfor?.extra_guest_fee)} / 1 người
             </Typography>
+            
             <Typography variant="body1" mt={2} sx={{ display: 'flex', gap: 1, color: 'inherit' }}>
               <Typography fontWeight="bold">Ghi chú và miêu tả :</Typography>{' '}
               {residenceInfor?.residence_description || 'Không có'}
@@ -290,8 +296,7 @@ export default function ForumTypeInFormation() {
               {/* Phòng tắm */}
               <Grid item xs={4}>
                 <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                  <BathroomOutlined color="primary" /> {residenceInfor?.num_of_bathrooms} Nhà vệ
-                  sinh
+                  <BathroomOutlined color="primary" /> {residenceInfor?.num_of_bathrooms} Phòng tắm
                 </Typography>
               </Grid>
 
