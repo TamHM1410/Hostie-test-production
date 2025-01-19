@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -63,7 +63,7 @@ interface WeekendEntry {
 
 interface FormData {
   default_price: number;
-  weekend_price: WeekendEntry[];
+  weekend_price: WeekendEntry[] |any;
   season_price: SeasonEntry[];
 }
 
@@ -74,13 +74,16 @@ interface Step3Props {
 }
 
 export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
+  const [listRemove, setListRemove] = useState<any>([]);
+  const [listRemoveSeason, setListRemoveSeason] = useState<any>([]);
+
   const defaultValues: FormData = {
     default_price: 1000,
     weekend_price: [{ weeknd_day: 6, price: 100 }],
     season_price: [
       {
-        start_date: new Date(2025, 10, 20),
-        end_date: new Date(2025, 10, 21),
+        start_date: new Date(),
+        end_date: new Date(),
         price: 100,
         description: 'Ngày Lễ 20/11',
       },
@@ -114,6 +117,9 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
   const selectedWeekends = new Set(weekend_price?.map((entry) => entry.weeknd_day));
 
   const handleFormSubmit = (data: FormData) => {
+    data["price_weeknd_delete"]=listRemove
+    data["price_season_delete"]=listRemoveSeason
+
     onSubmit(data);
   };
 
@@ -123,11 +129,21 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
     }
   };
 
+
   const removeWeekendEntry = (index: number) => {
     setValue(
       'weekend_price',
       weekend_price.filter((_, i) => i !== index)
     );
+    let removedItems= weekend_price.filter((_, i) => i === index)
+    let mapId =removedItems.map((item:any)=>item?.id)
+    if(Array.isArray(mapId)&& mapId.length>0 &&mapId[0]!==undefined){
+      setListRemove((prev) => [...prev, ...mapId]);
+
+
+    }
+
+    /// log
   };
 
   const addSeasonEntry = () => {
@@ -142,6 +158,16 @@ export default function UpdateStep4({ onSubmit, dataPrices }: Step3Props) {
       'season_price',
       season_price.filter((_, i) => i !== index)
     );
+    let removedItems= season_price.filter((_, i) => i === index)
+    let mapId =removedItems.map((item:any)=>item?.id)
+    if(Array.isArray(mapId)&& mapId.length>0 &&mapId[0]!==undefined){
+      setListRemoveSeason((prev) => [...prev, ...mapId]);
+
+
+    }
+
+
+
   };
 
   return (

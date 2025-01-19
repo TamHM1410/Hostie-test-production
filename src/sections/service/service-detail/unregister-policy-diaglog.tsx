@@ -25,7 +25,7 @@ const UnregisterPolicy: React.FC = ({ open, setOpen, cancel_policy_id }: any) =>
   const handleClose = async () => {
     setIsLoading(true);
     try {
-      await unregisterPolicy(id, cancel_policy_id);
+      await unregisterPolicy(Number(id), cancel_policy_id);
       queryClient.invalidateQueries(['residencePolicy'] as any);
       setOpen(false);
       toast.success('Hủy thành công')

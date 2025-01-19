@@ -88,7 +88,7 @@ export default function Step3({ onSubmit, previousStep, currentStep }: Step3Prop
       seasonEntries: [
         {
           seasonFrom: new Date(),
-          seasonTo: new Date(2025, 10, 21),
+          seasonTo: new Date(),
           seasonSurcharge: 100,
           seasonDescription: 'Ngày Lễ 20/11',
         },

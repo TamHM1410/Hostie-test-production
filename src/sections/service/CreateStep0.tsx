@@ -58,6 +58,8 @@ const validationSchema = Yup.object({
 const serviceTypes = [
   { value: 1, label: 'Villa' },
   { value: 2, label: 'Homestay' },
+  { value: 3 , label: 'Căn hộ' },
+
 ];
 
 interface InitialValues {

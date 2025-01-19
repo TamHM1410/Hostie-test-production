@@ -30,8 +30,10 @@ export const seller_get_policy = async (residence_id = '') => {
 };
 export const unregisterPolicy = async (residence_id: any, policy_id: any) => {
   const res = await goAxiosClient.delete(`/cancel-policy/unregister`, {
-    residence_id: residence_id,
-    policy_id: policy_id,
+    data: {
+      residence_id: residence_id,
+      policy_id: policy_id,
+    },
   });
 
   return res?.data;

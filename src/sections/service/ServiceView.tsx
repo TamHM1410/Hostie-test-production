@@ -247,16 +247,13 @@ export default function ServiceView() {
         const payload = {
             step: 4,
             id: parseInt(idService),
-            price_default: data.defaultPrice,
+            price_default: data.defaultPrice, 
             price_weekend: data.weekendEntries.map((entry: any) => ({
                 day: entry.weekendFee, // Assuming weekendFee represents the day or type of weekend
                 price: parseFloat(entry.weekendSurcharge),
             })),
             price_special: [
-                {
-                    date: '20-10-2024', // Assuming this is the holiday date
-                    price: 43,
-                },
+             
             ],
             price_season: data.seasonEntries.map((entry: any) => ({
                 start_date: formatDate(entry.seasonFrom), // Adjusted to use entry data

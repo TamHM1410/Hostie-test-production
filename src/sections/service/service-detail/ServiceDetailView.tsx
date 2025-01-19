@@ -277,22 +277,22 @@ export default function ServiceDetail({ id }: ServiceDetailViewProps) {
                   <Grid item xs={4}>
                     <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
                       <BedroomParentOutlined color="primary" /> {residenceData.num_of_bedrooms}{' '}
-                      phòng ngủ
+                      Phòng ngủ
                     </Typography>
                   </Grid>
 
                   {/* Giường ngủ */}
                   <Grid item xs={4}>
                     <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                      <BedOutlined color="primary" /> {residenceData.num_of_beds} giường ngủ
+                      <BedOutlined color="primary" /> {residenceData.num_of_beds} Giường ngủ
                     </Typography>
                   </Grid>
 
                   {/* Phòng tắm */}
                   <Grid item xs={4}>
                     <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-                      <BathroomOutlined color="primary" /> {residenceData.num_of_bathrooms} nhà vệ
-                      sinh
+                      <BathroomOutlined color="primary" /> {residenceData.num_of_bathrooms} Phòng tắm
+
                     </Typography>
                   </Grid>
 
@@ -308,7 +308,7 @@ export default function ServiceDetail({ id }: ServiceDetailViewProps) {
                   <Grid item xs={4}>
                     <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
                       <VerifiedUserOutlined color="primary" /> Tối đa: {residenceData.max_guests}{' '}
-                      người
+                      Người
                     </Typography>
                   </Grid>
                 </Grid>
