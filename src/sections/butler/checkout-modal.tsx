@@ -156,11 +156,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ open, setOpen }) => {
       if (Array.isArray(data.charges) && data.charges.length > 0) {
         formData.append('file', files[0]);
         formData.append('booking_id', butler?.id);
-        data.charges.forEach((item: any) => {
-          formData.append('charges[]', item);
-        });
+        for (let i = 0; i < data.charges.length; i++) {
+          formData.append('charges[]', data.charges[i]);
+        }
+        
 
-        const res = await addCharge(formData);
+      await addCharge(formData);
       }
       mutate(butler?.id);
     } catch (error) {
